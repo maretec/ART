@@ -1,0 +1,19 @@
+!MOHID Studio Sample Data File
+!This file contains the most common options.
+!MODULE: Model
+!Please complete and comment/uncomment for your specific needs
+!
+!
+!
+START                     : 2018 6 1 0 0 0
+END                       : 2018 6 2 0 0 0
+DT                        : 60
+VARIABLEDT                : 0
+MAXDT                     : 3600
+GMTREFERENCE              : 0
+DT_PREDICTION_INTERVAL    : 60
+
+!
+!For more information about MOHID please visit MOHID's forum: http://www.mohid.com/forum/
+!Copyright (C) 2012. Action Modulers, http://www.actionmodulers.com
+!

@@ -1,0 +1,36 @@
+!MOHID Studio Sample Data File
+!This file contains the most common options.
+!MODULE: Hydrodynamic
+!Please complete and comment/uncomment for your specific needs
+!
+!
+!
+!Compute Options
+TIDE                      : 0
+WIND                      : 0
+WATER_DISCHARGES          : 0
+BAROCLINIC                : 0
+
+!For nested (sub)models
+!SUBMODEL                  : 1
+!MISSING_NULL              : 1
+
+
+!Start / Continuous Computation
+CONTINUOUS                : 0
+!SLOWSTART                 : 7200.0
+INITIAL_ELEVATION         : 0
+INITIAL_ELEVATION_VALUE   : 2.0800
+SUBMODEL                  : 1
+
+!Output Options
+TIME_SERIE                : 0
+TIME_SERIE_LOCATION       : ..\General Data\TimeSeriesLocation.dat
+OUTPUT_TIME               : 0 86400
+
+
+
+!
+!For more information about MOHID please visit MOHID's forum: http://www.mohid.com/forum/
+!Copyright (C) 2012. Action Modulers. http://www.actionmodulers.com
+!

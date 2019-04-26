@@ -1,0 +1,20 @@
+!MOHID Studio Sample Data File
+!This file contains the most common options.
+!MODULE: InterfaceWaterAir
+!Please complete and comment/uncomment for your specific needs
+!
+!
+!
+
+!Output options
+!OUTPUT_TIME               : 0. 3600.
+
+!rugosity and other surface fluxes and stresses
+<begin_rugosity>
+INITIALIZATION_METHOD     : CONSTANT
+DEFAULTVALUE              : 0.0025
+REMAIN_CONSTANT           : 0
+OUTPUT_HDF                : 1
+TIME_SERIE                : 0
+<end_rugosity>
+!

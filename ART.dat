@@ -1,0 +1,80 @@
+MAIN_PATH                               :
+
+
+
+START                                   :
+END                                     :
+
+<begin_mohid_settings>
+MPI                                     :
+MPI_NUM_DOMAINS                         :
+MPI_EXE_PATH                            :
+MPI_KEEP_DECOMPOSED_FILES               :
+MPI_DDC_PARSER_NUM_PROCESSORS           :
+MPI_DDC_COMPOSER_NUM_PROCESSORS         :
+MPI_JOINER_VERSION                      :
+MAX_TIME                                :
+SCREEN_OUTPUT_TO_FILE                   :
+SCREEN_OUTPUT_PATH                      :
+MPI_EXE_PATH                            :
+<end_mohid_settings>
+
+<begin_model>
+NAME                                    :
+PATH                                    :
+MPI_NUM_PROCESSORS                      :
+MODEL_HAS_OBC                           :
+OBC_SIMULATED_DAYS                      :
+OBC_WORK_PATH                           :
+HDFREAD_SUFFIX                          :
+MODEL_HAS_METEO                         :
+GRID_FILE                               :
+MODEL_RUN_ID                            :
+DT                                      :
+BACKUP_PATH                             :
+STORAGE_PATH                            :
+MODEL_HAS_WATERPROPERTIES               :
+MODEL_HAS_SURFACE_HDF                   :
+MODEL_HAS_GOTM                          :
+MODEL_HAS_SOLUTION_FROM_FILE            :
+<end_model>
+
+<begin_model>
+NAME                                    :
+PATH                                    :
+MPI_NUM_PROCESSORS                      :
+MODEL_HAS_OBC                           :
+OBC_SIMULATED_DAYS                      :
+OBC_WORK_PATH                           :
+HDFREAD_SUFFIX                          :
+MODEL_HAS_METEO                         :
+GRID_FILE                               :
+MODEL_RUN_ID                            :
+DT                                      :
+BACKUP_PATH                             :
+STORAGE_PATH                            :
+MODEL_HAS_WATERPROPERTIES               :
+MODEL_HAS_SURFACE_HDF                   :
+MODEL_HAS_GOTM                          :
+MODEL_HAS_SOLUTION_FROM_FILE            :
+<end_model>
+
+<begin_model>
+NAME                                    :
+PATH                                    :
+MPI_NUM_PROCESSORS                      :
+MODEL_HAS_OBC                           :
+OBC_SIMULATED_DAYS                      :
+OBC_WORK_PATH                           :
+HDFREAD_SUFFIX                          :
+MODEL_HAS_METEO                         :
+GRID_FILE                               :
+MODEL_RUN_ID                            :
+DT                                      :
+BACKUP_PATH                             :
+STORAGE_PATH                            :
+MODEL_HAS_WATERPROPERTIES               :
+MODEL_HAS_SURFACE_HDF                   :
+MODEL_HAS_GOTM                          :
+MODEL_HAS_SOLUTION_FROM_FILE            :
+<end_model>
