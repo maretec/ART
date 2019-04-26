@@ -1,0 +1,169 @@
+1MAIN_PATH                                : D:\Aplica\MARPOCS_Marrocos\
+MAIL_SERVER                              : smtp.gmail.com
+MAIL_SENDER_NAME                         : MARPOCS_Marrocos
+MAIL_SENDER_ADDRESS                      : mailing.maretec@gmail.com
+LICENSE_KEY                              : hWXBjkxoR+O1CW21+i7hwnCggfTdSep9xQkGDCH0Orgr596/QoHLTUm0uFe+ihClIZPBKY3KqRcCEZeKrlE5zrEQAnZ0O3c60dGUK1OZGWNQuHeii+g0J23stt5xoKZMSvBb/SKXWIDD6Vfli7WopdXhEz+fH5WrS9rElDo/rKM1ra1Injs/iKdbte60mbF020RoXf7ytdEMbZXF1xSXEj3SzhgfvNM/A1mPvPbnovZ1kq+wu5NLDiL0OnLpeWUdXOncQbkB/oSjwy2WCMFO+MOFxkmdeH6FW955Z9MUtdxQ5uUSrLyriqJpgv3Pj9nC2018041315293134
+
+! CLASSIC_MANUAL_MODE 0 reads forecast_mode  1 forecast old fashion(runs today forecast)
+CLASSIC_MANUAL_MODE                      : 0        
+
+! FORECAST_MODE If 1 reads REFDAY_TO_START,  if 0 like old auto run (need START & END dates)/DAYS_PER_RUN
+FORECAST_MODE                            : 1
+       
+DAYS_PER_RUN                             : 1
+
+! REFDAY_TO_START 0 Today 1 Tomorrow -1 Yesterday...  
+REFDAY_TO_START                          : 0
+ 
+! NUMBER_OF_RUNS 1 reference day, 2 ref day + 1 ...      
+NUMBER_OF_RUNS                           : 2
+
+RUN_PREPROCESSING                        : 1
+RUN_MOHID                                : 1
+RUN_POSTPROCESSING                       : 1
+
+TRIGGER                                  : 0
+TRIGGER_FILENAME                         : D:\Aplica\MARPOCS_Marrocos\MOHID_SUCCESS.dat  
+
+START                                    : 2019 04 26 0 0 0
+END                                      : 2019 04 28 0 0 0
+
+
+<begin_out_email_list>
+Joao Sobrinho <joao.sobrinho@tecnico.ulisboa.pt>
+<end_out_email_list>
+
+<begin_mohid_settings>
+MPI                                      : 1
+MPI_NUM_DOMAINS                          : 3
+MPI_EXE_PATH                             : C:\Program Files\MPICH2\bin\mpiexec.exe
+MPI_KEEP_DECOMPOSED_FILES                : 0
+!MPI_DDC_PARSER_NUM_PROCESSORS            : 1
+!MPI_DDC_COMPOSER_NUM_PROCESSORS          : 5
+MPI_JOINER_VERSION                       : 1
+MAX_TIME                                 : 40000
+SCREEN_OUTPUT_TO_FILE                    : 1         
+SCREEN_OUTPUT_PATH                       : D:\Aplica\MARPOCS_Marrocos\MARPOCS_Marrocos_level1\exe\
+EXE                                      : D:\Aplica\MARPOCS_Marrocos\GeneralData\Exe\MOHIDWater.exe
+<end_mohid_settings>
+
+<begin_preprocessing>
+<<begin_software_to_run>>
+NAME                                     : ConvertToHDF5Patch
+EXE                                      : D:\Aplica\MARPOCS_Marrocos\Work\WRF\ConvertToHdf5.exe
+INPUT_FILE                               : D:\Aplica\MARPOCS_Marrocos\Work\WRF\ConvertToHDF5Action.dat
+MAX_TIME                                 : 3600
+SCREEN_OUTPUT_TO_FILE                    : 1
+SCREEN_OUTPUT_PATH                       : D:\Aplica\MARPOCS_Marrocos\Work\WRF\Logs\
+<<end_software_to_run>>
+
+<<begin_software_to_run>>
+NAME                                     : ConvertToHDF5_500m
+EXE                                      : D:\Aplica\MARPOCS_Marrocos\Work\WRF_500m\ConvertToHdf5.exe
+INPUT_FILE                               : D:\Aplica\MARPOCS_Marrocos\Work\WRF_500m\ConvertToHDF5Action.dat
+MAX_TIME                                 : 3600
+SCREEN_OUTPUT_TO_FILE                    : 1
+SCREEN_OUTPUT_PATH                       : D:\Aplica\MARPOCS_Marrocos\Work\WRF_500m\Logs\
+<<end_software_to_run>>
+
+<<begin_software_to_run>>
+NAME                                     : GFS2Me
+EXE                                      : D:\Aplica\MARPOCS_Marrocos\Work\GFS2Me_Forecast_V2_0p25\Gfs2Me_V2.exe
+INPUT_FILE                               : D:\Aplica\MARPOCS_Marrocos\Work\GFS2Me_Forecast_V2_0p25\Gfs2Me_V2.dat
+MAX_TIME                                 : 3600
+SCREEN_OUTPUT_TO_FILE                    : 1
+SCREEN_OUTPUT_PATH                       : D:\Aplica\MARPOCS_Marrocos\Work\GFS2Me_Forecast_V2_0p25\Logs\
+<<end_software_to_run>>
+
+<end_preprocessing>
+
+<begin_model>
+NAME                                     : MARPOCS_Marrocos_level1
+PATH                                     : MARPOCS_Marrocos_level1\
+MPI_NUM_PROCESSORS                       : 1
+MODEL_HAS_OBC                            : 1
+OBC_SIMULATED_DAYS                       : 1
+OBC_WORK_PATH                            : G:\Marpocs_4km\Level2\Results_HDF\
+HDFREAD_SUFFIX                           : _w2
+MODEL_HAS_METEO                          : 0
+GRID_FILE                                : GeneralData\Bathymetry\Janela_Marrocos_2km.dat
+MODEL_RUN_ID                             : 1
+DT                                       : 90
+BACKUP_PATH                              : G:\Marrocos_2km\Level1\
+!STORAGE_PATH                             : G:\Marrocos_2km\Level1\
+MODEL_HAS_WATERPROPERTIES                : 1
+MODEL_HAS_SURFACE_HDF                    : 0
+MODEL_HAS_GOTM                           : 0
+MODEL_HAS_SOLUTION_FROM_FILE             : 1
+<end_model>
+
+<begin_model>
+NAME                                     : MARPOCS_Marrocos_level2
+PATH                                     : MARPOCS_Marrocos_level1\MARPOCS_Marrocos_level2\
+MPI_NUM_PROCESSORS                       : 1
+MODEL_HAS_OBC                            : 0
+OBC_FROM_MYOCEAN                         : 0
+OBC_SIMULATED_DAYS                       : 1
+MODEL_HAS_METEO                          : 0
+METEO_MODEL_NAME                         : Gfs_0p25
+METEO_SIMULATED_DAYS                     : 1
+METEO_FILENAME_FROM_MODEL                : 1
+!METEO_WORK_PATH                          : G:\Marrocos_2km\GFS2Me\Interpolate\Level2\
+METEO_WORK_PATH                          : G:\Marrocos_2km\GFS2Me\Forecast\Interpolate\Level2\
+GRID_FILE                                : Agadir_smooth_8celulas_v01.dat
+MODEL_RUN_ID                             : 1
+DT                                       : 30
+BACKUP_PATH                              : G:\Marrocos_2km\Level2\
+STORAGE_PATH                             : F:\BackUp\Marrocos_2km\Level2\
+MODEL_HAS_WATERPROPERTIES                : 1
+MODEL_HAS_INTERFACESEDIMENTWATER         : 0
+MODEL_HAS_SURFACE_HDF                    : 1
+MODEL_HAS_GOTM                           : 1
+MODEL_HAS_OUTPUT_WINDOW                  : 0
+<end_model>
+
+<begin_model>
+NAME                                     : MARPOCS_Marrocos_level3
+PATH                                     : MARPOCS_Marrocos_level1\MARPOCS_Marrocos_level2\MARPOCS_Marrocos_level3\
+MPI_NUM_PROCESSORS                       : 1
+MODEL_HAS_OBC                            : 0
+OBC_FROM_MYOCEAN                         : 0
+OBC_SIMULATED_DAYS                       : 1
+MODEL_HAS_METEO                          : 0
+METEO_MODEL_NAME                         : Gfs_0p25
+METEO_SIMULATED_DAYS                     : 1
+METEO_FILENAME_FROM_MODEL                : 1
+!METEO_WORK_PATH                          : G:\Marrocos_2km\GFS2Me\Interpolate\Level3\
+METEO_WORK_PATH                          : G:\Marrocos_2km\GFS2Me\Forecast\Interpolate\Level3\
+GRID_FILE                                : Agadir_500m_8celulas_corrigida.dat
+MODEL_RUN_ID                             : 1
+DT                                       : 15
+BACKUP_PATH                              : G:\Marrocos_2km\Level3\
+STORAGE_PATH                             : F:\BackUp\Marrocos_2km\Level3\
+MODEL_HAS_WATERPROPERTIES                : 1
+MODEL_HAS_INTERFACESEDIMENTWATER         : 0
+MODEL_HAS_SURFACE_HDF                    : 1
+MODEL_HAS_GOTM                           : 1
+MODEL_HAS_OUTPUT_WINDOW                  : 0
+<end_model>
+
+<begin_postprocessing>
+
+<<begin_software_to_run>>
+NAME                                     : UpdateFTP
+EXE                                      : D:\Aplica\MARPOCS_Marrocos\Work\UploadToFTP\FilesManagement\FilesManagement.exe
+INPUT_FILE                               : D:\Aplica\MARPOCS_Marrocos\Work\UploadToFTP\FilesManagement\FilesManagement.dat
+MAX_TIME                                 : 3600
+SCREEN_OUTPUT_TO_FILE                    : 1
+SCREEN_OUTPUT_PATH                       : D:\Aplica\MARPOCS_Marrocos\Work\UploadToFTP\FilesManagement\Logs\
+<<end_software_to_run>>
+
+<<begin_software_to_run>>
+NAME                                     : UpdateFTP_500m
+EXE                                      : D:\Aplica\MARPOCS_Marrocos\Work\UploadToFTP_500m\FilesManagement\FilesManagement.exe
+INPUT_FILE                               : D:\Aplica\MARPOCS_Marrocos\Work\UploadToFTP_500m\FilesManagement\FilesManagement.dat
+MAX_TIME                                 : 3600
+SCREEN_OUTPUT_TO_FILE                    : 1
+SCREEN_OUTPUT_PATH                       : D:\Aplica\MARPOCS_Marrocos\Work\UploadToFTP_500m\FilesManagement\Logs\
+<<end_software_to_run>>
+<end_postprocessing>
