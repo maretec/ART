@@ -4,7 +4,9 @@ root = etree.Element('ART')
 config = etree.SubElement(root, "config")
 artconfig = etree.SubElement(config, "artconfig")
 mainPath = etree.SubElement(artconfig, "mainPath")
-mainPath.text = "TEXT"
+mainPath.text = "examples/test_art_2domains/Tanque_teste"
+manualMode = etree.SubElement(artconfig, "manualMode")
+manualMode.text = "0"
 forecastMode = etree.SubElement(artconfig, "forecastMode")
 forecastMode.text = "0"
 daysPerRun = etree.SubElement(artconfig, "daysPerRun")
@@ -16,26 +18,42 @@ numberOfRuns.text = "0"
 runPreProcessing = etree.SubElement(artconfig, "runPreProcessing")
 runPreProcessing.text = "0"
 runMohid = etree.SubElement(artconfig, "runMohid")
-runMohid.text = "0"
+runMohid.text = "1"
 runPostProcessing = etree.SubElement(artconfig, "runPostProcessing")
 runPostProcessing.text = "0"
-start = etree.SubElement(artconfig, "start")
-start.text = "data"
+start = etree.SubElement(artconfig, "startDate")
+startYear = etree.SubElement(start, "year")
+startYear.text = "2019"
+startMonth = etree.SubElement(start, "month")
+startMonth.text = "1"
+startDay = etree.SubElement(start, "day")
+startDay.text = "1"
+startHours = etree.SubElement(start, "hours")
+startHours.text = "00"
+startMinutes = etree.SubElement(start, "minutes")
+startMinutes.text = "00"
 end = etree.SubElement(artconfig, "end")
-end.text = "data"
-
-
+endYear = etree.SubElement(end, "year")
+endYear.text = "2019"
+endMonth = etree.SubElement(end, "month")
+endMonth.text = "1"
+endDay = etree.SubElement(end, "day")
+endDay.text = "2"
+endHours = etree.SubElement(end, "hours")
+endHours.text = "00"
+endMinutes = etree.SubElement(end, "minutes")
+endMinutes.text = "00"
 #MOHID CONFIGURATION
 mohid = etree.SubElement(config, "mohid")
 mpi = etree.SubElement(mohid, "mpi") 
 mpiEnable = etree.SubElement(mpi, "mpiEnable")
-mpiEnable.text = "0"
+mpiEnable.text = "1"
 mpiNumDomains = etree.SubElement(mpi, "mpiNumDomains")
 mpiNumDomains.text = "0"
 mpiExePath = etree.SubElement(mpi, "exePath")
-mpiExePath.text = "/../"
+mpiExePath.text = "/usr/bin/mpirun"
 mpiKeepDecomposedFiles = etree.SubElement(mpi, "keepDecomposedFiles")
-mpiKeepDecomposedFiles.text = "0"
+mpiKeepDecomposedFiles.text = "2"
 ddcParserNumProcessors = etree.SubElement(mpi, "ddcParserNumProcessors")
 ddcParserNumProcessors.text = "0"
 ddcComposerNumProcessors = etree.SubElement(mpi, "ddcComposerNumProcessors")
@@ -45,11 +63,12 @@ mpiJoinerVersion.text = "1"
 maxtime = etree.SubElement(mohid, "maxTime")
 maxtime.text = "40000"
 outputFile = etree.SubElement(mohid, "outputFile")
-outputFile.text = "0"
+outputFile.text = "1"
 outputPath = etree.SubElement(mohid, "outputPath")
-outputPath.text = "/../"
+outputPath.text = "/examples/test_art_2domains/output"
 #NOT HOW WORKS ON LINUX
 exe = etree.SubElement(mohid, "exePath")
+exe.text = "/examples/test_art_2domains/Tanque_test/exe/MohidWater.exe"
 
 
 #PARAMETERS
@@ -104,4 +123,4 @@ model1HasSolutionFromFile.text = "1"
 
 
 s = etree.tostring(root, pretty_print=True)
-print s
+print(s)
