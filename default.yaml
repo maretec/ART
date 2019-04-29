@@ -1,15 +1,16 @@
-artconfig:
+artConfig:
   mainPath: "./"
-  forecastMode: 0
+  forecastMode: true
   daysPerRun: 0
   refDayToStart: 0
   numberOfRuns: 0
-  runPreProcessing: 0
+  runPreProcessing: false
+  runMohid: false
+  runPostProcessing: false
   startDate: "date"
-  endDate: "date"
-mohid:
+mohidConfig:
   mpi:
-    enable: 0
+    enable: true
     numDomains: 0
     exePath: "../"
     keepDecomposedFiles: 0
@@ -19,33 +20,58 @@ mohid:
   maxTime: 40000
   outputFile: 0
   outputPath: "../"
-  exePath: .
-model:
-  name: "modelname"
-  path: "modelpath"
-  mpiProcessors: 2
-  obc:
-    enable: 0
-    fromMyOcean: 0
-    simulatedDays: 0
-  meteo:
-    enable: 0
-    modelName: "meteoModelName"
-    simulatedDays: 420
-    fileNameFromModel: 1
-    workPath: "./"
-  gridFile: "blabla.dat"
-  runId: 1
-  DT: 1
-  backupPath: "../path/to/backup"
-  storagePath: "../path/to/storage"
-  hasWaterProperties: 1
-  hasInterfaceSedimentWater: 0
-  hasSurfaceHDF: 1
-  hasGOTM: 1
-  hasOutputWindow: 0
-  hasSolutionFromFile: 1
-
+  exePath: "."
+models:
+  modelDaPunheta:
+    name: "modelname"
+    path: "modelpath"
+    mpiProcessors: 2
+    obc:
+      enable: 0
+      fromMyOcean: 0
+      simulatedDays: 0
+    meteo:
+      enable: 0
+      modelName: "meteoModelName"
+      simulatedDays: 420
+      fileNameFromModel: 1
+      workPath: "./"
+    gridFile: "blabla.dat"
+    runId: 1
+    DT: 1
+    backupPath: "../path/to/backup"
+    storagePath: "../path/to/storage"
+    hasWaterProperties: 1
+    hasInterfaceSedimentWater: 0
+    hasSurfaceHDF: 1
+    hasGOTM: 1
+    hasOutputWindow: 0
+    hasSolutionFromFile: 1
+  model2:
+    name: "modelname"
+    path: "modelpath"
+    mpiProcessors: 2
+    obc:
+      enable: 0
+      fromMyOcean: 0
+      simulatedDays: 0
+    meteo:
+      enable: 0
+      modelName: "meteoModelName"
+      simulatedDays: 420
+      fileNameFromModel: 1
+      workPath: "./"
+    gridFile: "blabla.dat"
+    runId: 1
+    DT: 1
+    backupPath: "../path/to/backup"
+    storagePath: "../path/to/storage"
+    hasWaterProperties: 1
+    hasInterfaceSedimentWater: 0
+    hasSurfaceHDF: 1
+    hasGOTM: 1
+    hasOutputWindow: 0
+    hasSolutionFromFile: 1
 
 
 
