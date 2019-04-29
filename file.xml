@@ -29,7 +29,7 @@
     </mohid>
   </config>
   <params>
-    <model1>
+    <model>
       <name>TEXT</name>
       <path>../</path>
       <mpiProcessors>2</mpiProcessors>
@@ -54,7 +54,7 @@
       <hasGotm>0</hasGotm>
       <outputWindow>2</outputWindow>
       <hasSolutionFromFile>1</hasSolutionFromFile>
-    </model1>
+    </model>
   </params>
 </ART>
 

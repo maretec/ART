@@ -1,8 +1,7 @@
-import xml.etree.ElementTree as ET
+import yaml
 
-root = ET.parse('file.xml').getroot()
+with open("file.yaml", 'r') as ymlfile:
+    cfg = yaml.safe_load(ymlfile)
 
-def searchTag(attributePath):
-  return root.find(attributePath)
-
-print(root.find("./config/artconfig/mainPath").text)
+for section in cfg:
+  print(cfg[section])

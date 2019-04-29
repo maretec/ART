@@ -1,3 +1,11 @@
 # ART_DEV
 
-https://docs.python.org/3/library/xml.etree.elementtree.html
+https://pyyaml.org/
+
+Requirements : 
+
+https://bootstrap.pypa.io/get-pip.py
+
+python get-pip.py
+
+pip install pyyaml
