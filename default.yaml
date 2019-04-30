@@ -1,13 +1,14 @@
 artconfig:
   mainPath: "./"
   forecastMode: 0
-  daysPerRun: 0
+  daysPerRun: 1
   refDayToStart: 0
-  numberOfRuns: 0
+  numberOfRuns: 1
   runPreProcessing: false
-  runMohid: false
+  runMohid: true
   runPostProcessing: false
-  endDate: "date"
+  startDate: "2019 06 01 12 30 05"
+  endDate: "2019 06 02 12 30 05"
 mohid:
   mpi:
     enable: 0

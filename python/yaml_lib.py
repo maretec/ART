@@ -20,3 +20,6 @@ def validateYamlFile(yamlDict):
           validateYamlSection(yamlDict['Mohid'], 'mpi',[])
     for model in yamlDict['Mohid']['Models']:
       validateYamlSection(yamlDict['Mohid']['Models'], model, [])
+
+def readAttribute(cfg, attribute):
+  return cfg[attribute]
