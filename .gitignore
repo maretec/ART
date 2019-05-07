@@ -2,3 +2,9 @@
 .DS_STORE/
 .setttings/
 
+
+\.idea/
+
+python/log\.txt
+
+*.pyc
