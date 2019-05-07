@@ -1,23 +1,34 @@
 import yaml_lib
 import datetime
 import logger
-import os.path, subprocess
+import os.path
+import subprocess
 
-logger = logger.ArtLogger("MOHID","log.txt")
+
+class Config:
+    global_initial_date = None
+    global_final_date = None
+    number_of_runs = None
+
+
+config = Config()
+logger = logger.ArtLogger("MOHID", "log.txt")
 DATE_FORMAT = '%Y %m %d %H %M %S'
 
 
 def validate_date(yaml):
     logger.debug("Validating Dates")
     try:
-        startDate = datetime.datetime.strptime(yaml['artconfig']['startDate'], DATE_FORMAT)
-        endDate = datetime.datetime.strptime(yaml['artconfig']['endDate'], DATE_FORMAT)
-        totalDays = yaml['artconfig']['daysPerRun'] * yaml['artconfig']['numberOfRuns']
+        start_date = datetime.datetime.strptime(yaml['artconfig']['startDate'], DATE_FORMAT)
+        end_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], DATE_FORMAT)
+        total_days = yaml['artconfig']['daysPerRun'] * yaml['artconfig']['numberOfRuns']
 
-        if startDate + datetime.timedelta(days= totalDays) > endDate:
+        if start_date + datetime.timedelta(days=total_days) > end_date:
             raise ValueError("artconfig: The number of daysPerRun (" + str(yaml['artconfig']['daysPerRun']) +
-                             ") in conjunction with the numberOfRuns (" + str(yaml['artconfig']['numberOfRuns']) + ") plus the startDate of this run (" + str(startDate) +
-                             ") would lead to a final date of simulation beyond the user-specified endDate (" + str(endDate) + ").")
+                             ") in conjunction with the numberOfRuns (" + str(yaml['artconfig']['numberOfRuns']) +
+                             ") plus the startDate of this run (" + str(start_date) +
+                             ") would lead to a final date of simulation beyond the user-specified endDate + "
+                             "(" + str(end_date) + ").")
         else:
             logger.debug("Date Validation : Success")
     except KeyError:
@@ -36,50 +47,50 @@ def running_mode(yaml):
         if yaml['artconfig']['forecastMode']:
             logger.debug("Running in Forecast Mode")
             today = datetime.datetime.today()
-            global_initial_date = today + datetime.timedelta(days = yaml['artconfig']['refDayToStart'])
-            global_final_date = (today + datetime.timedelta(days = yaml['artconfig']['numberOfRuns'])
-                                 + datetime.timedelta(days = yaml['artconfig']['daysPerRun'] - 1))
+            config.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
+            config.global_final_date = (today + datetime.timedelta(days=yaml['artconfig']['numberOfRuns'])
+                                        + datetime.timedelta(days=yaml['artconfig']['daysPerRun'] - 1))
 
-            initial_date = global_initial_date
-            final_date = initial_date + datetime.timedelta(days = yaml['artconfig']['daysPerRun'])
+            initial_date = config.global_initial_date
+            final_date = initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
             logger.debug("Initial Date : " + initial_date.strftime(DATE_FORMAT))
             logger.debug("Final Date: " + final_date.strftime(DATE_FORMAT))
             logger.debug("Number of runs : " + str(yaml['artconfig']['numberOfRuns']))
         elif not (yaml['artconfig']['forecastMode']):
             try:
                 logger.debug("Running in Hindcast Mode")
-                global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'], DATE_FORMAT)
-                global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], DATE_FORMAT)
+                config.global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'], DATE_FORMAT)
+                config.global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], DATE_FORMAT)
 
-                difference = global_final_date - global_initial_date
-                numberOfRuns = difference.days
+                difference = config.global_final_date - config.global_initial_date
+                config.number_of_runs = difference.days
             except KeyError:
                 logger.warning("KeyError")
-                numberOfRuns = 1
+                config.number_of_runs = 1
                 global_initial_date = datetime.datetime.today()
                 global_final_date = global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
             finally:
-                logger.debug("Global Initial Date : " + global_initial_date.strftime(DATE_FORMAT))
-                logger.debug("Global Final Date : " + global_final_date.strftime(DATE_FORMAT))
-                logger.debug("Number of runs : " + str(numberOfRuns))
+                logger.debug("Global Initial Date : " + config.global_initial_date.strftime(DATE_FORMAT))
+                logger.debug("Global Final Date : " + config.global_final_date.strftime(DATE_FORMAT))
+                logger.debug("Number of runs : " + str(config.number_of_runs))
         else:
             raise ValueError("artconfig: forecastMode value needs to be either a number or true/false")
     elif yaml['artconfig']['classicMode']:
         logger.debug("Running in Classic Mode")
-        numberOfRuns = 1
+        config.number_of_runs = 1
         try:
             global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'], DATE_FORMAT)
             global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], DATE_FORMAT)
         except KeyError:
             logger.warning("KeyError")
-            numberOfRuns = 1
-            global_initial_date = datetime.datetime.today()
-            global_final_date = global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            config.number_of_runs = 1
+            config.global_initial_date = datetime.datetime.today()
+            config.global_final_date = config.global_initial_date + \
+                                       datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         finally:
-            logger.debug("Global Initial Date : " + global_initial_date.strftime(DATE_FORMAT))
-            logger.debug("Global Final Date : " + global_final_date.strftime(DATE_FORMAT))
-            logger.debug("Number of runs : " + str(numberOfRuns))
-
+            logger.debug("Global Initial Date : " + config.global_initial_date.strftime(DATE_FORMAT))
+            logger.debug("Global Final Date : " + config.global_final_date.strftime(DATE_FORMAT))
+            logger.debug("Number of runs : " + str(config.number_of_runs))
     else:
         raise ValueError("artconfig: classicMode value needs to be either a number or true/false")
 
@@ -99,8 +110,8 @@ def run_mohid(yaml, model):
     validate_path(yaml['artconfig']['mainPath'])
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
-        flags = " -n " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " +\
-            yaml['mohid']['exePath']
+        flags = " -n " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
+                yaml['mohid']['exePath']
         logger.info("Starting MOHID MPI run of model: " + yaml['mohid']['models'][model]['name'])
         subprocess.run([mpi['exePath'], flags])
         logger.info("MOHID MPI run finished")
@@ -110,11 +121,6 @@ def run_mohid(yaml, model):
         logger.info("MOHID run finished")
 
 
-def run_mohid(yaml):
-    validate_date(yaml)
-    validate_path(yaml['artconfig']['mainPath'])
-
-
 yaml = yaml_lib.open_yaml_file('default.yaml')
-run_mohid(yaml)
+
 running_mode(yaml)
