@@ -2,3 +2,15 @@
 .DS_STORE/
 .setttings/
 
+
+\.idea/
+
+python/log\.txt
+
+*.pyc
+
+venv/bin/
+
+venv/lib/python3\.6/site-packages/
+
+venv/

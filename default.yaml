@@ -1,18 +1,20 @@
-artConfig:
+artconfig:
   mainPath: "./"
-  forecastMode: true
-  daysPerRun: 0
+  classicMode: 0
+  forecastMode: 1
+  daysPerRun: 1
   refDayToStart: 0
-  numberOfRuns: 0
+  numberOfRuns: 2
   runPreProcessing: false
-  runMohid: false
+  runMohid: true
   runPostProcessing: false
-  startDate: "date"
-mohidConfig:
+  startDate: "2019 04 26 00 00 00"
+  endDate: "2019 04 28 00 00 00"
+mohid:
   mpi:
-    enable: true
-    numDomains: 0
-    exePath: "../"
+    enable: 1
+    numDomains: 3
+    exePath: "/usr/bin/mpirun"
     keepDecomposedFiles: 0
     ddcParserNumProcessors: 0
     ddcComposerNumProcessors: 0
@@ -20,58 +22,75 @@ mohidConfig:
   maxTime: 40000
   outputFile: 0
   outputPath: "../"
-  exePath: "."
-models:
-  modelDaPunheta:
-    name: "modelname"
-    path: "modelpath"
-    mpiProcessors: 2
-    obc:
-      enable: 0
-      fromMyOcean: 0
-      simulatedDays: 0
-    meteo:
-      enable: 0
-      modelName: "meteoModelName"
-      simulatedDays: 420
-      fileNameFromModel: 1
-      workPath: "./"
-    gridFile: "blabla.dat"
-    runId: 1
-    DT: 1
-    backupPath: "../path/to/backup"
-    storagePath: "../path/to/storage"
-    hasWaterProperties: 1
-    hasInterfaceSedimentWater: 0
-    hasSurfaceHDF: 1
-    hasGOTM: 1
-    hasOutputWindow: 0
-    hasSolutionFromFile: 1
-  model2:
-    name: "modelname"
-    path: "modelpath"
-    mpiProcessors: 2
-    obc:
-      enable: 0
-      fromMyOcean: 0
-      simulatedDays: 0
-    meteo:
-      enable: 0
-      modelName: "meteoModelName"
-      simulatedDays: 420
-      fileNameFromModel: 1
-      workPath: "./"
-    gridFile: "blabla.dat"
-    runId: 1
-    DT: 1
-    backupPath: "../path/to/backup"
-    storagePath: "../path/to/storage"
-    hasWaterProperties: 1
-    hasInterfaceSedimentWater: 0
-    hasSurfaceHDF: 1
-    hasGOTM: 1
-    hasOutputWindow: 0
-    hasSolutionFromFile: 1
+  exePath: "MOHIDWaterMPI.exe"
+  models:
+    model1:
+      name: "MARPOCS_Marrocos_level1"
+      path: "MARPOCS_Marrocos_level1/"
+      mpiProcessors: 1
+      obc:
+        enable: 1
+        simulatedDays: 1
+        workPath: "/ekman1raid/Marpocs_4km/Level2/Results_HDF//"
+      meteo:
+        enable: 0
+      gridFile: "GeneralData/Bathymetry/Janela_Marrocos_2km.dat"
+      runId: 1
+      DT: 90
+      backupPath: "../Backup/Level1"
+      storagePath: "../Backup/Level1"
+      hasWaterProperties: 1
+      hasInterfaceSedimentWater: 0
+      hasSurfaceHDF: 0
+      hasGOTM: 0
+      hasOutputWindow: 0
+      hasSolutionFromFile: 1
+    model2:
+      name: "MARPOCS_Marrocos_level2"
+      path: "MARPOCS_Marrocos_level1/MARPOCS_Marrocos_level2//"
+      mpiProcessors: 1
+      obc:
+        enable: 0
+        simulatedDays: 1
+        workPath: "/ekman1raid/Marpocs_4km/Level2/Results_HDF//"
+      meteo:
+        enable: 1
+        modelName: "Gfs_0p25"
+        simulatedDays: 1
+        fileNameFromModel: 1
+        workPath: "./"
+      gridFile: "Agadir_smooth_8celulas_v01.dat"
+      runId: 1
+      DT: 30
+      backupPath: "../Backup/Level2"
+      storagePath: "../Storage/Level2"
+      hasWaterProperties: 1
+      hasInterfaceSedimentWater: 0
+      hasSurfaceHDF: 1
+      hasGOTM: 1
+      hasOutputWindow: 0
+      hasSolutionFromFile: 0
+    model3:
+      name: "MARPOCS_Marrocos_level3"
+      path: "MARPOCS_Marrocos_level1/MARPOCS_Marrocos_level2/MARPOCS_Marrocos_level3/"
+      mpiProcessors: 1
+      obc:
+        enable: 0
+        simulatedDays: 1
+        workPath: "/ekman1raid/Marpocs_4km/Level2/Results_HDF//"
+      meteo:
+        enable: 0
+      gridFile: "Agadir_500m_8celulas_corrigida.dat"
+      runId: 1
+      DT: 15
+      backupPath: "../Backup/Level3"
+      storagePath: "../Storage/Level3"
+      hasWaterProperties: 1
+      hasInterfaceSedimentWater: 0
+      hasSurfaceHDF: 1
+      hasGOTM: 1
+      hasOutputWindow: 0
+      hasSolutionFromFile: 0
 
 
 
