@@ -10,11 +10,10 @@ class Config:
     global_final_date = None
     number_of_runs = None
 
-
-config = Config()
-
 logger = logger.ArtLogger("MOHID", "log.txt")
 DATE_FORMAT = '%Y %m %d %H %M %S'
+
+config = Config()
 
 
 def validate_date(yaml):
@@ -44,6 +43,7 @@ def validate_path(path):
 
 
 def running_mode(yaml):
+    global config
     if not yaml['artconfig']['classicMode']:
         if yaml['artconfig']['forecastMode']:
             logger.debug("Running in Forecast Mode")
@@ -51,12 +51,12 @@ def running_mode(yaml):
             config.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
             config.global_final_date = (today + datetime.timedelta(days=yaml['artconfig']['numberOfRuns'])
                                         + datetime.timedelta(days=yaml['artconfig']['daysPerRun'] - 1))
-
+            config.number_of_runs = yaml['artconfig']['numberOfRuns']
             initial_date = config.global_initial_date
             final_date = initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
             logger.debug("Initial Date : " + initial_date.strftime(DATE_FORMAT))
             logger.debug("Final Date: " + final_date.strftime(DATE_FORMAT))
-            logger.debug("Number of runs : " + str(yaml['artconfig']['numberOfRuns']))
+            logger.debug("Number of runs : " + str(config.number_of_runs))
         elif not (yaml['artconfig']['forecastMode']):
             try:
                 logger.debug("Running in Hindcast Mode")
@@ -86,7 +86,7 @@ def running_mode(yaml):
             logger.warning("KeyError")
             config.number_of_runs = 1
             config.global_initial_date = datetime.datetime.today()
-            config.global_final_date = Config.global_initial_date + \
+            config.global_final_date = config.global_initial_date + \
                                        datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         finally:
             logger.debug("Global Initial Date : " + config.global_initial_date.strftime(DATE_FORMAT))
@@ -107,13 +107,21 @@ def mpi_params(yaml_file):
 
 
 def run_mohid(yaml, model):
+    logger.debug("Run MOHID enabled")
+    global config
     validate_date(yaml)
     validate_path(yaml['artconfig']['mainPath'])
-    # HELP
-    # for i in range(1, config.number_of_runs):
-    #     logger.info("========================================")
-    #     logger.info("STARTING FORECAST ( " + str(i) + " of " + str(Config.number_of_runs) + " )")
-    #     logger.info("========================================")
+    for i in range(1, config.number_of_runs+1):
+        logger.info("========================================")
+        logger.info("STARTING FORECAST ( " + str(i) + " of " + str(config.number_of_runs) + " )")
+        logger.info("========================================")
+
+        if yaml['artconfig']['runPreProcessing']:
+            run_pre_processing()
+
+
+
+
 
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
@@ -128,14 +136,22 @@ def run_mohid(yaml, model):
         logger.info("MOHID run finished")
 
 
+def run_pre_processing():
+    logger.debug("Pre Processing Enabled")
+
+
 # PSEUDO-MAIN
 
+def main():
+    yaml = yaml_lib.open_yaml_file('../default.yaml')
+    running_mode(yaml)
+    models = yaml['mohid']['models'].keys()
+    models.reverse()
+    last_model = None
+    for model in models:
+        last_model = model
+        if yaml['artconfig']['runMohid']:
+            run_mohid(yaml, model)
 
-yaml = yaml_lib.open_yaml_file('../default.yaml')
-running_mode(yaml)
-models = yaml['mohid']['models'].keys()
-models.reverse()
-last_model = None
-for model in models:
-    last_model = model
-    run_mohid(yaml, model)
+if __name__ == "__main__":
+    main()
