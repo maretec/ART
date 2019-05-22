@@ -1,6 +1,5 @@
 import yaml
 
-
 def open_yaml_file(path):
     with open(path, 'r') as yml_file:
         return yaml.safe_load(yml_file)

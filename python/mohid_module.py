@@ -110,17 +110,38 @@ def run_mohid(yaml, model):
     validate_path(yaml['artconfig']['mainPath'])
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
-        flags = " -n " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
+        flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         logger.info("Starting MOHID MPI run of model: " + yaml['mohid']['models'][model]['name'])
-        subprocess.run([mpi['exePath'], flags])
+        #subprocess.run([mpi['exePath'], flags])
         logger.info("MOHID MPI run finished")
     else:
         logger.info("Starting MOHID run of model " + yaml['mohid']['models'][model]['name'])
-        subprocess.run(yaml['mohid']['exePath'])
+        #subprocess.run(yaml['mohid']['exePath'])
         logger.info("MOHID run finished")
 
 
-yaml = yaml_lib.open_yaml_file('default.yaml')
+yaml = yaml_lib.open_yaml_file('../default.yaml')
+
 
 running_mode(yaml)
+last_model = None
+models = yaml['mohid']['models'].keys()
+models.reverse()
+
+for model in models:
+    last_model = model
+    run_mohid(yaml, model)
+
+
+
+
+
+
+
+
+
+
+
+
+
