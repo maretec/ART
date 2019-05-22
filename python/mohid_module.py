@@ -12,6 +12,7 @@ class Config:
 
 
 config = Config()
+
 logger = logger.ArtLogger("MOHID", "log.txt")
 DATE_FORMAT = '%Y %m %d %H %M %S'
 
@@ -85,7 +86,7 @@ def running_mode(yaml):
             logger.warning("KeyError")
             config.number_of_runs = 1
             config.global_initial_date = datetime.datetime.today()
-            config.global_final_date = config.global_initial_date + \
+            config.global_final_date = Config.global_initial_date + \
                                        datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         finally:
             logger.debug("Global Initial Date : " + config.global_initial_date.strftime(DATE_FORMAT))
@@ -108,40 +109,33 @@ def mpi_params(yaml_file):
 def run_mohid(yaml, model):
     validate_date(yaml)
     validate_path(yaml['artconfig']['mainPath'])
+    # HELP
+    # for i in range(1, config.number_of_runs):
+    #     logger.info("========================================")
+    #     logger.info("STARTING FORECAST ( " + str(i) + " of " + str(Config.number_of_runs) + " )")
+    #     logger.info("========================================")
+
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
         flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         logger.info("Starting MOHID MPI run of model: " + yaml['mohid']['models'][model]['name'])
-        #subprocess.run([mpi['exePath'], flags])
+        # subprocess.run([mpi['exePath'], flags])
         logger.info("MOHID MPI run finished")
     else:
         logger.info("Starting MOHID run of model " + yaml['mohid']['models'][model]['name'])
-        #subprocess.run(yaml['mohid']['exePath'])
+        # subprocess.run(yaml['mohid']['exePath'])
         logger.info("MOHID run finished")
 
 
+# PSEUDO-MAIN
+
+
 yaml = yaml_lib.open_yaml_file('../default.yaml')
-
-
 running_mode(yaml)
-last_model = None
 models = yaml['mohid']['models'].keys()
 models.reverse()
-
+last_model = None
 for model in models:
     last_model = model
     run_mohid(yaml, model)
-
-
-
-
-
-
-
-
-
-
-
-
-
