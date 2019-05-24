@@ -158,7 +158,10 @@ def create_new_model_file(model):
     #TODO OPENMP
     if "langrarian" in keys:
         common.dat_modifier.line_creator(file, "LAGRANGIAN", str(1))
-    
+    #TODO WAVES
+    logger.debug("Model " + model["name"] + " .dat file was created.")
+    file.close()
+    return
 
 
 # PSEUDO-MAIN
