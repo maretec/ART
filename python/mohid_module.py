@@ -11,7 +11,9 @@ class Config:
     global_final_date = None
     number_of_runs = None
 
+
 logger = logger.ArtLogger("MOHID", "log.txt")
+
 DATE_FORMAT = '%Y %m %d %H %M %S'
 
 config = Config()
@@ -120,10 +122,6 @@ def run_mohid(yaml, model):
         if yaml['artconfig']['runPreProcessing']:
             run_pre_processing()
 
-
-
-
-
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
         flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
@@ -177,6 +175,7 @@ def main():
         create_new_model_file(yaml['mohid']['models'][model])
         #if yaml['artconfig']['runMohid']:
          #   run_mohid(yaml, model)
+
 
 if __name__ == "__main__":
     main()
