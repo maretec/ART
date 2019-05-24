@@ -18,10 +18,12 @@ def validate_yaml_file(yaml_dict):
     if yaml_dict['artconfig']['runMohid']:
         validate_yaml_section(yaml_dict, 'Mohid', [])
         if 'mpi' in yaml_dict['Mohid']:
-            validate_yaml_section(yaml_dict['Mohid'], 'mpi',[])
+            validate_yaml_section(yaml_dict['Mohid'], 'mpi', [])
         for model in yaml_dict['Mohid']['Models']:
             validate_yaml_section(yaml_dict['Mohid']['Models'], model, [])
 
 
 def read_attribute(cfg, attribute):
     return cfg[attribute]
+
+
