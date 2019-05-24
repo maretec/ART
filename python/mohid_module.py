@@ -3,6 +3,7 @@ import datetime
 import logger
 import os.path
 import subprocess
+import common.dat_modifier
 
 
 class Config:
@@ -140,18 +141,42 @@ def run_pre_processing():
     logger.debug("Pre Processing Enabled")
 
 
+def create_model_files(yaml):
+    logger.debug("Creating new model files")
+    for model in yaml['mohid']['models']:
+        create_new_model_file(model)
+
+
+def create_new_model_file(model):
+    keys = model.keys()
+    file = open(model['path'] + "data/Model_" + str(model['runId']) + ".dat", 'w+')
+    common.dat_modifier.line_creator(file, "START", common.dat_modifier.date_to_mohid_date(config.global_initial_date))
+    common.dat_modifier.line_creator(file, "END", common.dat_modifier.date_to_mohid_date(config.global_final_date))
+    common.dat_modifier.line_creator(file, "DT", str(model['DT']))
+    common.dat_modifier.line_creator(file, "VARIABLEDT", "")
+    if "maxdt" in keys:
+        common.dat_modifier.line_creator(file, "MAXDT", str(model['maxdt']))
+    common.dat_modifier.line_creator(file, "GMTREFERENCE", str(0))
+    #TODO OPENMP
+    if "langrarian" in keys:
+        common.dat_modifier.line_creator(file, "LAGRANGIAN", str(1))
+    
+
+
 # PSEUDO-MAIN
+
 
 def main():
     yaml = yaml_lib.open_yaml_file('../default.yaml')
     running_mode(yaml)
     models = yaml['mohid']['models'].keys()
-    models.reverse()
+    #models.reverse()
     last_model = None
     for model in models:
         last_model = model
-        if yaml['artconfig']['runMohid']:
-            run_mohid(yaml, model)
+        create_new_model_file(yaml['mohid']['models'][model])
+        #if yaml['artconfig']['runMohid']:
+         #   run_mohid(yaml, model)
 
 if __name__ == "__main__":
     main()
