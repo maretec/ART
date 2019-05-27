@@ -15,7 +15,7 @@ class ArtGenApp(tk.Tk):
         container.grid()
         self.frames = {}
 
-        for F in (StartPage, NewCfg):
+        for F in (StartPage, NewCfg, MohidSettings):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -39,10 +39,17 @@ class StartPage(tk.Frame):
 
 
 class NewCfg(tk.Frame):
+
+    def radio_change(self):
+        print(self.radio_var.get())
+        if self.radio_var.get() == 1:
+            self.next_frame = MohidSettings
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         self.main_path = tk.StringVar()
+        self.next_frame = None
 
         mainpath_dir_lbl = ttk.Label(self, text="Main Path")
         mainpath_dir_lbl.grid(row=0, column=0)
@@ -93,6 +100,33 @@ class NewCfg(tk.Frame):
         end_date_lbl.grid(row=8, column=0)
         end_date_entry = tkcalendar.DateEntry(self, year=2018)
         end_date_entry.grid(row=8, column=1)
+
+        self.radio_var = tk.IntVar()
+
+        mohid_radio_btn = ttk.Radiobutton(self, text="MOHID", variable=self.radio_var, value=1,
+                                          command=self.radio_change)
+        mohid_radio_btn.grid(row=9, column=0)
+        ww3_radio_btn = ttk.Radiobutton(self, text="WaveWatch III", variable=self.radio_var, value=2,
+                                        command=self.radio_change)
+        ww3_radio_btn.grid(row=10, column=0)
+        wrf_radio_btn = ttk.Radiobutton(self, text="WRF", variable=self.radio_var, value=3,
+                                        command=self.radio_change)
+        wrf_radio_btn.grid(row=11, column=0)
+
+        next_btn = ttk.Button(self, text="Next", command=lambda: controller.show_frame(self.next_frame))
+        next_btn.grid(row=11, column=30)
+
+
+class MohidSettings(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        self.radio_var = tk.IntVar()
+
+        mpi_radio_btn = ttk.Radiobutton(self, text="MPI", variable=self.radio_var, value=1)
+        mpi_radio_btn.grid(row=0, column=0)
+        openmp_radio_btn = ttk.Radiobutton(self, text="OpenMP", variable=self.radio_var, value=2)
+        openmp_radio_btn.grid(row=1, column=0)
 
 
 def browse_button(path):
