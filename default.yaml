@@ -54,11 +54,12 @@ mohid:
         simulatedDays: 1
         workPath: "/ekman1raid/Marpocs_4km/Level2/Results_HDF//"
       meteo:
-        enable: 1
-        modelName: "Gfs_0p25"
-        simulatedDays: 1
-        fileNameFromModel: 1
-        workPath: "./"
+        meteo1:
+          enable: 1
+          modelName: "Gfs_0p25"
+          simulatedDays: 1
+          fileNameFromModel: 1
+          workPath: "./"
       gridFile: "Agadir_smooth_8celulas_v01.dat"
       runId: 1
       DT: 30

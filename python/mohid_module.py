@@ -139,10 +139,12 @@ def run_pre_processing():
     logger.debug("Pre Processing Enabled")
 
 
-def create_model_files(yaml):
+def process_models(yaml):
     logger.debug("Creating new model files")
     for model in yaml['mohid']['models']:
+        gather_boundary_conditions(model)
         create_new_model_file(model)
+        gather_restart_files(model)
 
 
 def create_new_model_file(model):
@@ -162,6 +164,22 @@ def create_new_model_file(model):
     logger.debug("Model " + model["name"] + " .dat file was created.")
     file.close()
     return
+
+
+def gather_boundary_conditions(model):
+    logger.info("Gathering boundary conditions for model " + model['name'] + ".")
+    for meteos in model['meteo'].keys():
+        if model['meteo'][meteos]['enable']:
+            filename = model['meteo'][meteos]['workPath'] + model['meteo'][meteos]['modelName']
+            if not os.path.isfile(filename):
+                logger.info("Could not find meteo file from Solution with name - " + model['name'] + ".")
+            else:
+                logger.info("Meteo file solution found " + model['name'] + ".")
+
+
+def gather_restart_files(model):
+    logger.info("Gathering the restart files for each model domain.")
+
 
 
 # PSEUDO-MAIN
