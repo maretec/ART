@@ -10,11 +10,13 @@ class Config:
     global_initial_date = None
     global_final_date = None
     number_of_runs = None
+    meteo_location = None
 
 
 logger = logger.ArtLogger("MOHID", "log.txt")
 
 DATE_FORMAT = '%Y %m %d %H %M %S'
+DATE_FOLDER_FORMAT = '%Y-%m-%d'
 
 config = Config()
 
@@ -157,33 +159,64 @@ def create_new_model_file(model):
     if "maxdt" in keys:
         common.dat_modifier.line_creator(file, "MAXDT", str(model['maxdt']))
     common.dat_modifier.line_creator(file, "GMTREFERENCE", str(0))
-    #TODO OPENMP
+    # TODO OPENMP
     if "langrarian" in keys:
         common.dat_modifier.line_creator(file, "LAGRANGIAN", str(1))
-    #TODO WAVES
+    # TODO WAVES
     logger.debug("Model " + model["name"] + " .dat file was created.")
     file.close()
     return
 
 
-def gather_boundary_conditions(model):
+# TODO not copy but redo NOMFINCH.DAT
+# TODO verify obc and meteo block on verify yaml
+def gather_boundary_conditions(mainPath, model):
     logger.info("Gathering boundary conditions for model " + model['name'] + ".")
     for meteos in model['meteo'].keys():
         if model['meteo'][meteos]['enable']:
-            filename = model['meteo'][meteos]['workPath'] + model['meteo'][meteos]['modelName']
+            filename = mainPath + "/" + model['meteo'][meteos]['workPath'] + model['meteo'][meteos]['modelName']
             if not os.path.isfile(filename):
                 logger.info("Could not find meteo file from Solution with name - " + model['name'] + ".")
             else:
                 logger.info("Meteo file solution found " + model['name'] + ".")
+                config.meteo_location = mainPath + "GeneralData/BoundaryConditions/Atmosphere/" + model['name'] + \
+                                        "/" + model['meteo'][meteos]['modelName'] + "/" +\
+                                        model['meteo'][meteos]['modelName'] + "_" + model['name'] + ".hdf5"
+
+        if model['hasSolutionFromFile'] or (model.keys().contains("obc") and model['obc']['enable']):
+            if model['obc'].keys().contains('fromMercator') and model['obc']['fromMercator']:
+                print("obc from mercator")
 
 
 def gather_restart_files(model):
     logger.info("Gathering the restart files for each model domain.")
 
 
+def get_meteo_filename(model, extension=".hdf5"):
+    model_name = model['modelName']
+    simulated_days = -99
+    meteo_final_date = ""
+
+    if model.keys().contains("simulatedDays"):
+        simulated_days = model['simulatedDays']
+    sufix = "TAGUS3D"
+
+    if model['simulatedDays'] == -99:
+        print("tmp")
+        # TODO falta final_date sera global_final_date???
+    else:
+        initial_date = config.global_initial_date
+        final_date = initial_date + datetime.timedelta(days=simulated_days)
+        meteo_final_date = final_date.strftime(DATE_FOLDER_FORMAT)
+    if model['fileNameFromModel']:
+        sufix = model_name
+        print(model['workPath'] + model + "_" + sufix + "_" + config.global_initial_date + "_" + meteo_final_date +
+              extension)
+    elif model['genericFileName']:
+        print(model['workPath'] + "meteo_" + config.global_initial_date + "_" + meteo_final_date + extension)
+
 
 # PSEUDO-MAIN
-
 
 def main():
     yaml = yaml_lib.open_yaml_file('../default.yaml')
