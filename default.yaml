@@ -33,7 +33,12 @@ mohid:
         simulatedDays: 1
         workPath: "/ekman1raid/Marpocs_4km/Level2/Results_HDF//"
       meteo:
-        enable: 0
+        enable: 1
+        meteo1:
+          modelName: "Gfs_0p25"
+          simulatedDays: 1
+          fileNameFromModel: 1
+          workPath: "./"
       gridFile: "GeneralData/Bathymetry/Janela_Marrocos_2km.dat"
       runId: 1
       DT: 90
@@ -54,8 +59,8 @@ mohid:
         simulatedDays: 1
         workPath: "/ekman1raid/Marpocs_4km/Level2/Results_HDF//"
       meteo:
+        enable: 1
         meteo1:
-          enable: 1
           modelName: "Gfs_0p25"
           simulatedDays: 1
           fileNameFromModel: 1
@@ -65,27 +70,6 @@ mohid:
       DT: 30
       backupPath: "../Backup/Level2"
       storagePath: "../Storage/Level2"
-      hasWaterProperties: 1
-      hasInterfaceSedimentWater: 0
-      hasSurfaceHDF: 1
-      hasGOTM: 1
-      hasOutputWindow: 0
-      hasSolutionFromFile: 0
-    model3:
-      name: "MARPOCS_Marrocos_level3"
-      path: "MARPOCS_Marrocos_level1/MARPOCS_Marrocos_level2/MARPOCS_Marrocos_level3/"
-      mpiProcessors: 1
-      obc:
-        enable: 0
-        simulatedDays: 1
-        workPath: "/ekman1raid/Marpocs_4km/Level2/Results_HDF//"
-      meteo:
-        enable: 0
-      gridFile: "Agadir_500m_8celulas_corrigida.dat"
-      runId: 1
-      DT: 15
-      backupPath: "../Backup/Level3"
-      storagePath: "../Storage/Level3"
       hasWaterProperties: 1
       hasInterfaceSedimentWater: 0
       hasSurfaceHDF: 1

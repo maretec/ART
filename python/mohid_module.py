@@ -168,7 +168,7 @@ def create_new_model_file(model):
     return
 
 
-# TODO not copy but redo NOMFINCH.DAT
+# TODO not copy but redo NOMFINCH.DAT line 724 of MainModule vb
 # TODO verify obc and meteo block on verify yaml
 def gather_boundary_conditions(mainPath, model):
     logger.info("Gathering boundary conditions for model " + model['name'] + ".")
@@ -192,12 +192,12 @@ def gather_restart_files(model):
     logger.info("Gathering the restart files for each model domain.")
 
 
-def get_meteo_filename(model, extension=".hdf5"):
+def get_meteo_filename(model, name, extension=".hdf5"):
     model_name = model['modelName']
     simulated_days = -99
     meteo_final_date = ""
 
-    if model.keys().contains("simulatedDays"):
+    if "simulatedDays" in model:
         simulated_days = model['simulatedDays']
     sufix = "TAGUS3D"
 
@@ -210,10 +210,11 @@ def get_meteo_filename(model, extension=".hdf5"):
         meteo_final_date = final_date.strftime(DATE_FOLDER_FORMAT)
     if model['fileNameFromModel']:
         sufix = model_name
-        print(model['workPath'] + model + "_" + sufix + "_" + config.global_initial_date + "_" + meteo_final_date +
-              extension)
+        print(model['workPath'] + name + "_" + sufix + "_" + config.global_initial_date.strftime(DATE_FOLDER_FORMAT) +
+              "_" + meteo_final_date + extension)
     elif model['genericFileName']:
-        print(model['workPath'] + "meteo_" + config.global_initial_date + "_" + meteo_final_date + extension)
+        print(model['workPath'] + "meteo_" + config.global_initial_date.strftime(DATE_FOLDER_FORMAT) + "_" +
+              meteo_final_date + extension)
 
 
 # PSEUDO-MAIN
@@ -222,14 +223,19 @@ def main():
     yaml = yaml_lib.open_yaml_file('../default.yaml')
     running_mode(yaml)
     models = yaml['mohid']['models'].keys()
+    models_dict = yaml['mohid']['models']
     #models.reverse()
     last_model = None
     for model in models:
-        last_model = model
-        create_new_model_file(yaml['mohid']['models'][model])
-        #if yaml['artconfig']['runMohid']:
-         #   run_mohid(yaml, model)
-
+        if models_dict[model]['meteo']['enable']:
+            meteo_models = yaml['mohid']['models'][model]['meteo']
+            keys = list(meteo_models.keys())
+            keys.remove("enable")
+            for meteo in keys:
+                get_meteo_filename(meteo_models[meteo], yaml['mohid']['models'][model]['name'])
+        # create_new_model_file(yaml['mohid']['models'][model])
+        # if yaml['artconfig']['runMohid']:
+        # run_mohid(yaml, model)
 
 if __name__ == "__main__":
     main()
