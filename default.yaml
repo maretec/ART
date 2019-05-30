@@ -5,8 +5,9 @@ artconfig:
   daysPerRun: 1
   refDayToStart: 0
   numberOfRuns: 2
+  module: "Mohid"
   runPreProcessing: false
-  runMohid: true
+  runSimulation: true
   runPostProcessing: false
   startDate: "2019 04 26 00 00 00"
   endDate: "2019 04 28 00 00 00"
