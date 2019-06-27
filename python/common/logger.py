@@ -1,5 +1,6 @@
 import logging
 
+
 class ArtLogger:
     def __init__(self, name, logFile):
         self.logFile = logFile
