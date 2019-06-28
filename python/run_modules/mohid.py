@@ -11,7 +11,6 @@ class Config:
     number_of_runs = None
     meteo_location = None
 
-
 config = Config()
 
 
@@ -21,57 +20,40 @@ def validate_path(path):
 
 def running_mode(yaml):
     global config
-    if not yaml['artconfig']['classicMode']:
-        if yaml['artconfig']['forecastMode']:
-            static.logger.debug("Running in Forecast Mode")
-            today = datetime.datetime.today()
-            config.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
-            config.global_final_date = (today + datetime.timedelta(days=yaml['artconfig']['numberOfRuns'])
-                                        + datetime.timedelta(days=yaml['artconfig']['daysPerRun'] - 1))
-            config.number_of_runs = yaml['artconfig']['numberOfRuns']
-            initial_date = config.global_initial_date
-            final_date = initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-            static.logger.debug("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Final Date: " + final_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Number of runs : " + str(config.number_of_runs))
-        elif not (yaml['artconfig']['forecastMode']):
-            try:
-                static.logger.debug("Running in Hindcast Mode")
-                config.global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'],
-                                                                        static.DATE_FORMAT)
-                config.global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
-
-                difference = config.global_final_date - config.global_initial_date
-                config.number_of_runs = difference.days
-            except KeyError:
-                static.logger.warning("KeyError")
-                config.number_of_runs = 1
-                global_initial_date = datetime.datetime.today()
-                global_final_date = global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-            finally:
-                static.logger.debug("Global Initial Date : " + config.global_initial_date.strftime(static.DATE_FORMAT))
-                static.logger.debug("Global Final Date : " + config.global_final_date.strftime(static.DATE_FORMAT))
-                static.logger.debug("Number of runs : " + str(config.number_of_runs))
-        else:
-            raise ValueError("artconfig: forecastMode value needs to be either a number or true/false")
-    elif yaml['artconfig']['classicMode']:
-        static.logger.debug("Running in Classic Mode")
-        config.number_of_runs = 1
+    if yaml['artconfig']['operationalMode']:
+        static.logger.debug("Running in Operational Mode")
+        today = datetime.datetime.today()
+        config.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
+        config.global_final_date = (today + datetime.timedelta(days=yaml['artconfig']['numberOfRuns'])
+                                    + datetime.timedelta(days=yaml['artconfig']['daysPerRun'] - 1))
+        config.number_of_runs = yaml['artconfig']['numberOfRuns']
+        initial_date = config.global_initial_date
+        final_date = initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+        static.logger.debug("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
+        static.logger.debug("Final Date: " + final_date.strftime(static.DATE_FORMAT))
+        static.logger.debug("Number of runs : " + str(config.number_of_runs))
+    elif not (yaml['artconfig']['operationalMode']):
         try:
-            global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'], static.DATE_FORMAT)
-            global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
+            static.logger.debug("Running in Normal Mode")
+            config.global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'],
+                                                                    static.DATE_FORMAT)
+            config.global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
+
+            difference = config.global_final_date - config.global_initial_date
+            config.number_of_runs = difference.days
         except KeyError:
             static.logger.warning("KeyError")
             config.number_of_runs = 1
-            config.global_initial_date = datetime.datetime.today()
-            config.global_final_date = config.global_initial_date + \
-                                       datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            global_initial_date = datetime.datetime.today()
+            global_final_date = global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            config.global_initial_date = datetime.datetime.strftime(datetime.datetime.today(), static.DATE_FORMAT)
+            config.global_final_date = datetime.datetime.strftime(global_final_date, static.DATE_FORMAT)
         finally:
             static.logger.debug("Global Initial Date : " + config.global_initial_date.strftime(static.DATE_FORMAT))
             static.logger.debug("Global Final Date : " + config.global_final_date.strftime(static.DATE_FORMAT))
             static.logger.debug("Number of runs : " + str(config.number_of_runs))
     else:
-        raise ValueError("artconfig: classicMode value needs to be either a number or true/false")
+        raise ValueError("artconfig: forecastMode value needs to be either a number or true/false")
 
 
 def mpi_params(yaml_file):
