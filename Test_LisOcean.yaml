@@ -1,0 +1,65 @@
+artconfig:
+  mainPath: "/ekman1raid/"
+  operationalMode: 1
+  daysPerRun: 1
+  refDayToStart: -1
+  numberOfRuns: 6
+  module: "Mohid"
+  runPreProcessing: false
+  runSimulation: true
+  runPostProcessing: false
+  startDate: "2019 01 22 0 0 0"
+  endDate: "2019 01 26 0 0 0"
+mohid:
+  maxTime: 40000
+  outputFile: 1
+  outputPath: "/ekman1raid/TestLisOcean/LisOcean/exe"
+  exePath: "/ekman1raid/TestLisOcean/LisOcean/exe/MOHIDWater.exe"
+models:
+  model1:
+    name: "WestIberia"
+    path: "WestIberia/"
+    obc:
+      enable: 0
+    meteo:
+      enable: 0
+    gridFile: "WestIberia/GeneralData/Bathymetry/WestIberiaUp.dat"
+    runId: 1
+    DT: 180
+    backupPath: "ekman1raid/Backup/WestIberia/"
+    storagePath: "ekman1raid/Storage/WestIberia/"
+    hasWaterProperties: 0
+    hasSurfaceHDF: 0
+    hasGOTM: 0
+  model2:
+    name: "Portugal"
+    path: "WestIberia/Portugal/"
+    obc:
+      enable: 1
+      simulatedDays: 1
+      fromMercator: 1
+      workPath: "/ekman1raid/art/Portugal/Mercator_PSY4V3/Glue/"
+    meteo:
+      enable: 1
+      meteo1:
+        simulatedDays: 1
+        fileNameFromModel: 1
+        workPath: "/ekman1raid/art/Portugal/Meteo/MM5/"
+      meteo2:
+        modelName: "WRF"
+        simulatedDays: 1
+        fileNameFromModel: 1
+        workPath: "/ekman1raid/art/Portugal/Meteo/WRF-MG/"
+    gridFile: "WestIberia\GeneralData\Bathymetry\Portugal\Portugal\PortugalUp.dat"
+    runId: 1
+    DT: 60
+    backupPath: "ekman1raid/Backup/Portugal/"
+    storagePath: "ekman1raid/Storage/Portugal/"
+    hasWaterProperties: 1
+    hasInterfaceSedimentWater: 1
+    hasSurfaceHDF: 1
+    hasGOTM: 1
+    hasOutputWindow: 1
+
+
+
