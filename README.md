@@ -1,17 +1,43 @@
-# ART_DEV
+# ART
 
-https://pyyaml.org/
+# YAML
 
-Requirements : 
+---
 
-* Python
-* pip
-    - https://bootstrap.pypa.io/get-pip.py
-    - python get-pip.py
-* pyyaml
-    - pip install pyyaml
+## YAML Keywords
 
+### artconfig
 
+- `mainPath`
+- `operationalMode`
+- `daysPerRun`
+- `refDaytoStart`
+- `numberOfRuns`
+- `module`
+- `runPreProcessing`
+- `runSimulation`
+- `runPostProcessing`
+- `startDate`
+- `endDate`
 
+### mohid
 
+- `maxTime`
+- `outputToFile`
+- `outputFilePath`
+- `exePath`
 
+    ### mpi
+
+    - `enable`
+    - `numDomains`
+    - `exePath`
+    - `keepDecomposedFiles`
+    - `ddcParserNumProcessors`
+    - `ddcComposerNumProcessors`
+    - `joinerVersion`
+
+### model
+
+- `name`
+- 
