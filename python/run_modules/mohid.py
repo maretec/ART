@@ -1,59 +1,8 @@
-import common.yaml_lib as yaml_lib
 import common.constants as static
 import datetime
-import os.path
 import common.file_modifier
+import os.path
 
-
-class Config:
-    global_initial_date = None
-    global_final_date = None
-    number_of_runs = None
-    meteo_location = None
-
-config = Config()
-
-
-def validate_path(path):
-    return os.path.exists(path)
-
-
-def running_mode(yaml):
-    global config
-    if yaml['artconfig']['operationalMode']:
-        static.logger.debug("Running in Operational Mode")
-        today = datetime.datetime.today()
-        config.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
-        config.global_final_date = (today + datetime.timedelta(days=yaml['artconfig']['numberOfRuns'])
-                                    + datetime.timedelta(days=yaml['artconfig']['daysPerRun'] - 1))
-        config.number_of_runs = yaml['artconfig']['numberOfRuns']
-        initial_date = config.global_initial_date
-        final_date = initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-        static.logger.debug("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
-        static.logger.debug("Final Date: " + final_date.strftime(static.DATE_FORMAT))
-        static.logger.debug("Number of runs : " + str(config.number_of_runs))
-    elif not (yaml['artconfig']['operationalMode']):
-        try:
-            static.logger.debug("Running in Normal Mode")
-            config.global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'],
-                                                                    static.DATE_FORMAT)
-            config.global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
-
-            difference = config.global_final_date - config.global_initial_date
-            config.number_of_runs = difference.days
-        except KeyError:
-            static.logger.warning("KeyError")
-            config.number_of_runs = 1
-            global_initial_date = datetime.datetime.today()
-            global_final_date = global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-            config.global_initial_date = datetime.datetime.strftime(datetime.datetime.today(), static.DATE_FORMAT)
-            config.global_final_date = datetime.datetime.strftime(global_final_date, static.DATE_FORMAT)
-        finally:
-            static.logger.debug("Global Initial Date : " + config.global_initial_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Global Final Date : " + config.global_final_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Number of runs : " + str(config.number_of_runs))
-    else:
-        raise ValueError("artconfig: forecastMode value needs to be either a number or true/false")
 
 
 def mpi_params(yaml_file):
@@ -66,11 +15,22 @@ def mpi_params(yaml_file):
             joinerVersion = mohid['mpi']['joinerVersion']
 
 
+def operational_mode():
+    return
+
+
+def no_operational_mode(yaml, config):
+    path = yaml['artconfig']['mainPath'] + "data/model.dat"
+    if os.path.isfile(path):
+        common.file_modifier.modify_line(path, "START",
+                                         common.file_modifier.date_to_mohid_date(config.global_initial_date))
+        common.file_modifier.modify_line(path, "END",
+                                         common.file_modifier.date_to_mohid_date(config.global_final_date))
+    return
+
+
 def run_mohid(yaml, model):
     static.logger.debug("Run MOHID enabled")
-    global config
-    yaml_lib.validate_date(yaml)
-    validate_path(yaml['artconfig']['mainPath'])
     for i in range(1, config.number_of_runs+1):
         static.logger.info("========================================")
         static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(config.number_of_runs) + " )")
@@ -88,7 +48,7 @@ def run_mohid(yaml, model):
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run of model " + yaml['mohid']['models'][model]['name'])
-        # subprocess.run(yaml['mohid']['exePath'])
+       # subprocess.run(yaml['mohid']['exePath'])
         static.logger.info("MOHID run finished")
 
 
@@ -174,5 +134,9 @@ def get_meteo_filename(model, name, extension=".hdf5"):
         return None
 
 
-def execute():
+def execute(yaml, config):
+    if 'operationalMode' not in yaml['artconfig'] or yaml['artconfig']['operationalMode'] == 0:
+        no_operational_mode(yaml, config)
+    else:
+        operational_mode()
     return None
