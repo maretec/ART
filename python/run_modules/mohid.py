@@ -16,12 +16,12 @@ def mpi_params(yaml_file):
             joinerVersion = mohid['mpi']['joinerVersion']
 
 
-def create_model_dat(yaml, config):
+def create_model_dat(yaml):
     file = open(yaml['artconfig']['mainPath'] + "data/model.dat", "w+")
     common.file_modifier.line_creator(file, "START",
-                                      common.file_modifier.date_to_mohid_date(config.global_initial_date))
+                                      common.file_modifier.date_to_mohid_date(cfg.global_initial_date))
     common.file_modifier.line_creator(file, "END",
-                                      common.file_modifier.date_to_mohid_date(config.global_final_date))
+                                      common.file_modifier.date_to_mohid_date(cfg.global_final_date))
 
     return None
 
@@ -36,7 +36,7 @@ def no_operational_mode(yaml):
         common.file_modifier.modify_line(path, "START",
                                          common.file_modifier.date_to_mohid_date(cfg.global_initial_date))
         common.file_modifier.modify_line(path, "END",
-                                         common.file_modifier.date_to_mohid_date(config.global_final_date))
+                                         common.file_modifier.date_to_mohid_date(cfg.global_final_date))
     else:
         create_model_dat(yaml)
     return
