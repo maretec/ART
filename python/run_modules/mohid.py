@@ -2,6 +2,7 @@ import common.constants as static
 import datetime
 import common.file_modifier
 import os.path
+import common.config as cfg
 
 
 
@@ -29,23 +30,23 @@ def operational_mode():
     return
 
 
-def no_operational_mode(yaml, config):
+def no_operational_mode(yaml):
     path = yaml['artconfig']['mainPath'] + "data/model.dat"
     if os.path.isfile(path):
         common.file_modifier.modify_line(path, "START",
-                                         common.file_modifier.date_to_mohid_date(config.global_initial_date))
+                                         common.file_modifier.date_to_mohid_date(cfg.global_initial_date))
         common.file_modifier.modify_line(path, "END",
                                          common.file_modifier.date_to_mohid_date(config.global_final_date))
     else:
-        create_model_dat(yaml, config)
+        create_model_dat(yaml)
     return
 
 
 def run_mohid(yaml, model):
     static.logger.debug("Run MOHID enabled")
-    for i in range(1, config.number_of_runs+1):
+    for i in range(1, cfg.number_of_runs+1):
         static.logger.info("========================================")
-        static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(config.number_of_runs) + " )")
+        static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
         static.logger.info("========================================")
 
         if yaml['artconfig']['runPreProcessing']:
@@ -79,8 +80,8 @@ def process_models(yaml):
 def create_new_model_file(model):
     keys = model.keys()
     file = open(model['path'] + "data/Model_" + str(model['runId']) + ".dat", 'w+')
-    common.file_modifier.line_creator(file, "START", common.file_modifier.date_to_mohid_date(config.global_initial_date))
-    common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(config.global_final_date))
+    common.file_modifier.line_creator(file, "START", common.file_modifier.date_to_mohid_date(cfg.global_initial_date))
+    common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.global_final_date))
     common.file_modifier.line_creator(file, "DT", str(model['DT']))
     common.file_modifier.line_creator(file, "VARIABLEDT", "")
     if "maxdt" in keys:
@@ -106,7 +107,7 @@ def gather_boundary_conditions(mainPath, model):
                 static.logger.info("Could not find meteo file from Solution with name - " + model['name'] + ".")
             else:
                 static.logger.info("Meteo file solution found " + model['name'] + ".")
-                config.meteo_location = mainPath + "GeneralData/BoundaryConditions/Atmosphere/" + model['name'] + \
+                cfg.meteo_location = mainPath + "GeneralData/BoundaryConditions/Atmosphere/" + model['name'] + \
                                         "/" + model['meteo'][meteos]['modelName'] + "/" +\
                                         model['meteo'][meteos]['modelName'] + "_" + model['name'] + ".hdf5"
 
@@ -132,23 +133,23 @@ def get_meteo_filename(model, name, extension=".hdf5"):
         print("tmp")
         # TODO falta final_date sera global_final_date???
     else:
-        initial_date = config.global_initial_date
+        initial_date = cfg.global_initial_date
         final_date = initial_date + datetime.timedelta(days=simulated_days)
         meteo_final_date = final_date.strftime(static.DATE_FOLDER_FORMAT)
     if model['fileNameFromModel']:
         sufix = model_name
-        return (model['workPath'] + name + "_" + sufix + "_" + config.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) +
+        return (model['workPath'] + name + "_" + sufix + "_" + cfg.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) +
                 "_" + meteo_final_date + extension)
     elif model['genericFileName']:
-        return (model['workPath'] + "meteo_" + config.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) + "_" +
+        return (model['workPath'] + "meteo_" + cfg.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) + "_" +
                 meteo_final_date + extension)
     else:
         return None
 
 
-def execute(yaml, config):
+def execute(yaml):
     if 'operationalMode' not in yaml['artconfig'] or yaml['artconfig']['operationalMode'] == 0:
-        no_operational_mode(yaml, config)
+        no_operational_mode(yaml)
     else:
         operational_mode()
     return None
