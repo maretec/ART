@@ -28,3 +28,5 @@ def nomfinch_creator(workPath, parameters, values):
         line_creator(file, parameter, "1")
     file.close()
     return
+
+
