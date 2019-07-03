@@ -1,85 +1,43 @@
-  Sub GetDischarges()
-        Dim LinesToWrite As New Collection
-        Dim DischargesToCompute As Boolean = False
-        Dim Discharges_Log_File As New Collection
-        Dim i As Integer
-
-
+  Sub GetDischarges_srn()
         ' Managing Discharges
+        Dim SimulationsAvailable As Integer
         For Each Model As Model In Models
 
-            If Model.HasDischarges Then
-                Dim DischargesConfigFile As String = System.IO.Path.Combine(Model.DischargesWorkPath, DischargesConfigFilename)
-                DischargesToCompute = True
-                LogThis("Managing discharges file for model : " + Model.Name)
+            If Model.HasDischarges_srn Then
+                Dim InitialDate_ As Date
+                Dim InitialDateStr_ As String
+                Dim FinalDateStr As String
+                Dim FolderLabel As String
+                Dim SourceBasePath As String
+                SimulationsAvailable = DaysPerRun - Model.srnSimulatedDays
 
-                Discharges_Log_File.Add("Discharges_" + Now.ToString("yyyy-MM-dd_HHmmss") + _
-                                   "_" + Model.Name.ToString + ".log")
-                LinesToWrite.Add(Chr(34) + "Mohid TimeSeriesCreator.exe" + Chr(34) + " " + _
-                                   "-a0=Import_Dates " + _
-                                   "-a1=" + DischargesConfigFile.ToString + " " + _
-                                   "-a2=" + InitialDateStr + " " + _
-                                   "-a3=" + FinalDateStr + " " + _
-                                   "> " + Discharges_Log_File(Discharges_Log_File.Count))
+                LogThis("Gathering srn discharges files...")
 
-
-                ' Checking for Discharges to compute
-
-                LogThis("Writing TimeSeriesCreator batch file...")
-                Dim TSBatchFileName As String = Path.Combine(Model.DischargesWorkPath, "make_timeseries.bat")
-                Try
-
-                    Dim TSBatchFile As New OutData(TSBatchFileName)
-
-
-                    For i = 1 To LinesToWrite.Count
-                        TSBatchFile.WriteDataLine(LinesToWrite(i))
-                    Next
-                    TSBatchFile.Finish()
-                    LogThis("Done!")
-                Catch ex As Exception
-                    Call UnSuccessfullEnd("Error Writing TimeSeriesCreator batch file in model " + Model.Name.ToString + " (could not write batch file " + TSBatchFileName + ")")
-                End Try
-
-                LogThis("Generating discharges from database...")
-
-                Dim TSBatch As Process = New Process
-                TSBatch.StartInfo.FileName = TSBatchFileName
-                TSBatch.StartInfo.WorkingDirectory = Model.DischargesWorkPath
-                TSBatch.StartInfo.WindowStyle = ProcessWindowStyle.Normal
-
-                Try
-                    TSBatch.Start()
-                    TSBatch.WaitForExit(30000)
-
-                    LogThis("Done.")
-
-                Catch ex As Exception
-                    Call UnSuccessfullEnd("Error executing TimeSeriesCreator batch file in model " + Model.Name.ToString + " (could not execute batch file" + TSBatchFileName + ")")
-                End Try
-
-            End If
-        Next
-
-
-        ' Checking if discharges generation was successful 
-        i = 0
-        For Each Model As Model In Models
-            If Model.HasDischarges Then
-                i += 1
-                LogThis("Checking if discharges generation was successful in model " + Model.Name.ToString + "...")
-                If File.Exists(Path.Combine(Model.DischargesWorkPath, Discharges_Log_File(i))) Then
-                    If ProgramWasSuccessfull(Path.Combine(Model.DischargesWorkPath, Discharges_Log_File(i)), "TimeSeries successfully finished his tasks.") Then
-                        LogThis("Discharge files successfully generated in model " + Model.Name.ToString)
-                        Call Model.Read_Discharges_List(DischargesConfigFilename)
-                    Else
-                        Call UnSuccessfullEnd("Error generating discharge files in model " + Model.Name.ToString + "!")
+                For n = 0 To SimulationsAvailable Step -1
+                    InitialDate_ = InitialDate.AddDays(n)
+                    InitialDateStr_ = InitialDate_.ToString("yyyy-MM-dd")
+                    FinalDateStr = InitialDate_.AddDays(Model.srnSimulatedDays).ToString("yyyy-MM-dd")
+                    Dim filename As String
+                    Dim FullTargetBasePath As String
+                    SourceBasePath = Model.Discharges_srn_WorkPath + "\" + InitialDateStr_ + "_" + FinalDateStr
+                    FolderLabel = "BoundaryConditions\Discharges\" + Model.Discharges_srn_ModelName + "\"
+                    FullTargetBasePath = MainPath + "GeneralData\" + FolderLabel + "\"
+                    If Not Directory.Exists(FullTargetBasePath) Then
+                        Directory.CreateDirectory(FullTargetBasePath)
                     End If
-                Else
-                    Call UnSuccessfullEnd("Error starting discharge files generation in model " + Model.Name.ToString + " (could not find TimeSeriesCreator log file " + Discharges_Log_File(i) + ")")
-                End If
+                    If Directory.Exists(SourceBasePath) Then
+                        Dim files() As String
+                        files = Directory.GetFiles(SourceBasePath, "*.srn")
+
+                        For Each file_ As String In files
+                            filename = Path.GetFileName(file_)
+                            FileCopy(file_, FullTargetBasePath + filename, "Could not copy srn discharge file - " + FullTargetBasePath + filename, True)
+                        Next
+                        Exit For
+                    End If
+                Next
+
             End If
         Next
-
 
     End Sub
