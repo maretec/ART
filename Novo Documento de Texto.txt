@@ -1,47 +1,28 @@
-    Sub GetDischarges_ets()
-        ' Managing Discharges
-        Dim SimulationsAvailable As Integer
+    Sub CreateNewModelFiles()
+
+        LogThis("Writing new dates on Model.dat input data file for todays forecast...")
+
         For Each Model As Model In Models
 
-            If Model.HasDischarges_ets Then
-                Dim InitialDate_ As Date
-                Dim InitialDateStr_ As String
-                Dim FinalDateStr As String
-                Dim FolderLabel As String
-                Dim SourceBasePath As String
-                SimulationsAvailable = DaysPerRun - Model.etsSimulatedDays
-
-                LogThis("Gathering ets discharges files...")
-
-                For n = 0 To SimulationsAvailable Step -1
-                    InitialDate_ = InitialDate.AddDays(n)
-                    InitialDateStr_ = InitialDate_.ToString("yyyy-MM-dd")
-                    FinalDateStr = InitialDate_.AddDays(Model.etsSimulatedDays).ToString("yyyy-MM-dd")
-                    Dim filename As String
-                    Dim FullTargetBasePath As String
-                    SourceBasePath = Model.Discharges_ets_WorkPath + "\" + InitialDateStr_ + "_" + FinalDateStr
-                    FolderLabel = "BoundaryConditions\Discharges\" + Model.Discharges_ets_ModelName + "\"
-                    FullTargetBasePath = MainPath + "GeneralData\" + FolderLabel + "\"
-                    If Not Directory.Exists(FullTargetBasePath) Then
-                        Directory.CreateDirectory(FullTargetBasePath)
-                    Else
-                        For Each FoundFile As String In My.Computer.FileSystem.GetFiles(FullTargetBasePath, FileIO.SearchOption.SearchTopLevelOnly, "*.ets")
-                            My.Computer.FileSystem.DeleteFile(FoundFile)
-                        Next
-                    End If
-                    If Directory.Exists(SourceBasePath) Then
-                        Dim files() As String
-                        files = Directory.GetFiles(SourceBasePath, "*.ets")
-
-                        For Each file_ As String In files
-                            filename = Path.GetFileName(file_)
-                            FileCopy(file_, FullTargetBasePath + filename, "Could not copy ets discharge file - " + FullTargetBasePath + filename, True)
-                        Next
-                        Exit For
-                    End If
-                Next
-
+            'change initial and final dates
+            Dim NewModelInputFile As New OutData(Model.Path + "data\Model_" + Model.RunID.ToString + ".dat")
+            NewModelInputFile.WriteDataLine("START", InitialDate)
+            NewModelInputFile.WriteDataLine("END", FinalDate)
+            NewModelInputFile.WriteDataLine("DT", Model.TimeStep)
+            NewModelInputFile.WriteDataLine("VARIABLEDT", Model.HasVariableDT)
+            If Model.HasVariableDT Then
+                NewModelInputFile.WriteDataLine("MAXDT", Model.MaxDT)
             End If
+            NewModelInputFile.WriteDataLine("GMTREFERENCE", 0)
+            NewModelInputFile.WriteDataLine("OPENMP_NUM_THREADS", OpenMP_Num_Threads)
+            If Model.HasLagrangian Then
+                NewModelInputFile.WriteDataLine("LAGRANGIAN", 1)
+            End If
+            If Model.HasWaves Then
+            End If
+            NewModelInputFile.Finish()
+
         Next
+
 
     End Sub
