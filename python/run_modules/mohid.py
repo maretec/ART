@@ -89,7 +89,7 @@ def gather_boundary_conditions(yaml, model):
             file_type = model['obc']['fileType']
 
         simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
-        for n in range(0, simulations_available + 1, -1):
+        for n in range(0, simulations_available - 1, -1):
             obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
             obc_final_date = cfg.global_initial_date + datetime.timedelta(days=simulations_available)
 
