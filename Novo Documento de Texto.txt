@@ -1,0 +1,136 @@
+
+    Sub GatherRestartFiles(Optional ByVal modelinput As Model = Nothing)
+        If Run_WW3 Then
+            LogThis("Gathering the restart file ...")
+            If modelinput.GatherRestartFiles Then
+                Dim IniDateFromPreviousRun As Date = InitialDate.AddDays(-1)
+                Dim IniDateFromPreviousRunStr As String = IniDateFromPreviousRun.ToString("yyyy-MM-dd")
+                Dim FinDateFromPreviousRunStr = IniDateFromPreviousRun.AddDays(DaysPerRun).ToString("yyyy-MM-dd")
+                Dim PathToReadFinFiles As String
+                PathToReadFinFiles = Path.Combine(modelinput.BackUpPath, IniDateFromPreviousRunStr + "_" + FinDateFromPreviousRunStr + "\")
+
+                FileCopy(Path.Combine(PathToReadFinFiles, "restart001.ww3"), Path.Combine(modelinput.Path, "restart.ww3"), "Could not copy or rename the restart file - " + modelinput.Name, True)
+
+            End If
+
+        ElseIf Run_MOHID Then
+            LogThis("Gathering the restart files for each model domain...")
+
+            Dim CountProcessors As Integer = 0
+
+            For Each Model As Model In Models
+                Dim PathToReadFinFiles As String
+                Dim IniDateFromPreviousRun As Date = InitialDate.AddDays(-1)
+                Dim IniDateFromPreviousRunStr As String = IniDateFromPreviousRun.ToString("yyyy-MM-dd")
+                Dim FinDateFromPreviousRunStr = IniDateFromPreviousRun.AddDays(DaysPerRun).ToString("yyyy-MM-dd")
+                PathToReadFinFiles = Model.BackUpPath + "Restart\" + IniDateFromPreviousRunStr + "_" + FinDateFromPreviousRunStr + "\"
+
+                If Model.GatherRestartFiles Then
+
+                    If Not Model.HasSolutionFromFile Then
+                        If MPI And Model.MPI_Num_Processors > 1 And MPI_GatherHDF5DecomposedFiles = True Then
+                            For i = (CountProcessors + 1) To (CountProcessors + Model.MPI_Num_Processors)
+                                If Model.HasHydrodynamics Then
+                                    FileCopy(PathToReadFinFiles + "MPI_" + i.ToString + "_Hydrodynamic_1.fin", Model.Path + "res\MPI_" + i.ToString + "_Hydrodynamic_0.fin", "Could not copy or rename one of the Hydrodynamic restart files - " + Model.Name, True)
+                                End If
+                                If Model.HasWaterProperties Then
+                                    FileCopy(PathToReadFinFiles + "MPI_" + i.ToString + "_WaterProperties_1.fin5", Model.Path + "res\MPI_" + i.ToString + "_WaterProperties_0.fin5", "Could not copy or rename one of the WaterProperties restart files - " + Model.Name, True)
+                                End If
+
+                                If Model.HasGOTM Then
+                                    FileCopy(PathToReadFinFiles + "MPI_" + i.ToString + "_GOTM_1.fin", Model.Path + "res\MPI_" + i.ToString + "_GOTM_0.fin", "Could not copy or rename one of the GOTM restart files - " + Model.Name, True)
+                                End If
+
+                                If Model.HasInterfaceSedimentWater Then
+                                    FileCopy(PathToReadFinFiles + "MPI_" + i.ToString + "_InterfaceSedimentWater_1.fin5", Model.Path + "res\MPI_" + i.ToString + "_InterfaceSedimentWater_0.fin5", "Could not copy or rename one of the InterfaceSedimentWater restart files - " + Model.Name, True)
+                                End If
+                                CountProcessors += 1
+                            Next
+                        Else
+                            If Model.HasHydrodynamics Then
+                                FileCopy(PathToReadFinFiles + "Hydrodynamic_1.fin", Model.Path + "res\Hydrodynamic_0.fin", "Could not copy or rename the Hydrodynamic restart file - " + Model.Name, True)
+                            End If
+                            If Model.HasWaterProperties Then
+                                FileCopy(PathToReadFinFiles + "WaterProperties_1.fin5", Model.Path + "res\WaterProperties_0.fin5", "Could not copy or rename the WaterProperties restart file - " + Model.Name, True)
+                            End If
+
+                            If Model.HasGOTM Then
+                                FileCopy(PathToReadFinFiles + "GOTM_1.fin", Model.Path + "res\GOTM_0.fin", "Could not copy or rename the GOTM restart file - " + Model.Name, True)
+                            End If
+
+                            If Model.HasInterfaceSedimentWater Then
+                                FileCopy(PathToReadFinFiles + "InterfaceSedimentWater_1.fin5", Model.Path + "res\InterfaceSedimentWater_0.fin5", "Could not copy or rename the InterfaceSedimentWater restart file - " + Model.Name, True)
+                            End If
+                        End If
+
+                    End If
+
+                    If Model.HasLagrangian Then
+                        FileCopy(PathToReadFinFiles + "Lagrangian_1.fin", Model.Path + "res\Lagrangian_0.fin", "Could not copy or rename the Lagrangian restart file - " + Model.Name, True)
+                    End If
+
+                    '---------MOHID Land
+                    Dim source_string As String
+                    Dim target_string As String
+                    Dim filetype_string As String
+                    If Model.HasBasin Then
+                        filetype_string = "Basin"
+                        source_string = "Basin_1.fin"
+                        target_string = "res\Basin_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasDrainageNetwork Then
+                        filetype_string = "Drainage Network"
+                        source_string = "Drainage Network_1.fin"
+                        target_string = "res\Drainage Network_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasPorousMedia Then
+                        filetype_string = "Porous Media"
+                        source_string = "Porous Media_1.fin"
+                        target_string = "res\Porous Media_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasPorousMediaProperties Then
+                        filetype_string = "PorousMedia Properties"
+                        source_string = "PorousMedia Properties_1.fin"
+                        target_string = "res\PorousMedia Properties_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasRunoff Then
+                        filetype_string = "RunOff"
+                        source_string = "RunOff_1.fin"
+                        target_string = "res\RunOff_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasRunoffProperties Then
+                        filetype_string = "RunOff Properties"
+                        source_string = "RunOff Properties_1.fin"
+                        target_string = "res\RunOff Properties_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasVegetation Then
+                        filetype_string = "Vegetation"
+                        source_string = "Vegetation_1.fin"
+                        target_string = "res\Vegetation_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasReservoirs Then
+                        filetype_string = "Reservoirs"
+                        source_string = "Reservoirs_1.fin"
+                        target_string = "res\Reservoirs_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    If Model.HasIrrigation Then
+                        filetype_string = "Irrigation"
+                        source_string = "Irrigation_1.fin"
+                        target_string = "res\Irrigation_0.fin"
+                        FileCopy(PathToReadFinFiles + source_string, Model.Path + target_string, "Could not copy or rename the " + filetype_string + " restart file - " + Model.Name, True)
+                    End If
+                    '---------MOHID Land
+
+                End If
+            Next
+        End If
+
+    End Sub
