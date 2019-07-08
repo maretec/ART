@@ -33,8 +33,10 @@ mohid:
       obc:
         enable: 1
         simulatedDays: 1
+        dateFormat: "YYYYMMDD"
+        fileType: "hdf5"
+        suffix: "_w2"
         workPath: "/ekman1raid/Canarias_2km/Level2/Results_HDF/"
-        hdfReadSuffix: "_w2"
     model2:
       name: "LasPalmas_level2"
       path: "LasPalmas_level1/LasPalmas_level2/"
