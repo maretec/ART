@@ -82,29 +82,58 @@ def gather_boundary_conditions(yaml, model):
     if 'obc' in model_keys and 'enable' in model['obc'].key() and model['obc']['enable']:
         static.logger.debug("Gathering boundary conditions for " + model['name'])
         obc_keys = model['obc'].keys()
+        
+        simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
+        folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
 
         file_type = "hdf5"
         if 'fileType' in obc_keys:
             static.logger.debug("Boundary Conditions File Type: " + model['obc']['fileType'])
             file_type = model['obc']['fileType']
 
-        simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
-        for n in range(0, simulations_available + 1, -1):
-            obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
-            obc_final_date = cfg.global_initial_date + datetime.timedelta(days=simulations_available)
+        if 'hasSolutionFromFile' in obc_keys and not model['obc']['hasSolutionFromFile']:
+            for n in range(0, simulations_available + 1, -1):
+                obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
+                obc_final_date = cfg.global_initial_date + datetime.timedelta(days=simulations_available)
 
-            folder_label = "BoundaryConditions/Hydrodynamics/"
+                obc_source_path = model['obc']['workPath'] + model['obc']['suffix'] + "_" + model['name'] + obc_initial_date \
+                    + "_" + obc_final_date + "." + file_type
 
-            obc_source_path = model['obc']['workPath'] + model['obc']['suffix'] + "_" + model['name'] + obc_initial_date \
-                + "_" + obc_final_date + "." + file_type
+                if os.path.isfile(obc_source_path):
+                    obc_dest_folder = yaml['mainPath'] + folder_label + model['name'] + "/"
+                    if os.path.isdir(obc_dest_folder):
+                        obc_dest_file = obc_dest_folder + model['obc']['suffix'] + "_" + model['name'] + "." + file_type
+                        copy2(obc_source_path, obc_dest_file)
+        elif 'hasSolutionFromFile' in obc_keys and model['obc']['hasSolutionFromFile']:
+            for n in range(0, simulations_available - 1, -1):
+                obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
+                obc_final_date = cfg.global_final_date + datetime.timedelta(days=simulations_available)
 
-            if os.path.isfile(obc_source_path):
-                obc_dest_folder = yaml['mainPath'] + "GeneralData/" + folder_label + model['name'] + "/"
-                if os.path.isdir(obc_dest_folder):
-                    obc_dest_file = obc_dest_folder + model['obc']['suffix'] + "_" + model['name'] + "." + file_type
-                    copy2(obc_source_path, obc_dest_file)
+                hydro_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
+                 "Hydrodynamic" + "_" + model['obc']['suffix'] + "." + file_type
 
+                water_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
+                    "WaterProperties" + "_" + model['obc']['suffix']
 
+                if os.path.isfile(hydro_source_path):
+                    if os.path.isfile(water_source_path):
+                        dest_folder = yaml['mainPath'] + folder_label + model['name']
+                        if os.path.isdir(dest_folder):
+                            hydro_dest_file = obc_dest_folder + "/Hydrodynamic" + "_" + model['obc']['suffix'] + \
+                                "." + file_type
+                            water_dest_file = obc_dest_folder + "/WaterProperties" + "_" + model['obc']['suffix'] + \
+                                "." + file_type
+                            copy2(hydro_source_path, hydro_dest_file)
+                            copy2(water_source_path, water_dest_file)
+                        else:
+                            static.logger.debug("Folder for Hydrodynamic/Waterproperties file does not exist: " + 
+                            dest_folder)
+                            raise FileNotFoundError("Folder for Hydrodynamic/Waterproperties file does not exist: " + 
+                            dest_folder)
+                    else:
+                        static.logger.debug("GatherBoundaryConditions: File " + water_source_path + " does not exist.")
+                else:
+                    static.logger.debug("GatherBoundaryConditions: File " + hydro_source_path + " does not exist. ")
 
 
     # initial_date
