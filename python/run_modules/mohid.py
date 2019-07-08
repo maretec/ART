@@ -135,7 +135,6 @@ def gather_boundary_conditions(yaml, model):
                 else:
                     static.logger.debug("GatherBoundaryConditions: File " + hydro_source_path + " does not exist. ")
 
-
     # initial_date
     # final_date
     # model_keys = model.keys()
