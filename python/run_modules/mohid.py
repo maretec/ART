@@ -36,15 +36,15 @@ def run_mohid(yaml, model):
 
 
 def process_models(yaml):
-    static.logger.debug("Creating new model files")
     for model in yaml['mohid']['models']:
-        gather_boundary_conditions(model)
+        gather_boundary_conditions(yaml, model)
         change_model_dat(yaml, model)
-        gather_restart_files(model)
+        gather_restart_files(yaml, model)
         run_mohid(yaml, model)
 
 
 def change_model_dat(yaml, model):
+    static.logger.debug("Creating new model file for model: " + model['name'])
     keys = model.keys()
     path = yaml['artconfig']['mainPath'] + model['path']
     if not os.path.isdir(path):
@@ -85,6 +85,10 @@ def gather_boundary_conditions(yaml, model):
         
         simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
         folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
+        
+        date_format = "%Y-%m-%d"
+        if 'dateFormat' in obc_keys:
+            date_format = model['obc']['dateFormat']
 
         file_type = "hdf5"
         if 'fileType' in obc_keys:
@@ -97,8 +101,9 @@ def gather_boundary_conditions(yaml, model):
                 obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.global_initial_date + datetime.timedelta(days=simulations_available)
 
-                obc_initial_date = obc_initial_date.strftime("%Y-%m-%d")
-                obc_final_date = obc_final_date.strftime("%Y-%m-%d")
+                obc_initial_date = obc_initial_date.strftime(date_format)
+                obc_final_date = obc_final_date.strftime(date_format)
+
                 obc_source_path = model['obc']['workPath'] + model['obc']['prefix'] + "_" + model['name'] + obc_initial_date \
                     + "_" + obc_final_date + "." + file_type
 
@@ -107,13 +112,21 @@ def gather_boundary_conditions(yaml, model):
                     if os.path.isdir(obc_dest_folder):
                         obc_dest_file = obc_dest_folder + model['obc']['prefix'] + "_" + model['name'] + "." + file_type
                         copy2(obc_source_path, obc_dest_file)
+                    else:
+                        static.logger.debug("Destination folder for OBC files not found: " + obc_dest_folder)
+                        raise FileNotFoundError("Destination folder for OBC files not found: " + obc_dest_folder)
+                else:
+                    static.logger.debug("Source file for OBC file not found: " + obc_source_path)
+                    raise FileNotFoundError("Source file for OBC file not found: " + obc_source_path)
+
         elif 'hasSolutionFromFile' in obc_keys and model['obc']['hasSolutionFromFile']:
             for n in range(0, simulations_available - 1, -1):
                 obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.global_final_date + datetime.timedelta(days=simulations_available)
 
-                obc_initial_date = obc_initial_date.strftime("%Y-%m-%d")
-                obc_final_date = obc_final_date.strftime("%Y-%m-%d")
+                
+                obc_initial_date = obc_initial_date.strftime(date_format)
+                obc_final_date = obc_final_date.strftime(date_format)
 
                 hydro_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
                  "Hydrodynamic" + "_" + model['obc']['suffix'] + "." + file_type
@@ -140,35 +153,6 @@ def gather_boundary_conditions(yaml, model):
                         static.logger.debug("GatherBoundaryConditions: File " + water_source_path + " does not exist.")
                 else:
                     static.logger.debug("GatherBoundaryConditions: File " + hydro_source_path + " does not exist. ")
-
-    # initial_date
-    # final_date
-    # model_keys = model.keys()
-    # static.logger.info("Gathering boundary conditions for model " + model['name'] + ".")
-    # if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
-    #     obc_keys = model['obc'].keys()
-    #     fileType = "hdf5"
-    #     #TODO initial date e final date devem depender da run em que vão
-    #     if 'subFolders' in obc_keys and model['obc']['subFolders']:
-    #         return
-    #     if 'fileType' in obc_keys:
-    #         fileType = model['obc']['fileType']
-    #     else:
-    #
-    #         source_obc_path = model['obc']['workPath'] + model['obc']['suffix'] + "_" + model['name'] + \
-    #              cfg.global_initial_date + "_" + cfg.global_final_date + "." + fileType
-    #     if not os.path.isdir(mainPath + model['path'] + "GeneralData/" + "BoundaryConditions/Hydrodynamics/" +
-    #                          model['name'] + "/"):
-    #         os.mkdir(mainPath + model['path'] + "GeneralData/" + "BoundaryConditions/Hydrodynamics/" +
-    #                          model['name'] + "/")
-    #     target_file_path = mainPath + model['path'] + "GeneralData/" + "BoundaryConditions/Hydrodynamics/" + \
-    #                        model['name'] + "/" + model['obc']['suffix'] + model['name'] + "." + fileType
-
-
-
-
-def gather_restart_files(model):
-    static.logger.info("Gathering the restart files for each model domain.")
 
 
 def get_meteo_filename(model, name, extension=".hdf5"):
