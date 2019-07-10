@@ -158,36 +158,59 @@ def gather_boundary_conditions(yaml, model):
 
 def get_meteo_file(yaml, model):
     model_keys = model.keys()
-    if 'meteo' in model_keys:
-        meteo_keys = model['meteo'].keys()
+    if 'meteo' in model_keys and model['enable']:
+        meteo_models_keys = model['meteo']['models'].keys()
 
-        date_format = "%Y-%m-%d"
-        if 'dateFormat' in meteo_keys:
-            date_format = model['meteo']['dateFormat']
+        for meteo_model in meteo_models_keys:
+            meteo_keys = model['meteo']['models'][meteo_model].keys()
+
+            date_format = "%Y-%m-%d"
+            if 'dateFormat' in meteo_keys:
+                date_format = model['meteo'][meteo_model]['dateFormat']
+            
+            meteo_initial_date = cfg.global_initial_date.strftime(date_format)
+            meteo_final_date = None
+            if 'simulatedDays' in meteo_keys:
+                meteo_final_date = cfg.global_initial_date + datetime.timedelta(days=model['meteo'][meteo_model]
+                ['simulatedDays'])
+                meteo_final_date = meteo_final_date.strftime(date_format)
+            else:
+                meteo_final_date = cfg.global_final_date.strftime(date_format)
         
-        meteo_initial_date = cfg.global_initial_date.strftime(date_format)
-        meteo_final_date = None
-        if 'simulatedDays' in meteo_keys:
-            meteo_final_date = cfg.global_initial_date + datetime.timedelta(days=model['meteo']['simulatedDays'])
-            meteo_final_date = meteo_final_date.strftime(date_format)
-        else:
-            meteo_final_date = cfg.global_final_date.strftime(date_format)
-       
-       file_type = "hdf5"
-       if 'fileType' in meteo_keys:
-           file_type = model['meteo']['fileType']
+            file_type = "hdf5"
+            if 'fileType' in meteo_keys:
+                file_type = model['meteo'][meteo_model]['fileType']
 
-        meteo_sufix = "TAGUS3D"
-        if 'fileNameFromModel' in meteo_keys and model['meteo']['fileNameFromModel']:
+            meteo_sufix = "TAGUS3D"
+            meteo_file_source = None
+            if 'fileNameFromModel' in meteo_keys and model['meteo'][meteo_model]['fileNameFromModel']:
+                meteo_sufix = model['meteo'][meteo_model]['modelName']
+                meteo_file_source = model['meteo'][meteo_model]['workPath'] + model['meteo'][meteo_model]['name'] + \
+                    "_" + meteo_sufix + "_" + meteo_initial_date + "_" + meteo_final_date + "." + file_type 
+            else:
+                meteo_file_source = model['meteo'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
+                    + "_" + meteo_final_date + "." + file_type
         
-            meteo_sufix = model['meteo']['modelName']
-            meteo_file_source = model['meteo']['workPath'] + model['meteo']['name'] + "_" + meteo_sufix + "_" + \ 
-                meteo_initial_date + "_" + meteo_final_date + "." + file_type    
+            if os.path.isfile(meteo_file_source):
+                meteo_file_dest_folder = yaml['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" + \
+                model['name'] + "/" + model['meteo'][meteo_model] + "/"
+                
+                if not os.path.isdir(meteo_file_dest_folder):
+                    os.makedirs(meteo_file_dest_folder)
 
+                meteo_file_dest = meteo_file_dest_folder +  model['meteo'][meteo_model] + "_" + model['name'] + \
+                    "." + file_type
 
-    if model['meteo']['model']
-
-
+                copy2(meteo_file_source,meteo_file_dest)
+                static.logger.debug("Copied meteo file from " + meteo_file_source + " to " + meteo_file_dest)
+                return
+            else:
+                continue
+        
+        static.logger.debug("get_meteo_file: No meteo file could be find. Check yaml file for configuration errors.")
+        raise FileNotFoundError("get_meteo_file: No meteo file could be find. Check yaml file for configuration" +
+            "errors.")
+        
 def execute(yaml):
     #process_models(yaml)
     gather_boundary_conditions(yaml, yaml['mohid']['models']['model1'])
