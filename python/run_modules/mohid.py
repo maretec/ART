@@ -92,7 +92,7 @@ def gather_boundary_conditions(yaml, model):
             file_type = model['obc']['fileType']
 
         if 'hasSolutionFromFile' in obc_keys and not model['obc']['hasSolutionFromFile']:
-            for n in range(0, simulations_available + 1, -1):
+            for n in range(0, simulations_available - 1, -1):
                 obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.global_initial_date + datetime.timedelta(days=simulations_available)
 
@@ -193,5 +193,6 @@ def get_meteo_filename(model, name, extension=".hdf5"):
 
 
 def execute(yaml):
-    process_models(yaml)
+    #process_models(yaml)
+    gather_boundary_conditions(yaml, yaml['mohid']['models']['model1'])
     return None
