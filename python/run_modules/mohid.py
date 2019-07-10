@@ -37,6 +37,7 @@ def run_mohid(yaml, model):
 
 def process_models(yaml):
     for model in yaml['mohid']['models']:
+        get_meteo_file(yaml, model)
         gather_boundary_conditions(yaml, model)
         change_model_dat(yaml, model)
         gather_restart_files(yaml, model)
@@ -155,31 +156,36 @@ def gather_boundary_conditions(yaml, model):
                     static.logger.debug("GatherBoundaryConditions: File " + hydro_source_path + " does not exist. ")
 
 
-def get_meteo_filename(model, name, extension=".hdf5"):
-    model_name = model['modelName']
-    simulated_days = -99
-    meteo_final_date = ""
+def get_meteo_file(yaml, model):
+    model_keys = model.keys()
+    if 'meteo' in model_keys:
+        meteo_keys = model['meteo'].keys()
 
-    if "simulatedDays" in model:
-        simulated_days = model['simulatedDays']
-    sufix = "TAGUS3D"
+        date_format = "%Y-%m-%d"
+        if 'dateFormat' in meteo_keys:
+            date_format = model['meteo']['dateFormat']
+        
+        meteo_initial_date = cfg.global_initial_date.strftime(date_format)
+        meteo_final_date = None
+        if 'simulatedDays' in meteo_keys:
+            meteo_final_date = cfg.global_initial_date + datetime.timedelta(days=model['meteo']['simulatedDays'])
+            meteo_final_date = meteo_final_date.strftime(date_format)
+        else:
+            meteo_final_date = cfg.global_final_date.strftime(date_format)
+       
+       file_type = "hdf5"
+       if 'fileType' in meteo_keys:
+           file_type = model['meteo']['fileType']
 
-    if model['simulatedDays'] == -99:
-        print("tmp")
-        # TODO falta final_date sera global_final_date???
-    else:
-        initial_date = cfg.global_initial_date
-        final_date = initial_date + datetime.timedelta(days=simulated_days)
-        meteo_final_date = final_date.strftime(static.DATE_FOLDER_FORMAT)
-    if model['fileNameFromModel']:
-        sufix = model_name
-        return (model['workPath'] + name + "_" + sufix + "_" + cfg.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) +
-                "_" + meteo_final_date + extension)
-    elif model['genericFileName']:
-        return (model['workPath'] + "meteo_" + cfg.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) + "_" +
-                meteo_final_date + extension)
-    else:
-        return None
+        meteo_sufix = "TAGUS3D"
+        if 'fileNameFromModel' in meteo_keys and model['meteo']['fileNameFromModel']:
+        
+            meteo_sufix = model['meteo']['modelName']
+            meteo_file_source = model['meteo']['workPath'] + model['meteo']['name'] + "_" + meteo_sufix + "_" + \ 
+                meteo_initial_date + "_" + meteo_final_date + "." + file_type    
+
+
+    if model['meteo']['model']
 
 
 def execute(yaml):
