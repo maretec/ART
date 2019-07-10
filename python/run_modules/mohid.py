@@ -91,23 +91,29 @@ def gather_boundary_conditions(yaml, model):
             static.logger.debug("Boundary Conditions File Type: " + model['obc']['fileType'])
             file_type = model['obc']['fileType']
 
-        if 'hasSolutionFromFile' in obc_keys and not model['obc']['hasSolutionFromFile']:
+        if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
+            model['obc']['hasSolutionFromFile']:
             for n in range(0, simulations_available - 1, -1):
                 obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.global_initial_date + datetime.timedelta(days=simulations_available)
 
-                obc_source_path = model['obc']['workPath'] + model['obc']['suffix'] + "_" + model['name'] + obc_initial_date \
+                obc_initial_date = obc_initial_date.strftime("%Y-%m-%d")
+                obc_final_date = obc_final_date.strftime("%Y-%m-%d")
+                obc_source_path = model['obc']['workPath'] + model['obc']['prefix'] + "_" + model['name'] + obc_initial_date \
                     + "_" + obc_final_date + "." + file_type
 
                 if os.path.isfile(obc_source_path):
                     obc_dest_folder = yaml['mainPath'] + folder_label + model['name'] + "/"
                     if os.path.isdir(obc_dest_folder):
-                        obc_dest_file = obc_dest_folder + model['obc']['suffix'] + "_" + model['name'] + "." + file_type
+                        obc_dest_file = obc_dest_folder + model['obc']['prefix'] + "_" + model['name'] + "." + file_type
                         copy2(obc_source_path, obc_dest_file)
         elif 'hasSolutionFromFile' in obc_keys and model['obc']['hasSolutionFromFile']:
             for n in range(0, simulations_available - 1, -1):
                 obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.global_final_date + datetime.timedelta(days=simulations_available)
+
+                obc_initial_date = obc_initial_date.strftime("%Y-%m-%d")
+                obc_final_date = obc_final_date.strftime("%Y-%m-%d")
 
                 hydro_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
                  "Hydrodynamic" + "_" + model['obc']['suffix'] + "." + file_type
