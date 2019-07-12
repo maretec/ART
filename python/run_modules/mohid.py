@@ -155,7 +155,9 @@ def gather_boundary_conditions(yaml, model):
                             
                             hydro_dest_file += "." + file_type
                             water_dest_file += "." + file_type
-                            
+
+                            print(hydro_dest_file)
+                            print(water_dest_file)
                             copy2(hydro_source_path, hydro_dest_file)
                             copy2(water_source_path, water_dest_file)
                         else:
