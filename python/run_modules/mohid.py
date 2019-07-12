@@ -109,7 +109,7 @@ def gather_boundary_conditions(yaml, model):
                     + "_" + obc_final_date + "." + file_type
 
                 if os.path.isfile(obc_source_path):
-                    obc_dest_folder = yaml['mainPath'] + folder_label + model['name'] + "/"
+                    obc_dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
                     if os.path.isdir(obc_dest_folder):
                         obc_dest_file = obc_dest_folder + model['obc']['prefix'] + "_" + model['name'] + "." + file_type
                         copy2(obc_source_path, obc_dest_file)
@@ -144,7 +144,7 @@ def gather_boundary_conditions(yaml, model):
 
                 if os.path.isfile(hydro_source_path):
                     if os.path.isfile(water_source_path):
-                        dest_folder = yaml['mainPath'] + folder_label + model['name']
+                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
                         if os.path.isdir(dest_folder):
                             hydro_dest_file = obc_dest_folder + "/Hydrodynamic" + "_" + model['obc']['suffix'] + \
                                 "." + file_type
