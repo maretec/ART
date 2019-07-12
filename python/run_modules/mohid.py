@@ -93,8 +93,9 @@ def gather_boundary_conditions(yaml, model):
 
         file_type = "hdf5"
         if 'fileType' in obc_keys:
-            static.logger.debug("Boundary Conditions File Type: " + model['obc']['fileType'])
             file_type = model['obc']['fileType']
+        static.logger.debug("Boundary Conditions File Type: " + model['obc']['fileType'])
+
 
         if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
             model['obc']['hasSolutionFromFile']:
@@ -156,8 +157,8 @@ def gather_boundary_conditions(yaml, model):
                             hydro_dest_file += "." + file_type
                             water_dest_file += "." + file_type
 
-                            print(hydro_dest_file)
-                            print(water_dest_file)
+                            print(hydro_source_path)
+                            print(water_source_path)
                             copy2(hydro_source_path, hydro_dest_file)
                             copy2(water_source_path, water_dest_file)
                         else:
