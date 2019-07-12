@@ -130,10 +130,17 @@ def gather_boundary_conditions(yaml, model):
                 obc_final_date = obc_final_date.strftime(date_format)
 
                 hydro_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
-                 "Hydrodynamic" + "_" + model['obc']['suffix'] + "." + file_type
-
+                 "Hydrodynamic"
                 water_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
-                    "WaterProperties" + "_" + model['obc']['suffix']
+                    "WaterProperties"
+
+                if 'suffix' in obc_keys:
+                    hydro_source_path += "_" + model['obc']['suffix']
+                    water_source_path += "_" + model['obc']['suffix']
+
+                hydro_source_path +=  "." + file_type
+                water_source_path += "." + file_type
+               
 
                 if os.path.isfile(hydro_source_path):
                     if os.path.isfile(water_source_path):
@@ -151,9 +158,9 @@ def gather_boundary_conditions(yaml, model):
                             raise FileNotFoundError("Folder for Hydrodynamic/Waterproperties file does not exist: " + 
                             dest_folder)
                     else:
-                        static.logger.debug("GatherBoundaryConditions: File " + water_source_path + " does not exist.")
+                        static.logger.debug("gather_boundary_conditions: File " + water_source_path + " does not exist.")
                 else:
-                    static.logger.debug("GatherBoundaryConditions: File " + hydro_source_path + " does not exist. ")
+                    static.logger.debug("gather_boundary_conditions: File " + hydro_source_path + " does not exist. ")
 
 
 def get_meteo_file(yaml, model):
