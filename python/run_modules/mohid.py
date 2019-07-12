@@ -94,7 +94,7 @@ def gather_boundary_conditions(yaml, model):
         file_type = "hdf5"
         if 'fileType' in obc_keys:
             file_type = model['obc']['fileType']
-        static.logger.debug("Boundary Conditions File Type: " + model['obc']['fileType'])
+        static.logger.debug("Boundary Conditions File Type: " + file_type)
 
 
         if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
