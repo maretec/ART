@@ -146,10 +146,16 @@ def gather_boundary_conditions(yaml, model):
                     if os.path.isfile(water_source_path):
                         dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
                         if os.path.isdir(dest_folder):
-                            hydro_dest_file = dest_folder + "/Hydrodynamic"     + "_" + model['obc']['suffix'] + \
-                                "." + file_type
-                            water_dest_file = dest_folder + "/WaterProperties" + "_" + model['obc']['suffix'] + \
-                                "." + file_type
+                            hydro_dest_file = dest_folder + "/Hydrodynamic" 
+                            water_dest_file = dest_folder + "/WaterProperties"
+
+                            if 'suffix' in obc_keys:
+                                hydro_dest_file += "_" + model['obc']['suffix']
+                                water_dest_file += "_" + model['obc']['suffix'] 
+                            
+                            hydro_dest_file += "." + file_type
+                            water_dest_file += "." + file_type
+                            
                             copy2(hydro_source_path, hydro_dest_file)
                             copy2(water_source_path, water_dest_file)
                         else:
