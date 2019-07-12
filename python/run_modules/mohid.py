@@ -145,14 +145,16 @@ def gather_boundary_conditions(yaml, model):
                 if os.path.isfile(hydro_source_path):
                     if os.path.isfile(water_source_path):
                         dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
+                        print(dest_folder)
                         if os.path.isdir(dest_folder):
-                            hydro_dest_file = obc_dest_folder + "/Hydrodynamic" + "_" + model['obc']['suffix'] + \
+                            hydro_dest_file = obc_dest_folder + "/Hydrodynamic"     + "_" + model['obc']['suffix'] + \
                                 "." + file_type
                             water_dest_file = obc_dest_folder + "/WaterProperties" + "_" + model['obc']['suffix'] + \
                                 "." + file_type
                             copy2(hydro_source_path, hydro_dest_file)
                             copy2(water_source_path, water_dest_file)
                         else:
+                            #TODO create folder if do not exist
                             static.logger.debug("Folder for Hydrodynamic/Waterproperties file does not exist: " + 
                             dest_folder)
                             raise FileNotFoundError("Folder for Hydrodynamic/Waterproperties file does not exist: " + 

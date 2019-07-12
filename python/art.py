@@ -23,10 +23,6 @@ def main():
 
     running_mode(yaml)
 
-    print(cfg.global_initial_date)
-    print(cfg.global_final_date)
-    print(cfg.number_of_runs)
-
     if yaml['artconfig']['runSimulation']:
         module = yaml['artconfig']['module']
         if module == "mohid" or module == "Mohid":
