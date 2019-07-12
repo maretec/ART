@@ -80,7 +80,7 @@ def change_model_dat(yaml, model):
 # TODO verify obc and meteo block on verify yaml
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
-    if 'obc' in model_keys and 'enable' in model['obc'].key() and model['obc']['enable']:
+    if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
         static.logger.debug("Gathering boundary conditions for " + model['name'])
         obc_keys = model['obc'].keys()
         
