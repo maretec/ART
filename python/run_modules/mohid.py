@@ -196,21 +196,21 @@ def get_meteo_file(yaml, model):
         
             file_type = "hdf5"
             if 'fileType' in meteo_keys:
-                file_type = model['meteo'][meteo_model]['fileType']
+                file_type = model['meteo']['models'][meteo_model]['fileType']
 
             meteo_sufix = "TAGUS3D"
             meteo_file_source = None
-            if 'fileNameFromModel' in meteo_keys and model['meteo'][meteo_model]['fileNameFromModel']:
-                meteo_sufix = model['meteo'][meteo_model]['modelName']
-                meteo_file_source = model['meteo'][meteo_model]['workPath'] + model['meteo'][meteo_model]['name'] + \
-                    "_" + meteo_sufix + "_" + meteo_initial_date + "_" + meteo_final_date + "." + file_type 
+            if 'fileNameFromModel' in meteo_keys and model['meteo']['models'][meteo_model]['fileNameFromModel']:
+                meteo_sufix = model['meteo']['models'][meteo_model]['modelName']
+                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + model['meteo']['models']
+                [meteo_model]['name'] + "_" + meteo_sufix + "_" + meteo_initial_date + "_" + meteo_final_date + "." + file_type 
             else:
-                meteo_file_source = model['meteo'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
+                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
                     + "_" + meteo_final_date + "." + file_type
         
             if os.path.isfile(meteo_file_source):
                 meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" + \
-                model['name'] + "/" + model['meteo'][meteo_model] + "/"
+                model['name'] + "/" + model['meteo']['models'][meteo_model] + "/"
                 
                 if not os.path.isdir(meteo_file_dest_folder):
                     os.makedirs(meteo_file_dest_folder)
