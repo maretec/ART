@@ -203,8 +203,7 @@ def get_meteo_file(yaml, model):
             if 'fileNameFromModel' in meteo_keys and model['meteo']['models'][meteo_model]['fileNameFromModel']:
                 meteo_sufix = model['meteo']['models'][meteo_model]['name']
                 meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + \
-                    model['meteo']['models'][meteo_model]['name'] + "_" + meteo_sufix + "_" + meteo_initial_date + "_" + \
-                    meteo_final_date + "." + file_type 
+                    meteo_sufix + "_" + meteo_initial_date + "_" + meteo_final_date + "." + file_type 
             else:
                 meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
                     + "_" + meteo_final_date + "." + file_type
@@ -226,8 +225,8 @@ def get_meteo_file(yaml, model):
             else:
                 continue
         
-        static.logger.debug("get_meteo_file: No meteo file could be found. Check yaml file for configuration errors.")
-        raise FileNotFoundError("get_meteo_file: No meteo file could be found. Check yaml file for configuration" +
+        static.logger.debug("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
+        raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
             "errors.")
         
 def execute(yaml):
