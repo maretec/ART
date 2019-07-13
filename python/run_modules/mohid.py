@@ -209,6 +209,7 @@ def get_meteo_file(yaml, model):
                 meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
                     + "_" + meteo_final_date + "." + file_type
         
+            print(meteo_file_source)
             if os.path.isfile(meteo_file_source):
                 meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" + \
                 model['name'] + "/" + model['meteo']['models'][meteo_model] + "/"
@@ -225,8 +226,8 @@ def get_meteo_file(yaml, model):
             else:
                 continue
         
-        static.logger.debug("get_meteo_file: No meteo file could be find. Check yaml file for configuration errors.")
-        raise FileNotFoundError("get_meteo_file: No meteo file could be find. Check yaml file for configuration" +
+        static.logger.debug("get_meteo_file: No meteo file could be found. Check yaml file for configuration errors.")
+        raise FileNotFoundError("get_meteo_file: No meteo file could be found. Check yaml file for configuration" +
             "errors.")
         
 def execute(yaml):
