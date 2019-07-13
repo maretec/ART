@@ -229,6 +229,6 @@ def get_meteo_file(yaml, model):
             "errors.")
         
 def execute(yaml):
-    #process_models(yaml)
+    get_meteo_file(yaml, yaml['mohid']['models']['model1'])
     gather_boundary_conditions(yaml, yaml['mohid']['models']['model1'])
     return None
