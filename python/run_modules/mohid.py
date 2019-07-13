@@ -188,7 +188,7 @@ def get_meteo_file(yaml, model):
             meteo_initial_date = cfg.global_initial_date.strftime(date_format)
             meteo_final_date = None
             if 'simulatedDays' in meteo_keys:
-                meteo_final_date = cfg.global_initial_date + datetime.timedelta(days=model['meteo'][meteo_model]
+                meteo_final_date = cfg.global_initial_date + datetime.timedelta(days=model['meteo'][meteo_model]\
                 ['simulatedDays'])
                 meteo_final_date = meteo_final_date.strftime(date_format)
             else:
