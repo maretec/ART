@@ -1,0 +1,22 @@
+ DEFAULT_DB_METADATA_TABLENAME  : Estacoes
+ DEFAULT_DB_METADATA_TABLENAMECOLUMN_NAME : EST_TabelaNome
+ DEFAULT_DB_METADATA_COORDXCOLUMN_NAME : EST_XX_Longitude
+ DEFAULT_DB_METADATA_COORDYCOLUMN_NAME : EST_YY_Latitude
+ DEFAULT_DB_METADATA_NAMECOLUMN_NAME : EST_Nome
+ DEFAULT_MODEL_DOMAIN : not applicable
+
+<BeginTimeSerieConfig>
+  DB_FILENAME   : \\192.168.20.45\databases\AutomaticData.mdb
+  DB_TABLENAME           : EH_Almourol
+  DB_INSTANTCOLUMN_NAME  : EHA_Instante
+  
+   <BeginProperty>
+    PROPERTY_NAME      : Caudal (m3/s)
+    DB_COLUMNAME       : EHA_Caudal
+    DEFAULT_VALUE      : 700
+    AVERAGE            : 1
+   <EndProperty>
+
+   OUTPUT_FILENAME        : D:\Aplica\OPTagus3D_V1\GeneralData\Discharges\auto\Tejo_Almourol.txt
+
+<EndTimeSerieConfig>
