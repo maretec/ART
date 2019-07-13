@@ -202,9 +202,9 @@ def get_meteo_file(yaml, model):
             meteo_file_source = None
             if 'fileNameFromModel' in meteo_keys and model['meteo']['models'][meteo_model]['fileNameFromModel']:
                 meteo_sufix = model['meteo']['models'][meteo_model]['name']
-                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + model['meteo']['models'] + \
-                    [meteo_model]['name'] + "_" + meteo_sufix + "_" + meteo_initial_date + "_" + meteo_final_date + \
-                    "." + file_type 
+                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + \
+                    model['meteo']['models'][meteo_model]['name'] + "_" + meteo_sufix + "_" + meteo_initial_date + "_" + \
+                    meteo_final_date + "." + file_type 
             else:
                 meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
                     + "_" + meteo_final_date + "." + file_type
