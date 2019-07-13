@@ -218,8 +218,8 @@ def get_meteo_file(yaml, model):
                 if not os.path.isdir(meteo_file_dest_folder):
                     os.makedirs(meteo_file_dest_folder)
 
-                meteo_file_dest = meteo_file_dest_folder +  model['meteo'][meteo_model] + "_" + model['name'] + \
-                    "." + file_type
+                meteo_file_dest = meteo_file_dest_folder +  model['meteo']['models'][meteo_model]['name'] + "_" + \
+                    model['name'] + "." + file_type
 
                 copy2(meteo_file_source,meteo_file_dest)
                 static.logger.debug("Copied meteo file from " + meteo_file_source + " to " + meteo_file_dest)
