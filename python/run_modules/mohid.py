@@ -175,7 +175,7 @@ def gather_boundary_conditions(yaml, model):
 
 def get_meteo_file(yaml, model):
     model_keys = model.keys()
-    if 'meteo' in model_keys and model['enable']:
+    if 'meteo' in model_keys and model['meteo']['enable']:
         meteo_models_keys = model['meteo']['models'].keys()
 
         for meteo_model in meteo_models_keys:
