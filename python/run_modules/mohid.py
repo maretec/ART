@@ -146,27 +146,22 @@ def gather_boundary_conditions(yaml, model):
                 if os.path.isfile(hydro_source_path):
                     if os.path.isfile(water_source_path):
                         dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
-                        if os.path.isdir(dest_folder):
-                            hydro_dest_file = dest_folder + "/Hydrodynamic" 
-                            water_dest_file = dest_folder + "/WaterProperties"
+                        if not os.path.isdir(dest_folder):
+                            os.makedirs(dest_folder)
+                        hydro_dest_file = dest_folder + "/Hydrodynamic" 
+                        water_dest_file = dest_folder + "/WaterProperties"
 
-                            if 'suffix' in obc_keys:
-                                hydro_dest_file += "_" + model['obc']['suffix']
-                                water_dest_file += "_" + model['obc']['suffix'] 
-                            
-                            hydro_dest_file += "." + file_type
-                            water_dest_file += "." + file_type
+                        if 'suffix' in obc_keys:
+                            hydro_dest_file += "_" + model['obc']['suffix']
+                            water_dest_file += "_" + model['obc']['suffix'] 
+                        
+                        hydro_dest_file += "." + file_type
+                        water_dest_file += "." + file_type
 
-                            print(hydro_source_path)
-                            print(water_source_path)
-                            copy2(hydro_source_path, hydro_dest_file)
-                            copy2(water_source_path, water_dest_file)
-                        else:
-                            #TODO create folder if do not exist
-                            static.logger.debug("Folder for Hydrodynamic/Waterproperties file does not exist: " + 
-                            dest_folder)
-                            raise FileNotFoundError("Folder for Hydrodynamic/Waterproperties file does not exist: " + 
-                            dest_folder)
+                        print(hydro_source_path)
+                        print(water_source_path)
+                        copy2(hydro_source_path, hydro_dest_file)
+                        copy2(water_source_path, water_dest_file)
                     else:
                         static.logger.debug("gather_boundary_conditions: File " + water_source_path + " does not exist.")
                 else:
