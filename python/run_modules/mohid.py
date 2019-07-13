@@ -219,7 +219,7 @@ def get_meteo_file(yaml, model):
 
                 meteo_file_dest = meteo_file_dest_folder +  model['meteo']['models'][meteo_model]['name'] + "_" + \
                     model['name'] + "." + file_type
-                    cd
+                    
                 copy2(meteo_file_source,meteo_file_dest)
                 static.logger.debug("Copied meteo file from " + meteo_file_source + " to " + meteo_file_dest)
                 return
