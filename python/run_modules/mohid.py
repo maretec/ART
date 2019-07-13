@@ -212,7 +212,8 @@ def get_meteo_file(yaml, model):
             print(meteo_file_source)
             if os.path.isfile(meteo_file_source):
                 meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" + \
-                model['name'] + "/" + model['meteo']['models'][meteo_model] + "/"
+                    model['name'] + "/" + model['meteo']['models'][meteo_model]['name'] + "/" + \
+                    model['meteo']['models'][meteo_model]['name'] + "_" + model['name'] + "." + file_type
                 
                 if not os.path.isdir(meteo_file_dest_folder):
                     os.makedirs(meteo_file_dest_folder)
