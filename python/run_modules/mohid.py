@@ -27,11 +27,11 @@ def run_mohid(yaml, model):
         flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         static.logger.info("Starting MOHID MPI run of model: " + yaml['mohid']['models'][model]['name'])
-        # subprocess.run([mpi['exePath'], flags])
+        subprocess.run([mpi['exePath'], flags])
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run of model " + yaml['mohid']['models'][model]['name'])
-       # subprocess.run(yaml['mohid']['exePath'])
+        subprocess.run(yaml['mohid']['exePath'])
         static.logger.info("MOHID run finished")
 
 
@@ -226,6 +226,7 @@ def get_meteo_file(yaml, model):
             "errors.")
         
 def execute(yaml):
-    #get_meteo_file(yaml, yaml['mohid']['models']['model1'])
+    get_meteo_file(yaml, yaml['mohid']['models']['model1'])
     gather_boundary_conditions(yaml, yaml['mohid']['models']['model1'])
+    run_mohid(yaml, yaml['mohid']['models']['model1'])
     return None
