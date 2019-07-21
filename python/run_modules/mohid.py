@@ -50,6 +50,7 @@ def change_model_dat(yaml, model):
     file_path = path + "Model_" + str(model['runId']) + ".dat"
     if not os.path.isfile(file_path):
         file = open(file_path, 'w+')
+        print("hello")
         common.file_modifier.line_creator(file, "START",
                                           common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
         common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
