@@ -223,7 +223,7 @@ def execute(yaml):
     static.logger.debug("Run MOHID enabled")
     for i in range(1, cfg.number_of_runs+1):
         cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
-        cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artConfig']['daysPerRun'])
+        cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         print(cfg.current_initial_date)
         print(cfg.current_final_date)
         static.logger.info("========================================")
