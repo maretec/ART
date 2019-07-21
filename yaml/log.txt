@@ -1,0 +1,11 @@
+2019-07-21 16:55:02	| MOHID | DEBUG | Running in Operational Mode
+2019-07-21 16:55:02	| MOHID | DEBUG | Initial Date : 2019 07 21 16 55 02
+2019-07-21 16:55:02	| MOHID | DEBUG | Final Date: 2019 07 22 16 55 02
+2019-07-21 16:55:02	| MOHID | DEBUG | Number of runs : 2
+2019-07-21 16:55:02	| MOHID | DEBUG | Run MOHID enabled
+2019-07-21 16:55:02	| MOHID | INFO | ========================================
+2019-07-21 16:55:02	| MOHID | INFO | STARTING FORECAST ( 1 of 2 )
+2019-07-21 16:55:02	| MOHID | INFO | ========================================
+2019-07-21 16:55:02	| MOHID | INFO | ========================================
+2019-07-21 16:55:02	| MOHID | INFO | STARTING FORECAST ( 2 of 2 )
+2019-07-21 16:55:02	| MOHID | INFO | ========================================
