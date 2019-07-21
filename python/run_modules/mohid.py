@@ -228,7 +228,7 @@ def execute(yaml):
         static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
         static.logger.info("========================================")
         for model in yaml['mohid']['models']:
-           change_model_dat(yaml, model)
+           change_model_dat(yaml, yaml['mohid']['models'][model])
       #  get_meteo_file(yaml, model)
        # gather_boundary_conditions(yaml, model)
         #run_mohid(yaml, model)
