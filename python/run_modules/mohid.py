@@ -54,7 +54,7 @@ def change_model_dat(yaml, model):
                                           common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
         common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
         common.file_modifier.line_creator(file, "DT", str(model['DT']))
-        if 'mohid.dat' in keys:
+     """   if 'mohid.dat' in keys:
             for key in model['mohid.dat'].keys():
                 common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
         static.logger.debug("Model " + model["name"] + " .dat file was created.")
@@ -67,7 +67,7 @@ def change_model_dat(yaml, model):
                                          common.file_modifier.date_to_mohid_date(cfg.current_final_date))
         if 'dt' in model.keys():
             common.file_modifier.modify_line(file, "DT",
-                                             model['dt'])
+                                             model['dt'])"""
     file.close()
     return
 
