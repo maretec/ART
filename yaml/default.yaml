@@ -1,6 +1,5 @@
 artconfig:
   mainPath: "./"
-  classicMode: 0
   forecastMode: 1
   daysPerRun: 1
   refDayToStart: 0

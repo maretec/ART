@@ -1,11 +1,22 @@
+import fileinput
+import sys
+
+
 def line_creator(file, parameter, value):
     file.write('{0:30}{1}'.format(parameter, ": " + value + "\n"))
-
+    file.flush()
 
 def date_to_mohid_date(date):
     mohid_date = str(date.year) + " " + str(date.month) + " " + str(date.day) + " " + str(0) + " " + \
                                                               str(0) + " " + str(0)
     return mohid_date
+
+
+def modify_line(filepath, parameter, new_value):
+    for line in fileinput.input(filepath, inplace=True):
+        if parameter in line:
+            line = parameter + " : " + new_value + "\n"
+        sys.stdout.write(line)
 
 
 def nomfinch_creator(workPath, parameters, values):
@@ -17,4 +28,5 @@ def nomfinch_creator(workPath, parameters, values):
         line_creator(file, parameter, "1")
     file.close()
     return
+
 

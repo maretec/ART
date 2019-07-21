@@ -1,78 +1,9 @@
-import common.yaml_lib as yaml_lib
 import common.constants as static
 import datetime
-import os.path
 import common.file_modifier
-
-
-class Config:
-    global_initial_date = None
-    global_final_date = None
-    number_of_runs = None
-    meteo_location = None
-
-
-config = Config()
-
-
-def validate_path(path):
-    return os.path.exists(path)
-
-
-def running_mode(yaml):
-    global config
-    if not yaml['artconfig']['classicMode']:
-        if yaml['artconfig']['forecastMode']:
-            static.logger.debug("Running in Forecast Mode")
-            today = datetime.datetime.today()
-            config.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
-            config.global_final_date = (today + datetime.timedelta(days=yaml['artconfig']['numberOfRuns'])
-                                        + datetime.timedelta(days=yaml['artconfig']['daysPerRun'] - 1))
-            config.number_of_runs = yaml['artconfig']['numberOfRuns']
-            initial_date = config.global_initial_date
-            final_date = initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-            static.logger.debug("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Final Date: " + final_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Number of runs : " + str(config.number_of_runs))
-        elif not (yaml['artconfig']['forecastMode']):
-            try:
-                static.logger.debug("Running in Hindcast Mode")
-                config.global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'],
-                                                                        static.DATE_FORMAT)
-                config.global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
-
-                difference = config.global_final_date - config.global_initial_date
-                config.number_of_runs = difference.days
-            except KeyError:
-                static.logger.warning("KeyError")
-                config.number_of_runs = 1
-                global_initial_date = datetime.datetime.today()
-                global_final_date = global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-            finally:
-                static.logger.debug("Global Initial Date : " + config.global_initial_date.strftime(static.DATE_FORMAT))
-                static.logger.debug("Global Final Date : " + config.global_final_date.strftime(static.DATE_FORMAT))
-                static.logger.debug("Number of runs : " + str(config.number_of_runs))
-        else:
-            raise ValueError("artconfig: forecastMode value needs to be either a number or true/false")
-    elif yaml['artconfig']['classicMode']:
-        static.logger.debug("Running in Classic Mode")
-        config.number_of_runs = 1
-        try:
-            global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'], static.DATE_FORMAT)
-            global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
-        except KeyError:
-            static.logger.warning("KeyError")
-            config.number_of_runs = 1
-            config.global_initial_date = datetime.datetime.today()
-            config.global_final_date = config.global_initial_date + \
-                                       datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-        finally:
-            static.logger.debug("Global Initial Date : " + config.global_initial_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Global Final Date : " + config.global_final_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Number of runs : " + str(config.number_of_runs))
-    else:
-        raise ValueError("artconfig: classicMode value needs to be either a number or true/false")
-
+import os.path
+import common.config as cfg
+from shutil import copy2
 
 def mpi_params(yaml_file):
     mohid = yaml_file['mohid']
@@ -85,57 +16,47 @@ def mpi_params(yaml_file):
 
 
 def run_mohid(yaml, model):
-    static.logger.debug("Run MOHID enabled")
-    global config
-    yaml_lib.validate_date(yaml)
-    validate_path(yaml['artconfig']['mainPath'])
-    for i in range(1, config.number_of_runs+1):
-        static.logger.info("========================================")
-        static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(config.number_of_runs) + " )")
-        static.logger.info("========================================")
-
-        if yaml['artconfig']['runPreProcessing']:
-            run_pre_processing()
-
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
         flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         static.logger.info("Starting MOHID MPI run of model: " + yaml['mohid']['models'][model]['name'])
-        # subprocess.run([mpi['exePath'], flags])
+        subprocess.run([mpi['exePath'], flags])
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run of model " + yaml['mohid']['models'][model]['name'])
-        # subprocess.run(yaml['mohid']['exePath'])
+        subprocess.run(yaml['mohid']['exePath'])
         static.logger.info("MOHID run finished")
 
 
-def run_pre_processing():
-    static.logger.debug("Pre Processing Enabled")
-
-
 def process_models(yaml):
-    static.logger.debug("Creating new model files")
     for model in yaml['mohid']['models']:
-        gather_boundary_conditions(model)
-        create_new_model_file(model)
-        gather_restart_files(model)
+        get_meteo_file(yaml, model)
+        gather_boundary_conditions(yaml, model)
+        change_model_dat(yaml, model)
+        gather_restart_files(yaml, model)
+        run_mohid(yaml, model)
 
 
-def create_new_model_file(model):
+def change_model_dat(yaml, model):
+    static.logger.debug("Creating new model file for model: " + model['name'])
     keys = model.keys()
-    file = open(model['path'] + "data/Model_" + str(model['runId']) + ".dat", 'w+')
-    common.file_modifier.line_creator(file, "START", common.file_modifier.date_to_mohid_date(config.global_initial_date))
-    common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(config.global_final_date))
+    path = yaml['artconfig']['mainPath'] + model['path'] + "data/"
+    if not os.path.isdir(path):
+        static.logger.debug("Path for model folder does not exist.")
+        static.logger.debug("Check path parameters in the yaml file. Exiting ART.")
+        exit(1)
+
+    file_path = path + "Model_" + str(model['runId']) + ".dat"
+
+    file = open(file_path, 'w+')
+    common.file_modifier.line_creator(file, "START",
+                                        common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+    common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.line_creator(file, "DT", str(model['DT']))
-    common.file_modifier.line_creator(file, "VARIABLEDT", "")
-    if "maxdt" in keys:
-        common.file_modifier.line_creator(file, "MAXDT", str(model['maxdt']))
-    common.file_modifier.line_creator(file, "GMTREFERENCE", str(0))
-    # TODO OPENMP
-    if "langrarian" in keys:
-        common.file_modifier.line_creator(file, "LAGRANGIAN", str(1))
-    # TODO WAVES
+    if 'mohid.dat' in keys:
+        for key in model['mohid.dat'].keys():
+            common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
     static.logger.debug("Model " + model["name"] + " .dat file was created.")
     file.close()
     return
@@ -143,54 +64,164 @@ def create_new_model_file(model):
 
 # TODO not copy but redo NOMFINCH.DAT line 724 of MainModule vb
 # TODO verify obc and meteo block on verify yaml
-def gather_boundary_conditions(mainPath, model):
-    static.logger.info("Gathering boundary conditions for model " + model['name'] + ".")
-    for meteos in model['meteo'].keys():
-        if model['meteo'][meteos]['enable']:
-            filename = mainPath + "/" + model['meteo'][meteos]['workPath'] + model['meteo'][meteos]['modelName']
-            if not os.path.isfile(filename):
-                static.logger.info("Could not find meteo file from Solution with name - " + model['name'] + ".")
+def gather_boundary_conditions(yaml, model):
+    model_keys = model.keys()
+    if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
+        static.logger.debug("Gathering boundary conditions for " + model['name'])
+        obc_keys = model['obc'].keys()
+        
+        simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
+        folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
+        
+        date_format = "%Y-%m-%d"
+        if 'dateFormat' in obc_keys:
+            date_format = model['obc']['dateFormat']
+
+        file_type = "hdf5"
+        if 'fileType' in obc_keys:
+            file_type = model['obc']['fileType']
+        static.logger.debug("Boundary Conditions File Type: " + file_type)
+
+
+        if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
+            model['obc']['hasSolutionFromFile']:
+            for n in range(0, simulations_available - 1, -1):
+                obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+                obc_final_date = cfg.current_initial_date + datetime.timedelta(days=simulations_available)
+
+                obc_initial_date = obc_initial_date.strftime(date_format)
+                obc_final_date = obc_final_date.strftime(date_format)
+
+                obc_source_path = model['obc']['workPath'] + model['obc']['prefix'] + "_" + model['name'] + obc_initial_date \
+                    + "_" + obc_final_date + "." + file_type
+
+                if os.path.isfile(obc_source_path):
+                    obc_dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
+                    if os.path.isdir(obc_dest_folder):
+                        obc_dest_file = obc_dest_folder + model['obc']['prefix'] + "_" + model['name'] + "." + file_type
+                        copy2(obc_source_path, obc_dest_file)
+                    else:
+                        static.logger.debug("Destination folder for OBC files not found: " + obc_dest_folder)
+                        raise FileNotFoundError("Destination folder for OBC files not found: " + obc_dest_folder)
+                else:
+                    static.logger.debug("Source file for OBC file not found: " + obc_source_path)
+                    raise FileNotFoundError("Source file for OBC file not found: " + obc_source_path)
+
+        elif 'hasSolutionFromFile' in obc_keys and model['obc']['hasSolutionFromFile']:
+            for n in range(0, simulations_available - 1, -1):
+                obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+                obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
+
+                
+                obc_initial_date = obc_initial_date.strftime(date_format)
+                obc_final_date = obc_final_date.strftime(date_format)
+
+                hydro_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
+                 "Hydrodynamic"
+                water_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
+                    "WaterProperties"
+
+                if 'suffix' in obc_keys:
+                    hydro_source_path += "_" + model['obc']['suffix']
+                    water_source_path += "_" + model['obc']['suffix']
+
+                hydro_source_path +=  "." + file_type
+                water_source_path += "." + file_type
+               
+
+                if os.path.isfile(hydro_source_path):
+                    if os.path.isfile(water_source_path):
+                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
+                        if not os.path.isdir(dest_folder):
+                            os.makedirs(dest_folder)
+                        hydro_dest_file = dest_folder + "/Hydrodynamic" 
+                        water_dest_file = dest_folder + "/WaterProperties"
+
+                        if 'suffix' in obc_keys:
+                            hydro_dest_file += "_" + model['obc']['suffix']
+                            water_dest_file += "_" + model['obc']['suffix'] 
+                        
+                        hydro_dest_file += "." + file_type
+                        water_dest_file += "." + file_type
+
+                        print(hydro_source_path)
+                        print(water_source_path)
+                        copy2(hydro_source_path, hydro_dest_file)
+                        copy2(water_source_path, water_dest_file)
+                    else:
+                        static.logger.debug("gather_boundary_conditions: File " + water_source_path + " does not exist.")
+                else:
+                    static.logger.debug("gather_boundary_conditions: File " + hydro_source_path + " does not exist. ")
+
+
+def get_meteo_file(yaml, model):
+    model_keys = model.keys()
+    if 'meteo' in model_keys and model['meteo']['enable']:
+        meteo_models_keys = model['meteo']['models'].keys()
+
+        for meteo_model in meteo_models_keys:
+            meteo_keys = model['meteo']['models'][meteo_model].keys()
+
+            date_format = "%Y-%m-%d"
+            if 'dateFormat' in meteo_keys:
+                date_format = model['meteo'][meteo_model]['dateFormat']
+            
+            meteo_initial_date = cfg.current_initial_date.strftime(date_format)
+            meteo_final_date = None
+            if 'simulatedDays' in meteo_keys:
+                meteo_final_date = cfg.current_initial_date + datetime.timedelta(days=model['meteo']['models']
+                [meteo_model]['simulatedDays'])
+                meteo_final_date = meteo_final_date.strftime(date_format)
             else:
-                static.logger.info("Meteo file solution found " + model['name'] + ".")
-                config.meteo_location = mainPath + "GeneralData/BoundaryConditions/Atmosphere/" + model['name'] + \
-                                        "/" + model['meteo'][meteos]['modelName'] + "/" +\
-                                        model['meteo'][meteos]['modelName'] + "_" + model['name'] + ".hdf5"
+                meteo_final_date = cfg.current_final_date.strftime(date_format)
+        
+            file_type = "hdf5"
+            if 'fileType' in meteo_keys:
+                file_type = model['meteo']['models'][meteo_model]['fileType']
 
-        if model['hasSolutionFromFile'] or (model.keys().contains("obc") and model['obc']['enable']):
-            if model['obc'].keys().contains('fromMercator') and model['obc']['fromMercator']:
-                print("obc from mercator")
+            meteo_sufix = "TAGUS3D"
+            meteo_file_source = None
+            if 'fileNameFromModel' in meteo_keys and model['meteo']['models'][meteo_model]['fileNameFromModel']:
+                meteo_sufix = model['meteo']['models'][meteo_model]['name']
+                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + \
+                    model['meteo']['models'][meteo_model]['name'] + "_" + model['name'] + "_" + meteo_initial_date + "_" + \
+                    meteo_final_date + "." + file_type 
+            else:
+                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
+                    + "_" + meteo_final_date + "." + file_type
+        
+            print(meteo_file_source)
+            if os.path.isfile(meteo_file_source):
+                meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" + \
+                    model['name'] + "/" + model['meteo']['models'][meteo_model]['name'] + "/"
+                
+                if not os.path.isdir(meteo_file_dest_folder):
+                    os.makedirs(meteo_file_dest_folder)
 
-
-def gather_restart_files(model):
-    static.logger.info("Gathering the restart files for each model domain.")
-
-
-def get_meteo_filename(model, name, extension=".hdf5"):
-    model_name = model['modelName']
-    simulated_days = -99
-    meteo_final_date = ""
-
-    if "simulatedDays" in model:
-        simulated_days = model['simulatedDays']
-    sufix = "TAGUS3D"
-
-    if model['simulatedDays'] == -99:
-        print("tmp")
-        # TODO falta final_date sera global_final_date???
-    else:
-        initial_date = config.global_initial_date
-        final_date = initial_date + datetime.timedelta(days=simulated_days)
-        meteo_final_date = final_date.strftime(static.DATE_FOLDER_FORMAT)
-    if model['fileNameFromModel']:
-        sufix = model_name
-        return (model['workPath'] + name + "_" + sufix + "_" + config.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) +
-                "_" + meteo_final_date + extension)
-    elif model['genericFileName']:
-        return (model['workPath'] + "meteo_" + config.global_initial_date.strftime(static.DATE_FOLDER_FORMAT) + "_" +
-                meteo_final_date + extension)
-    else:
-        return None
-
-
-def execute():
+                meteo_file_dest = meteo_file_dest_folder +  model['meteo']['models'][meteo_model]['name'] + "_" + \
+                    model['name'] + "." + file_type
+                    
+                copy2(meteo_file_source,meteo_file_dest)
+                static.logger.debug("Copied meteo file from " + meteo_file_source + " to " + meteo_file_dest)
+                return
+            else:
+                continue
+        
+        static.logger.debug("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
+        raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
+            "errors.")
+        
+def execute(yaml):
+    static.logger.debug("Run MOHID enabled")
+    for i in range(1, cfg.number_of_runs+1):
+        cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
+        cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+        static.logger.info("========================================")
+        static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
+        static.logger.info("========================================")
+        for model in yaml['mohid']['models']:
+           change_model_dat(yaml, yaml['mohid']['models'][model])
+      #  get_meteo_file(yaml, model)
+       # gather_boundary_conditions(yaml, model)
+        #run_mohid(yaml, model)
     return None
