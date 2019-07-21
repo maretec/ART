@@ -41,21 +41,22 @@ def process_models(yaml):
 def change_model_dat(yaml, model):
     static.logger.debug("Creating new model file for model: " + model['name'])
     keys = model.keys()
-    path = yaml['artconfig']['mainPath'] + model['path']
+    path = yaml['artconfig']['mainPath'] + model['path'] + "/data"
     if not os.path.isdir(path):
         static.logger.debug("Path for model folder does not exist.")
         static.logger.debug("Check path parameters in the yaml file. Exiting ART.")
         exit(1)
 
-    file_path = path + "data/Model_" + str(model['runId']) + ".dat"
+    file_path = path + "Model_" + str(model['runId']) + ".dat"
     if not os.path.isfile(file_path):
         file = open(file_path, 'w+')
         common.file_modifier.line_creator(file, "START",
                                           common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
         common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
         common.file_modifier.line_creator(file, "DT", str(model['DT']))
-        for key in model['mohid.dat'].keys():
-            common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
+        if 'mohid.dat' in keys:
+            for key in model['mohid.dat'].keys():
+                common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
         static.logger.debug("Model " + model["name"] + " .dat file was created.")
     else:
         file = open(file_path, 'w+')
