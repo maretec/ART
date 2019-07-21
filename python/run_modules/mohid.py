@@ -41,7 +41,7 @@ def process_models(yaml):
 def change_model_dat(yaml, model):
     static.logger.debug("Creating new model file for model: " + model['name'])
     keys = model.keys()
-    path = yaml['artconfig']['mainPath'] + model['path'] + "/data/"
+    path = yaml['artconfig']['mainPath'] + model['path'] + "data/"
     if not os.path.isdir(path):
         static.logger.debug("Path for model folder does not exist.")
         static.logger.debug("Check path parameters in the yaml file. Exiting ART.")
