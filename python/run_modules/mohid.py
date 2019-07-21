@@ -48,7 +48,7 @@ def change_model_dat(yaml, model):
         exit(1)
 
     file_path = path + "Model_" + str(model['runId']) + ".dat"
-    if os.path.isfile(file_path):
+    if os.path.exists(file_path):
         file = open(file_path, 'w+')
 
         common.file_modifier.modify_line(file, "START",
