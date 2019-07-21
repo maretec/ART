@@ -51,8 +51,8 @@ def change_model_dat(yaml, model):
     if not os.path.isfile(file_path):
         file = open(file_path, 'w+')
         common.file_modifier.line_creator(file, "START",
-                                          common.file_modifier.date_to_mohid_date(cfg.global_initial_date))
-        common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.global_final_date))
+                                          common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+        common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
         common.file_modifier.line_creator(file, "DT", str(model['DT']))
         for key in model['mohid.dat'].keys():
             common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
@@ -60,9 +60,9 @@ def change_model_dat(yaml, model):
     else:
         file = open(file_path, 'w+')
         common.file_modifier.modify_line(file, "START",
-                                         common.file_modifier.date_to_mohid_date(cfg.global_initial_date))
+                                         common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
         common.file_modifier.modify_line(file, "END",
-                                         common.file_modifier.date_to_mohid_date(cfg.global_final_date))
+                                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
         if 'dt' in model.keys():
             common.file_modifier.modify_line(file, "DT",
                                              model['dt'])
@@ -94,8 +94,8 @@ def gather_boundary_conditions(yaml, model):
         if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
             model['obc']['hasSolutionFromFile']:
             for n in range(0, simulations_available - 1, -1):
-                obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
-                obc_final_date = cfg.global_initial_date + datetime.timedelta(days=simulations_available)
+                obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+                obc_final_date = cfg.current_initial_date + datetime.timedelta(days=simulations_available)
 
                 obc_initial_date = obc_initial_date.strftime(date_format)
                 obc_final_date = obc_final_date.strftime(date_format)
@@ -117,8 +117,8 @@ def gather_boundary_conditions(yaml, model):
 
         elif 'hasSolutionFromFile' in obc_keys and model['obc']['hasSolutionFromFile']:
             for n in range(0, simulations_available - 1, -1):
-                obc_initial_date = cfg.global_initial_date + datetime.timedelta(days=n)
-                obc_final_date = cfg.global_final_date + datetime.timedelta(days=simulations_available)
+                obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+                obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
                 
                 obc_initial_date = obc_initial_date.strftime(date_format)
@@ -174,14 +174,14 @@ def get_meteo_file(yaml, model):
             if 'dateFormat' in meteo_keys:
                 date_format = model['meteo'][meteo_model]['dateFormat']
             
-            meteo_initial_date = cfg.global_initial_date.strftime(date_format)
+            meteo_initial_date = cfg.current_initial_date.strftime(date_format)
             meteo_final_date = None
             if 'simulatedDays' in meteo_keys:
-                meteo_final_date = cfg.global_initial_date + datetime.timedelta(days=model['meteo']['models']
+                meteo_final_date = cfg.current_initial_date + datetime.timedelta(days=model['meteo']['models']
                 [meteo_model]['simulatedDays'])
                 meteo_final_date = meteo_final_date.strftime(date_format)
             else:
-                meteo_final_date = cfg.global_final_date.strftime(date_format)
+                meteo_final_date = cfg.current_final_date.strftime(date_format)
         
             file_type = "hdf5"
             if 'fileType' in meteo_keys:
@@ -224,13 +224,11 @@ def execute(yaml):
     for i in range(1, cfg.number_of_runs+1):
         cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
         cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-        print(cfg.current_initial_date)
-        print(cfg.current_final_date)
         static.logger.info("========================================")
         static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
         static.logger.info("========================================")
-    #for model in yaml['mohid']['models']:
-     #   change_model_dat(yaml, model)
+        for model in yaml['mohid']['models']:
+           change_model_dat(yaml, model)
       #  get_meteo_file(yaml, model)
        # gather_boundary_conditions(yaml, model)
         #run_mohid(yaml, model)
