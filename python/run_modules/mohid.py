@@ -29,14 +29,6 @@ def run_mohid(yaml, model):
         static.logger.info("MOHID run finished")
 
 
-def process_models(yaml):
-    for model in yaml['mohid']['models']:
-        get_meteo_file(yaml, model)
-        gather_boundary_conditions(yaml, model)
-        change_model_dat(yaml, model)
-        gather_restart_files(yaml, model)
-        run_mohid(yaml, model)
-
 
 def change_model_dat(yaml, model):
     static.logger.debug("Creating new model file for model: " + model['name'])
@@ -211,6 +203,52 @@ def get_meteo_file(yaml, model):
         raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
             "errors.")
         
+
+def gather_restart_files(yaml, model):
+    static.logger.debug("Gathering the restart files for model: " + model['name'])
+    previous_init_date = cfg.current_initial_date - datetime.timedelta(days=1)
+    previous_final_date = previous_init_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])    
+    path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime("%Y-%m-%d") + "_" + previous_final_date.strftime("%Y-%m-%d") + "/"
+
+    if not os.path.isdir(path_fin_files):
+        static.logger.debug("Retstart folder: " + path_fin_files + "does not exist.")
+        raise FileNotFoundError("Retstart folder: " + path_fin_files + "does not exist.")
+    
+    model_keys = model.keys()
+
+    restart_files_dest = yaml['mainPath'] + model['path'] + "res/"
+    if not os.path.isdir(restart_files_dest):
+        os.makedirs(restart_files_dest)
+
+    if 'mpi' in model_keys and model['mpi']['enable']:
+        print("None")
+    else:
+        if 'hasWaterProperties' in model_keys and model['hasWaterProperties']:
+            water_properties_source = path_fin_files + "Hydrodynamic_1.fin"
+            water_properties_dest = restart_files_dest  + "Hydrodynamic_0.fin" 
+            copy2(water_properties_source, water_properties_dest)
+        if 'hasGOTM' in model_keys and model['hasGOTM']:
+            gotm_source = path_fin_files + "GOTM_1.fin"
+            gotm_dest = restart_files_dest + "GOTM_0.fin"
+            copy2(gotm_source, gotm_dest)
+        if 'hasInterfacedSedimentWater' in model_keys and model['hasInterfacedSedimentWater']:
+            interfaced_source = path_fin_files + "InterfaceSedimentWater_1.fin"
+            interfaced_dest = restart_files_dest + "InterfaceSedimentWater_0.fin"
+            copy2(interfaced_source, interfaced_dest)
+        if 'hasHydrodynamics'in model_keys and model['hasHydrodynamics']:
+            hydro_source = path_fin_files + "Hydrodynamic_1.fin"
+            hydro_dest = restart_files_dest + "Hydrodynamic_0.fin"
+            copy2(hydro_source, hydro_dest)
+
+def process_models(yaml):
+    for model in yaml['mohid']['models']:
+        get_meteo_file(yaml, model)
+        gather_boundary_conditions(yaml, model)
+        change_model_dat(yaml, model)
+        gather_restart_files(yaml, model)
+        run_mohid(yaml, model)
+
+
 def execute(yaml):
     static.logger.debug("Run MOHID enabled")
     for i in range(1, cfg.number_of_runs+1):
@@ -220,8 +258,8 @@ def execute(yaml):
         static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
         static.logger.info("========================================")
         for model in yaml['mohid']['models']:
-           change_model_dat(yaml, yaml['mohid']['models'][model])
-      #  get_meteo_file(yaml, model)
-       # gather_boundary_conditions(yaml, model)
-        #run_mohid(yaml, model)
+            change_model_dat(yaml, yaml['mohid']['models'][model])
+            get_meteo_file(yaml, model)
+            gather_boundary_conditions(yaml, model)
+            run_mohid(yaml, model)  
     return None
