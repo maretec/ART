@@ -51,6 +51,7 @@ def change_model_dat(yaml, model):
     if not os.path.isfile(file_path):
         file = open(file_path, 'w+')
         file.write('{0:30}{1}'.format("START", ": " + "2" + "\n"))
+        file.close()
         common.file_modifier.line_creator(file, "START",
                                           common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
         common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
