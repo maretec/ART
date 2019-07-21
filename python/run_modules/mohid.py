@@ -16,12 +16,6 @@ def mpi_params(yaml_file):
 
 
 def run_mohid(yaml, model):
-    static.logger.debug("Run MOHID enabled")
-    for i in range(1, cfg.number_of_runs+1):
-        static.logger.info("========================================")
-        static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
-        static.logger.info("========================================")
-
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
         flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
@@ -226,7 +220,14 @@ def get_meteo_file(yaml, model):
             "errors.")
         
 def execute(yaml):
-    get_meteo_file(yaml, yaml['mohid']['models']['model1'])
-    gather_boundary_conditions(yaml, yaml['mohid']['models']['model1'])
-    run_mohid(yaml, yaml['mohid']['models']['model1'])
+    static.logger.debug("Run MOHID enabled")
+    for i in range(1, cfg.number_of_runs+1):
+        static.logger.info("========================================")
+        static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
+        static.logger.info("========================================")
+    #for model in yaml['mohid']['models']:
+     #   change_model_dat(yaml, model)
+      #  get_meteo_file(yaml, model)
+       # gather_boundary_conditions(yaml, model)
+        #run_mohid(yaml, model)
     return None
