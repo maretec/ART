@@ -48,13 +48,28 @@ def change_model_dat(yaml, model):
         exit(1)
 
     file_path = path + "Model_" + str(model['runId']) + ".dat"
-    file = open(file_path, 'w+')
+    if os.path.isfile(file_path):
+        file = open(file_path, 'w+')
 
-    common.file_modifier.line_creator(file, "START",
+        common.file_modifier.modify_line(file, "START",
+                                         common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+        common.file_modifier.modify_line(file, "END",
+                                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+        if 'dt' in model.keys():
+            common.file_modifier.modify_line(file, "DT",
+                                             model['dt'])
+        file.close()
+    else:
+        file = open(file_path, 'w+')
+        common.file_modifier.line_creator(file, "START",
                                           common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-    common.file_modifier.line_creator(file, "DT", str(model['DT']))
-    file.close()
+        common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+        common.file_modifier.line_creator(file, "DT", str(model['DT']))
+        if 'mohid.dat' in keys:
+            for key in model['mohid.dat'].keys():
+                common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
+        static.logger.debug("Model " + model["name"] + " .dat file was created.")
+        file.close()
     return
 
 
