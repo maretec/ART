@@ -216,12 +216,16 @@ def get_meteo_file(yaml, model):
                 continue
         
         static.logger.debug("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
-        raise FileNotFoundError("get_meteo_file: eteo file could not be found. Check yaml file for configuration " +
+        raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
             "errors.")
         
 def execute(yaml):
     static.logger.debug("Run MOHID enabled")
     for i in range(1, cfg.number_of_runs+1):
+        cfg.currentInitialDate = cfg.global_initial_date + datetime.timedelta(days=i-1)
+        cfg.currentFinalDate = cfg.ddcComposerNumProcessors + datetime.timedelta(days=yaml['artConfig']['daysPerRun'])
+        print(cfg.currentInitialDate)
+        print(cfg.currentFinalDate)
         static.logger.info("========================================")
         static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
         static.logger.info("========================================")
