@@ -222,10 +222,10 @@ def get_meteo_file(yaml, model):
 def execute(yaml):
     static.logger.debug("Run MOHID enabled")
     for i in range(1, cfg.number_of_runs+1):
-        cfg.currentInitialDate = cfg.global_initial_date + datetime.timedelta(days=i-1)
-        cfg.currentFinalDate = cfg.ddcComposerNumProcessors + datetime.timedelta(days=yaml['artConfig']['daysPerRun'])
-        print(cfg.currentInitialDate)
-        print(cfg.currentFinalDate)
+        cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
+        cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artConfig']['daysPerRun'])
+        print(cfg.current_initial_date)
+        print(cfg.current_final_date)
         static.logger.info("========================================")
         static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
         static.logger.info("========================================")
