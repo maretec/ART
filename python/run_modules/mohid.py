@@ -212,8 +212,8 @@ def gather_restart_files(yaml, model):
     path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime("%Y-%m-%d") + "_" + previous_final_date.strftime("%Y-%m-%d") + "/"
 
     if not os.path.isdir(path_fin_files):
-        static.logger.debug("Retstart folder: " + path_fin_files + "does not exist.")
-        raise FileNotFoundError("Retstart folder: " + path_fin_files + "does not exist.")
+        static.logger.debug("Restart folder: " + path_fin_files + "does not exist.")
+        raise FileNotFoundError("Restart folder: " + path_fin_files + "does not exist.")
     
     model_keys = model.keys()
 
@@ -305,7 +305,7 @@ def process_models(yaml):
         get_meteo_file(yaml, yaml['mohid']['models'][model])
         gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
         change_model_dat(yaml, yaml['mohid']['models'][model])
-        gather_restart_files(yaml, yaml['mohid']['models'][model])
+        #gather_restart_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
 
 
