@@ -4,6 +4,7 @@ import common.file_modifier
 import os.path
 import common.config as cfg
 from shutil import copy2
+import subprocess
 
 def mpi_params(yaml_file):
     mohid = yaml_file['mohid']
@@ -15,7 +16,7 @@ def mpi_params(yaml_file):
             joinerVersion = mohid['mpi']['joinerVersion']
 
 
-def run_mohid(yaml, model):
+def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
         flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
@@ -301,11 +302,11 @@ def backup_simulation(yaml):
 
 def process_models(yaml):
     for model in yaml['mohid']['models']:
-        get_meteo_file(yaml, model)
-        gather_boundary_conditions(yaml, model)
-        change_model_dat(yaml, model)
-        gather_restart_files(yaml, model)
-    run_mohid(yaml, model)
+        get_meteo_file(yaml, yaml['mohid']['models'][model])
+        gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
+        change_model_dat(yaml, yaml['mohid']['models'][model])
+        gather_restart_files(yaml, yaml['mohid']['models'][model])
+    run_mohid(yaml)
 
 
 def execute(yaml):
