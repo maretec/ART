@@ -240,26 +240,33 @@ def gather_restart_files(yaml, model):
             hydro_dest = restart_files_dest + "Hydrodynamic_0.fin"
             copy2(hydro_source, hydro_dest)
 
+
 def process_models(yaml):
     for model in yaml['mohid']['models']:
         get_meteo_file(yaml, model)
         gather_boundary_conditions(yaml, model)
         change_model_dat(yaml, model)
         gather_restart_files(yaml, model)
-        run_mohid(yaml, model)
+    run_mohid(yaml, model)
 
 
 def execute(yaml):
     static.logger.debug("Run MOHID enabled")
-    for i in range(1, cfg.number_of_runs+1):
-        cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
-        cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+    if yaml['operationalMode']:
+        cfg.global_initial_date = datetime.today() + datetime.time(days=yaml['refDayToStart'])
+        for i in range(1, cfg.number_of_runs+1):
+            cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
+            cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            static.logger.info("========================================")
+            static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
+            static.logger.info("========================================")
+            process_models(yaml)
+    else:
+        cfg.current_initial_date = cfg.global_initial_date
+        cfg.current_final_date = cfg.current_initial_date
         static.logger.info("========================================")
-        static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
+        static.logger.info("STARTING FORECAST")
         static.logger.info("========================================")
-        for model in yaml['mohid']['models']:
-            change_model_dat(yaml, yaml['mohid']['models'][model])
-            get_meteo_file(yaml, model)
-            gather_boundary_conditions(yaml, model)
-            run_mohid(yaml, model)  
+        process_models(yaml)
+
     return None
