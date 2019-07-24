@@ -310,7 +310,7 @@ def process_models(yaml):
 
 def execute(yaml):
     static.logger.debug("Run MOHID enabled")
-    if yaml['operationalMode']:
+    if yaml['artconfig']['operationalMode']:
         cfg.global_initial_date = datetime.today() + datetime.time(days=yaml['artconfig']['refDayToStart'])
         for i in range(1, cfg.number_of_runs+1):
             cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
