@@ -46,7 +46,7 @@ def change_model_dat(yaml, model):
     common.file_modifier.line_creator(file, "START",
                                         common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-    common.file_modifier.line_creator(file, "DT", str(model['DT']))
+    common.file_modifier.line_creator(file, "DT", str(model['dt']))
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
             common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
@@ -322,7 +322,7 @@ def execute(yaml):
             process_models(yaml)
     else:
         cfg.current_initial_date = cfg.global_initial_date
-        cfg.current_final_date = cfg.current_initial_date
+        cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         static.logger.info("========================================")
         static.logger.info("STARTING FORECAST")
         static.logger.info("========================================")
