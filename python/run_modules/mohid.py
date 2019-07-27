@@ -245,53 +245,54 @@ def backup_simulation(yaml):
     final_date = tmp_date.strftime("%Y-%m-%d")
 
     for model in yaml['mohid']['models']:
-        backup_storage = model['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
+        
+        backup_storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
       
         if not os.path.isdir(backup_storage):
             os.makedirs(backup_storage)
 
-        model_keys = model.keys()
+        model_keys = yaml['mohid']['models'][model].keys()
         mohid_keys = yaml['mohid']
         #TODO decide where has solution from file must be
-        if 'hasSolutionFromFile' not in model_keys or not model['hasSolutionFromFile']:
+        if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
             if 'mpi' in mohid_keys:
                 mpi_keys = yaml['mohid']['mpi'].keys()
                 if 'enable' in mpi_keys and yaml['mohid']['enable']:
                     if 'keepDecomposedFiles' in mpi_keys and yaml['mohid']['mpi']['keepDecomposedFiles']:
-                        for i in range(1, model['numProcessors']):
-                            results_path = yaml['mainPath'] + model['path'] + "res/MPI_" + str(i) + "_"
+                        for i in range(1, yaml['mohid']['models'][model]['numProcessors']):
+                            results_path = yaml['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/MPI_" + str(i) + "_"
                             backup_path = backup_storage + "MPI_" + str(i) + "_"
-                            if 'hasHydrodynamics'in model_keys and model['hasHydrodynamics']:
+                            if 'hasHydrodynamics'in model_keys and yaml['mohid']['models'][model]['hasHydrodynamics']:
                                 hydro_source = results_path + "Hydrodynamics_1.fin"
                                 hydro_dest = backup_path + "Hydrodynamics_1.fin"
                                 copy2(hydro_source, hydro_dest)
-                            if 'hasWaterProperties' in model_keys and model['hasWaterProperties']:
+                            if 'hasWaterProperties' in model_keys and yaml['mohid']['models'][model]['hasWaterProperties']:
                                 water_properties_source = results_path + "Hydrodynamic_1.fin"
                                 water_properties_dest = backup_path  + "Hydrodynamic_1.fin" 
                                 copy2(water_properties_source, water_properties_dest)
-                            if 'hasGOTM' in model_keys and model['hasGOTM']:
+                            if 'hasGOTM' in model_keys and yaml['mohid']['models'][model]['hasGOTM']:
                                 gotm_source = results_path + "GOTM_1.fin"
                                 gotm_dest = backup_path + "GOTM_1.fin"
                                 copy2(gotm_source, gotm_dest)
-                            if 'hasInterfacedSedimentWater' in model_keys and model['hasInterfacedSedimentWater']:
+                            if 'hasInterfacedSedimentWater' in model_keys and yaml['mohid']['models'][model]['hasInterfacedSedimentWater']:
                                 interfaced_source = results_path + "InterfaceSedimentWater_1.fin"
                                 interfaced_dest = backup_path + "InterfaceSedimentWater_1.fin"
                                 copy2(interfaced_source, interfaced_dest)  
                 else:
-                    results_path = yaml['mainPath'] + model['path'] + "res/"
-                    if 'hasHydrodynamics'in model_keys and model['hasHydrodynamics']:
+                    results_path = yaml['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
+                    if 'hasHydrodynamics'in model_keys and yaml['mohid']['models'][model]['hasHydrodynamics']:
                         hydro_source = results_path + "Hydrodynamics_1.fin"
                         hydro_dest = backup_storage + "Hydrodynamics_1.fin"
                         copy2(hydro_source, hydro_dest)
-                    if 'hasWaterProperties' in model_keys and model['hasWaterProperties']:
+                    if 'hasWaterProperties' in model_keys and yaml['mohid']['models'][model]['hasWaterProperties']:
                         water_properties_source = results_path + "Hydrodynamic_1.fin"
                         water_properties_dest = backup_storage  + "Hydrodynamic_1.fin" 
                         copy2(water_properties_source, water_properties_dest)
-                    if 'hasGOTM' in model_keys and model['hasGOTM']:
+                    if 'hasGOTM' in model_keys and yaml['mohid']['models'][model]['hasGOTM']:
                         gotm_source = results_path+ "GOTM_1.fin"
                         gotm_dest = backup_storage + "GOTM_1.fin"
                         copy2(gotm_source, gotm_dest)
-                    if 'hasInterfacedSedimentWater' in model_keys and model['hasInterfacedSedimentWater']:
+                    if 'hasInterfacedSedimentWater' in model_keys and yaml['mohid']['models'][model]['hasInterfacedSedimentWater']:
                         interfaced_source = results_path + "InterfaceSedimentWater_1.fin"
                         interfaced_dest = backup_path + "InterfaceSedimentWater_1.fin"
                         copy2(interfaced_source, interfaced_dest)  
