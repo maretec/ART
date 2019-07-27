@@ -110,9 +110,9 @@ def gather_boundary_conditions(yaml, model):
 
                 print("after" + str(obc_initial_date))
 
-                hydro_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
+                hydro_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
                  "Hydrodynamic"
-                water_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
+                water_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
                     "WaterProperties"
 
                 if 'suffix' in obc_keys:
