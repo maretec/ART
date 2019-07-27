@@ -22,7 +22,7 @@ def run_mohid(yaml):
         flags = " -np " + str(yaml['mohid']['mpi']['totalProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         static.logger.info("Starting MOHID MPI")
-        subprocess.run([mpi['exePath'], flags])
+        subprocess.run("mpiexec", flags])
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
