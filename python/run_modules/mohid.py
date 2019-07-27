@@ -105,9 +105,10 @@ def gather_boundary_conditions(yaml, model):
                 obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
-                print("before" + str(obc_initial_date))
                 obc_initial_date = obc_initial_date.strftime(date_format)
                 obc_final_date = obc_final_date.strftime(date_format)
+
+                print("before" + str(after))
 
                 hydro_source_path = model['obc']['workPath'] + obc_initial_date + "_" + obc_final_date + "/" + \
                  "Hydrodynamic"
