@@ -19,7 +19,7 @@ def mpi_params(yaml_file):
 def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
-        flags = " -np " + str(yaml['mohid']['models'][model]['mpiProcessors']) + " -f /opt/hosts " + \
+        flags = " -np " + str(yaml['mohid']['mpi']['totalProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         static.logger.info("Starting MOHID MPI")
         subprocess.run([mpi['exePath'], flags])
@@ -55,8 +55,6 @@ def change_model_dat(yaml, model):
     return
 
 
-# TODO not copy but redo NOMFINCH.DAT line 724 of MainModule vb
-# TODO verify obc and meteo block on verify yaml
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
     if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
@@ -107,8 +105,6 @@ def gather_boundary_conditions(yaml, model):
 
                 obc_initial_date = obc_initial_date.strftime("%Y-%m-%d")
                 obc_final_date = obc_final_date.strftime("%Y-%m-%d")
-
-                print("after" + str(obc_initial_date))
 
                 hydro_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
                  "Hydrodynamic"
@@ -256,7 +252,7 @@ def backup_simulation(yaml):
 
         model_keys = model.keys()
         mohid_keys = yaml['mohid']
-#TODO decide where has solution from file must be
+        #TODO decide where has solution from file must be
         if 'hasSolutionFromFile' not in model_keys or not model['hasSolutionFromFile']:
             if 'mpi' in mohid_keys:
                 mpi_keys = yaml['mohid']['mpi'].keys()
@@ -308,6 +304,7 @@ def process_models(yaml):
         change_model_dat(yaml, yaml['mohid']['models'][model])
         #gather_restart_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
+    backup_simulation(yaml)
 
 
 def execute(yaml):
