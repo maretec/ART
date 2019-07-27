@@ -106,7 +106,7 @@ def gather_boundary_conditions(yaml, model):
                 obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
                 obc_initial_date = obc_initial_date.strftime("%Y-%m-%d")
-                obc_final_date = obc_final_date.strftime(date_format)
+                obc_final_date = obc_final_date.strftime("%Y-%m-%d")
 
                 print("after" + str(obc_initial_date))
 
