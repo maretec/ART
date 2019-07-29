@@ -300,7 +300,7 @@ def backup_simulation(yaml):
                     copy2(interfaced_source, interfaced_dest)  
 
 
-def backup_simulation2(yaml);
+def backup_simulation2(yaml):
     initial_date = cfg.current_initial_date.strftime("%Y-%m-%d")
     tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
     final_date = tmp_date.strftime("%Y-%m-%d")
