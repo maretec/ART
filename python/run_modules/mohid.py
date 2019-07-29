@@ -255,6 +255,7 @@ def backup_simulation(yaml):
         mohid_keys = yaml['mohid']
         #TODO decide where has solution from file must be
         if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
+            print("olá")
             if 'mpi' in mohid_keys:
                 mpi_keys = yaml['mohid']['mpi'].keys()
                 if 'enable' in mpi_keys and yaml['mohid']['enable']:
