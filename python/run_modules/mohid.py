@@ -5,6 +5,7 @@ import os.path
 import common.config as cfg
 from shutil import copy2
 import subprocess
+import glob
 
 def mpi_params(yaml_file):
     mohid = yaml_file['mohid']
@@ -263,12 +264,12 @@ def backup_simulation(yaml):
                             results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/MPI_" + str(i) + "_"
                             backup_path = backup_storage + "MPI_" + str(i) + "_"
                             if 'hasHydrodynamics'in model_keys and yaml['mohid']['models'][model]['hasHydrodynamics']:
-                                hydro_source = results_path + "Hydrodynamics_1.fin"
-                                hydro_dest = backup_path + "Hydrodynamics_1.fin"
+                                hydro_source = results_path + "Hydrodynamic_1.fin"
+                                hydro_dest = backup_path + "Hydrodynamic_1.fin"
                                 copy2(hydro_source, hydro_dest)
                             if 'hasWaterProperties' in model_keys and yaml['mohid']['models'][model]['hasWaterProperties']:
-                                water_properties_source = results_path + "Hydrodynamic_1.fin"
-                                water_properties_dest = backup_path  + "Hydrodynamic_1.fin" 
+                                water_properties_source = results_path + "WaterProperties_1.fin"
+                                water_properties_dest = backup_path  + "WaterProperties_1.fin" 
                                 copy2(water_properties_source, water_properties_dest)
                             if 'hasGOTM' in model_keys and yaml['mohid']['models'][model]['hasGOTM']:
                                 gotm_source = results_path + "GOTM_1.fin"
@@ -286,8 +287,8 @@ def backup_simulation(yaml):
                     hydro_dest = backup_storage + "Hydrodynamic_1.fin"
                     copy2(hydro_source, hydro_dest)
                 if 'hasWaterProperties' in model_keys and yaml['mohid']['models'][model]['hasWaterProperties']:
-                    water_properties_source = results_path + "Hydrodynamic_1.fin"
-                    water_properties_dest = backup_storage  + "Hydrodynamic_1.fin" 
+                    water_properties_source = results_path + "WaterProperties_1.fin"
+                    water_properties_dest = backup_storage  + "WaterProperties_1.fin" 
                     copy2(water_properties_source, water_properties_dest)
                 if 'hasGOTM' in model_keys and yaml['mohid']['models'][model]['hasGOTM']:
                     gotm_source = results_path+ "GOTM_1.fin"
@@ -299,6 +300,40 @@ def backup_simulation(yaml):
                     copy2(interfaced_source, interfaced_dest)  
 
 
+def backup_simulation2(yaml);
+    initial_date = cfg.current_initial_date.strftime("%Y-%m-%d")
+    tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
+    final_date = tmp_date.strftime("%Y-%m-%d")
+
+    for model in yaml['mohid']['models']:
+        
+        storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
+      
+        
+
+        model_keys = yaml['mohid']['models'][model].keys()
+        mohid_keys = yaml['mohid']
+        results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
+        
+        restart_storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
+        results_storage = yaml['mohid']['models'][model]['storagePath'] + "Results_HDF/" + initial_date + "_" + final_date +"/"
+        if not os.path.isdir(restart_storage):
+            os.makedirs(restart_storage)
+        if not os.path.isdir(results_storage):
+            os.makedirs(results_storage)
+
+        if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
+            fin_files = glob.glob(results_path+"*.fin")
+            for file in fin_files:
+                file_destination = restart_storage + os.path.split(files)[1]
+                copy(file, file_destination)
+    
+        hdf5_files = glob.glob(results_path+"*.hdf5")
+        for file in hdf5_files:
+            file_destination = results_storage + os.path.split(files)[1]
+            copy(file, file_destination)
+
+
 def process_models(yaml):
     for model in yaml['mohid']['models']:
        # get_meteo_file(yaml, yaml['mohid']['models'][model])
@@ -306,7 +341,7 @@ def process_models(yaml):
         change_model_dat(yaml, yaml['mohid']['models'][model])
         #gather_restart_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
-    backup_simulation(yaml)
+    backup_simulation2(yaml)
 
 
 def execute(yaml):
