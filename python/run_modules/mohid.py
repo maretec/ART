@@ -260,7 +260,7 @@ def backup_simulation(yaml):
                 if 'enable' in mpi_keys and yaml['mohid']['enable']:
                     if 'keepDecomposedFiles' in mpi_keys and yaml['mohid']['mpi']['keepDecomposedFiles']:
                         for i in range(1, yaml['mohid']['models'][model]['numProcessors']):
-                            results_path = yaml['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/MPI_" + str(i) + "_"
+                            results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/MPI_" + str(i) + "_"
                             backup_path = backup_storage + "MPI_" + str(i) + "_"
                             if 'hasHydrodynamics'in model_keys and yaml['mohid']['models'][model]['hasHydrodynamics']:
                                 hydro_source = results_path + "Hydrodynamics_1.fin"
