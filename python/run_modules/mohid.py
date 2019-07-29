@@ -255,7 +255,6 @@ def backup_simulation(yaml):
         mohid_keys = yaml['mohid']
         #TODO decide where has solution from file must be
         if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
-            print("olá")
             if 'mpi' in mohid_keys:
                 mpi_keys = yaml['mohid']['mpi'].keys()
                 if 'enable' in mpi_keys and yaml['mohid']['enable']:
@@ -282,6 +281,7 @@ def backup_simulation(yaml):
         else:
             results_path = yaml['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
             if 'hasHydrodynamics'in model_keys and yaml['mohid']['models'][model]['hasHydrodynamics']:
+                print('hasHydrodynamics')
                 hydro_source = results_path + "Hydrodynamics_1.fin"
                 hydro_dest = backup_storage + "Hydrodynamics_1.fin"
                 copy2(hydro_source, hydro_dest)
