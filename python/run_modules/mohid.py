@@ -325,12 +325,12 @@ def backup_simulation2(yaml):
         if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
             fin_files = glob.glob(results_path+"*.fin")
             for file in fin_files:
-                file_destination = restart_storage + os.path.split(files)[1]
+                file_destination = restart_storage + os.path.split(file)[1]
                 copy(file, file_destination)
     
         hdf5_files = glob.glob(results_path+"*.hdf5")
         for file in hdf5_files:
-            file_destination = results_storage + os.path.split(files)[1]
+            file_destination = results_storage + os.path.split(file)[1]
             copy(file, file_destination)
 
 
