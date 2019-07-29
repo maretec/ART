@@ -282,8 +282,8 @@ def backup_simulation(yaml):
                 results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
                 if 'hasHydrodynamics'in model_keys and yaml['mohid']['models'][model]['hasHydrodynamics']:
                     print('hasHydrodynamics')
-                    hydro_source = results_path + "Hydrodynamics_1.fin"
-                    hydro_dest = backup_storage + "Hydrodynamics_1.fin"
+                    hydro_source = results_path + "Hydrodynamic_1.fin"
+                    hydro_dest = backup_storage + "Hydrodynamic_1.fin"
                     copy2(hydro_source, hydro_dest)
                 if 'hasWaterProperties' in model_keys and yaml['mohid']['models'][model]['hasWaterProperties']:
                     water_properties_source = results_path + "Hydrodynamic_1.fin"
