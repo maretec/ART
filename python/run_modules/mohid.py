@@ -279,7 +279,7 @@ def backup_simulation(yaml):
                                 interfaced_dest = backup_path + "InterfaceSedimentWater_1.fin"
                                 copy2(interfaced_source, interfaced_dest)  
             else:
-                results_path = yaml['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
+                results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
                 if 'hasHydrodynamics'in model_keys and yaml['mohid']['models'][model]['hasHydrodynamics']:
                     print('hasHydrodynamics')
                     hydro_source = results_path + "Hydrodynamics_1.fin"
