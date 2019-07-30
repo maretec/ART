@@ -215,7 +215,7 @@ def gather_restart_files(yaml, model):
     
     model_keys = model.keys()
 
-    restart_files_dest = yaml['mainPath'] + model['path'] + "res/"
+    restart_files_dest = yaml['artconfig']['mainPath'] + model['path'] + "res/"
     if not os.path.isdir(restart_files_dest):
         os.makedirs(restart_files_dest)
 
