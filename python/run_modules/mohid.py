@@ -224,39 +224,48 @@ def gather_restart_files(yaml, model):
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
         copy2(file, file_destination)
 
+
 def backup_simulation(yaml):
     initial_date = cfg.current_initial_date.strftime("%Y-%m-%d")
     tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
     final_date = tmp_date.strftime("%Y-%m-%d")
 
-    for model in yaml['mohid']['models']:
-        
+    for model in yaml['mohid']['models']:    
         storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
     
-
         model_keys = yaml['mohid']['models'][model].keys()
         mohid_keys = yaml['mohid']
         results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
         
-        restart_storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
-        results_storage = yaml['mohid']['models'][model]['storagePath'] + "Results_HDF/" + initial_date + "_" + final_date +"/"
-        time_series_storage = None
-        if not os.path.isdir(restart_storage):
-            os.makedirs(restart_storage)
-        if not os.path.isdir(results_storage):
-            os.makedirs(results_storage)
+        generic_path = yaml['mohid']['models'][model]['storagePath']
+        date_path = initial_date + "_" + final_date +"/"
+        restart_storage = generic_path + "Restart/" + date_path
+        results_storage = generic_path + "Results_HDF/" + date_path
+        time_series_storage = generic_path + "Results_TimeSeries/" + date_path
+        discharged_storage = generic_path + "Discharges/" + date_path
 
         if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
             fin_files = glob.glob(results_path+"*.fin")
-            for file in fin_files:
-                file_destination = restart_storage + os.path.split(file)[1]
-                copy2(file, file_destination)
+            if len(fin_files) > 0 and not os.path.isdir(restart_storage):
+                os.makedirs(restart_storage)
+                for file in fin_files:
+                    file_destination = restart_storage + os.path.split(file)[1]
+                    copy2(file, file_destination)
     
         hdf5_files = glob.glob(results_path+"*.hdf5")
-        for file in hdf5_files:
-            file_destination = results_storage + os.path.split(file)[1]
-            copy2(file, file_destination)
-
+        if len(hdf5_files) > 0 and not os.path.isdir(results_storage):
+            os.makedirs(results_storage)
+            for file in hdf5_files:
+                file_destination = results_storage + os.path.split(file)[1]
+                copy2(file, file_destination)
+        
+        time_series_files = glob.glob(results_path + "/Run1/*.*")
+        if len(time_series_files) > 0 and not os.path.isidir(time_series_storage):
+            os.makedirs(time_series_storage)
+            for file in time_series_files:
+                file_destination = time_series_storage + os.path.split(file)[1]
+                copy2(file, file_destination)
+        
 
 def process_models(yaml):
     for model in yaml['mohid']['models']:
