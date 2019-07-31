@@ -272,7 +272,7 @@ def process_models(yaml):
         get_meteo_file(yaml, yaml['mohid']['models'][model])
         gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
         change_model_dat(yaml, yaml['mohid']['models'][model])
-        gather_restart_files(yaml, yaml['mohid']['models'][model])
+        #gather_restart_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
     backup_simulation(yaml)
 
