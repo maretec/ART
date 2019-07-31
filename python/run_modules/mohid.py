@@ -211,8 +211,8 @@ def gather_restart_files(yaml, model):
 
     if not os.path.isdir(path_fin_files):
         static.logger.debug("Restart folder: " + path_fin_files + "does not exist.")
-        raise FileNotFoundError("Restart folder: " + path_fin_files + "does not exist.")
-    
+        return 
+        
     model_keys = model.keys()
 
     restart_files_dest = yaml['artconfig']['mainPath'] + model['path'] + "res/"
