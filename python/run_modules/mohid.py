@@ -277,22 +277,21 @@ def backup_simulation(yaml):
                 file_destination = results_storage + os.path.split(file)[1]
                 copy2(file, file_destination)
         
-       # time_series_files = glob.glob(results_path + "/Run1/*.*")
-        #if len(time_series_files) > 0 and not os.path.isidir(time_series_storage):
-        #    os.makedirs(time_series_storage)
-        #    for file in time_series_files:
-        #        file_destination = time_series_storage + os.path.split(file)[1]
-        #        copy2(file, file_destination)
+        time_series_files = glob.glob(results_path + "Run1/*.*")
+        if len(time_series_files) > 0 and not os.path.isidir(time_series_storage):
+            os.makedirs(time_series_storage)
+            for file in time_series_files:
+                file_destination = time_series_storage + os.path.split(file)[1]
+                copy2(file, file_destination)
         
 
 def process_models(yaml):
-    #for model in yaml['mohid']['models']:
-        #get_meteo_file(yaml, yaml['mohid']['models'][model])
-       # gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
-      #  change_model_dat(yaml, yaml['mohid']['models'][model])
-     #   gather_restart_files(yaml, yaml['mohid']['models'][model])
-    #run_mohid(yaml)
-    subprocess.run("./MohidDDC.exe")
+    for model in yaml['mohid']['models']:
+       get_meteo_file(yaml, yaml['mohid']['models'][model])
+       gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
+       change_model_dat(yaml, yaml['mohid']['models'][model])
+       gather_restart_files(yaml, yaml['mohid']['models'][model])
+    run_mohid(yaml)
     backup_simulation(yaml)
 
 
