@@ -255,10 +255,12 @@ def backup_simulation(yaml):
         discharged_storage = generic_path + "Discharges/" + date_path
 
         if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
-            fin_files = glob.glob(results_path+"*.fin")
+            fin_files = glob.glob(results_path+"*_1.fin*")
             if len(fin_files) > 0 and not os.path.isdir(restart_storage):
                 os.makedirs(restart_storage)
                 for file in fin_files:
+                    if file.startwith("MPI"):
+                        continue
                     file_destination = restart_storage + os.path.split(file)[1]
                     copy2(file, file_destination)
     
@@ -278,12 +280,13 @@ def backup_simulation(yaml):
         
 
 def process_models(yaml):
-    for model in yaml['mohid']['models']:
-        get_meteo_file(yaml, yaml['mohid']['models'][model])
-        gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
-        change_model_dat(yaml, yaml['mohid']['models'][model])
-        gather_restart_files(yaml, yaml['mohid']['models'][model])
-    run_mohid(yaml)
+    #for model in yaml['mohid']['models']:
+        #get_meteo_file(yaml, yaml['mohid']['models'][model])
+       # gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
+      #  change_model_dat(yaml, yaml['mohid']['models'][model])
+     #   gather_restart_files(yaml, yaml['mohid']['models'][model])
+    #run_mohid(yaml)
+    subprocess.run("./MohidDDC.exe")
     backup_simulation(yaml)
 
 
