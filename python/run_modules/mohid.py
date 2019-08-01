@@ -255,7 +255,9 @@ def backup_simulation(yaml):
         discharged_storage = generic_path + "Discharges/" + date_path
 
         if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
-            fin_files = glob.glob(results_path+"*_1.fin*")
+            fin_files = glob.glob(results_path+"*_1.fin")
+            fin5_files = glob.glob(results_path + "*_1.fin5")
+            fin_files = fin5_files + fin_files
             if len(fin_files) > 0 and not os.path.isdir(restart_storage):
                 os.makedirs(restart_storage)
                 for file in fin_files:
@@ -268,6 +270,8 @@ def backup_simulation(yaml):
         if len(hdf5_files) > 0 and not os.path.isdir(results_storage):
             os.makedirs(results_storage)
             for file in hdf5_files:
+                if file.startswith("MPI"):
+                    continue
                 file_destination = results_storage + os.path.split(file)[1]
                 copy2(file, file_destination)
         
