@@ -23,6 +23,14 @@ def main():
 
     running_mode(yaml)
 
+    artconfig_keys = yaml['artconfig'].keys()
+
+    if 'outputToFile' in artconfig_keys and yaml['artconfig']['outputToFile']:
+        if 'outputFilePath' in artconfig_keys:
+            sys.stdout = open(yaml['artconfig']['outputFilePath'], 'w')
+        else:
+            sys.stdout = open("./art_output.txt", 'w')
+            
     if yaml['artconfig']['runSimulation']:
         module = yaml['artconfig']['module']
         if module == "mohid" or module == "Mohid":
@@ -33,6 +41,7 @@ def main():
             wrf.execute(yaml)
         else:
             raise ValueError("No valid simulation module given.")
+    print("------------- ART RUN FINISHED -------------")
 
 
 def running_mode(yaml):
