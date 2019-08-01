@@ -5,6 +5,7 @@ import os.path
 import common.config as cfg
 from shutil import copy2
 import subprocess
+import sys
 import glob
 
 def mpi_params(yaml_file):
@@ -18,16 +19,25 @@ def mpi_params(yaml_file):
 
 
 def run_mohid(yaml):
+    artconfig_keys = yaml['artconfig']
+    if 'outputToFile' in artconfig_keys and yaml['artconfig']['outputToFile']:
+        if 'outputFilePath' in artconfig_keys:
+            file = open(yaml['artconfig']['outputFilePath'], 'w+')
+        else:
+            file = open("./art_output.txt", 'w+')
+    else:
+        file = sys.stdout
+
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
         flags = " -np " + str(yaml['mohid']['mpi']['totalProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         static.logger.info("Starting MOHID MPI")
-        subprocess.run("mpiexec", flags)
+        subprocess.run("mpiexec", flags, stdout=file)
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        subprocess.run(yaml['mohid']['exePath'])
+        subprocess.run(yaml['mohid']['exePath'], stdout=file)
         static.logger.info("MOHID run finished")
 
 
