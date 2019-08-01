@@ -30,7 +30,7 @@ def run_mohid(yaml):
 
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         mpi = yaml['mohid']['mpi']
-        flags = " -np " + str(yaml['mohid']['mpi']['totalProcessors']) + " -f /opt/hosts " + \
+        flags = "-np " + str(yaml['mohid']['mpi']['totalProcessors']) + " -f /opt/hosts " + \
                 yaml['mohid']['exePath']
         static.logger.info("Starting MOHID MPI")
         subprocess.run("mpiexec", flags, stdout=file)
@@ -230,7 +230,7 @@ def gather_restart_files(yaml, model):
     if not os.path.isdir(restart_files_dest):
         os.makedirs(restart_files_dest)
 
-    fin_files = glob.glob(path_fin_files+"*.fin")
+    fin_files = glob.glob(path_fin_files+"*.fin*")
     for file in fin_files:
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
         copy2(file, file_destination)
