@@ -229,7 +229,9 @@ def gather_restart_files(yaml, model):
     if not os.path.isdir(restart_files_dest):
         os.makedirs(restart_files_dest)
 
-    fin_files = glob.glob(path_fin_files+"*.fin*")
+    fin_files = glob.glob(path_fin_files+"*.fin")
+    fin5_files = glob.glob(path_fin_files + "*.fin5")
+    fin_files = fin_files + fin5_files
     for file in fin_files:
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
         copy2(file, file_destination)
@@ -261,7 +263,7 @@ def backup_simulation(yaml):
             if len(fin_files) > 0 and not os.path.isdir(restart_storage):
                 os.makedirs(restart_storage)
                 for file in fin_files:
-                    if file.startswith("MPI"):
+                    if os.path.split(file)[1].startswith("MPI"):
                         continue
                     file_destination = restart_storage + os.path.split(file)[1]
                     copy2(file, file_destination)
@@ -270,7 +272,7 @@ def backup_simulation(yaml):
         if len(hdf5_files) > 0 and not os.path.isdir(results_storage):
             os.makedirs(results_storage)
             for file in hdf5_files:
-                if file.startswith("MPI"):
+                if os.path.split(file)[1].startswith("MPI"):
                     continue
                 file_destination = results_storage + os.path.split(file)[1]
                 copy2(file, file_destination)
