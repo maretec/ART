@@ -51,7 +51,7 @@ def change_model_dat(yaml, model):
         static.logger.debug("Check path parameters in the yaml file. Exiting ART.")
         exit(1)
 
-    file_path = path + "Model_" + str(model['runId']) + ".dat"
+    file_path = path + "Model_1.dat"
 
     file = open(file_path, 'w+')
     common.file_modifier.line_creator(file, "START",
@@ -278,7 +278,7 @@ def backup_simulation(yaml):
                 copy2(file, file_destination)
         
         time_series_files = glob.glob(results_path + "Run1/*.*")
-        if len(time_series_files) > 0 and not os.path.isidir(time_series_storage):
+        if len(time_series_files) > 0 and not os.path.isdir(time_series_storage):
             os.makedirs(time_series_storage)
             for file in time_series_files:
                 file_destination = time_series_storage + os.path.split(file)[1]
