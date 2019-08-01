@@ -259,7 +259,7 @@ def backup_simulation(yaml):
             if len(fin_files) > 0 and not os.path.isdir(restart_storage):
                 os.makedirs(restart_storage)
                 for file in fin_files:
-                    if file.startwith("MPI"):
+                    if file.startswith("MPI"):
                         continue
                     file_destination = restart_storage + os.path.split(file)[1]
                     copy2(file, file_destination)
