@@ -34,6 +34,7 @@ def run_mohid(yaml):
                 yaml['mohid']['exePath']
         static.logger.info("Starting MOHID MPI")
         subprocess.run("mpiexec", flags, stdout=file)
+        subprocess.run("./MohidDDC.exe")
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
