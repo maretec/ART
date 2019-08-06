@@ -34,12 +34,12 @@ def run_mohid(yaml):
         mpi = yaml['mohid']['mpi']
         static.logger.info("Starting MOHID MPI")
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-         yaml['mohid']['exePath']])
+         yaml['mohid']['exePath']], subprocess.PIPE)
         subprocess.run("./MohidDDC.exe")
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        subprocess.run(yaml['mohid']['exePath'])
+        subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE)
         static.logger.info("MOHID run finished")
     file.close()
 
