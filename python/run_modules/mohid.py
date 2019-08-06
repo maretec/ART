@@ -9,7 +9,7 @@ import sys
 import glob
 
 def create_folder_structure(yaml, model):
-    model_path = yaml['artconfig']['mainPath'] + model['workPath']
+    model_path = yaml['artconfig']['mainPath'] + model["path"]
     if not os.path.isdir(yaml['artconfig']['mainPath'] + "GeneralData/"):
         os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/Bathymetry")
         os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions")
