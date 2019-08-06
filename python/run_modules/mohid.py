@@ -23,10 +23,10 @@ def create_folder_structure(yaml, model):
 
 
 def run_mohid(yaml):
-    artconfig_keys = yaml['artconfig']
-    if 'outputToFile' in artconfig_keys and yaml['artconfig']['outputToFile']:
-        if 'outputFilePath' in artconfig_keys:
-            file = open(yaml['artconfig']['outputFilePath'], 'w+')
+    mohid_keys = yaml['artconfig']['mohid']
+    if 'outputToFile' in mohid_keys and yaml['artconfig']['mohid']['outputToFile']:
+        if 'outputFilePath' in mohid_keys:
+            file = open(yaml['artconfig']['mohid']['outputFilePath'], 'w+')
         else:
             file = open("./mohid_output.txt", 'w+')
     else:
