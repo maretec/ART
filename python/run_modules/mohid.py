@@ -8,14 +8,18 @@ import subprocess
 import sys
 import glob
 
-def mpi_params(yaml_file):
-    mohid = yaml_file['mohid']
-    if 'mpi' in mohid.keys():
-        if mohid['mpi']['enable']:
-            exe_path = mohid['mpi']['exePath']
-            keepDecomposedFiles = mohid['mpi']['keepDecomposedFiles']
-            ddcParserNumProcessors = mohid['mpi']['ddcComposerNumProcessors']
-            joinerVersion = mohid['mpi']['joinerVersion']
+def create_folder_structure(yaml, model):
+    model_path = yaml['artconfig']['mainPath'] + model['workPath']
+    if not os.path.isdir(yaml['artconfig']['mainPath'] + "GeneralData/"):
+        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/Bathymetry")
+        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions")
+        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/TimeSeries")
+    if not os.path.isdir(model_path + "res/"):
+        os.makedirs(model_path + "res/Run1/")
+    if not os.path.isdir(model_path + "data/"):
+        os.makedirs(model_path + "data/")
+    if not os.path.isdir(model_path + "exe/"):
+        os.makedirs(model_path + "exe/")
 
 
 def run_mohid(yaml):
@@ -24,7 +28,7 @@ def run_mohid(yaml):
         if 'outputFilePath' in artconfig_keys:
             file = open(yaml['artconfig']['outputFilePath'], 'w+')
         else:
-            file = open("./art_output.txt", 'w+')
+            file = open("./mohid_output.txt", 'w+')
     else:
         file = sys.stdout
 
@@ -32,13 +36,14 @@ def run_mohid(yaml):
         mpi = yaml['mohid']['mpi']
         static.logger.info("Starting MOHID MPI")
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-         yaml['mohid']['exePath'] ])
+         yaml['mohid']['exePath']], stdout=file)
         subprocess.run("./MohidDDC.exe")
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        subprocess.run(yaml['mohid']['exePath'])
+        subprocess.run(yaml['mohid']['exePath'], stdout=file)
         static.logger.info("MOHID run finished")
+    file.close()
 
 
 
@@ -291,6 +296,7 @@ def backup_simulation(yaml):
 
 def process_models(yaml):
     for model in yaml['mohid']['models']:
+        create_folder_structure(yaml, yaml['mohid']['models'][model])
         get_meteo_file(yaml, yaml['mohid']['models'][model])
         gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
         change_model_dat(yaml, yaml['mohid']['models'][model])
