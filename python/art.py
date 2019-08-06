@@ -2,6 +2,7 @@ import common.yaml_lib as yaml_lib
 import run_modules.mohid as mohid
 import run_modules.ww3 as ww3
 import run_modules.wrf as wrf
+import run_modules.pre_processing as pre_processing
 import common.constants as static
 import common.config as cfg
 import datetime
@@ -25,6 +26,9 @@ def main():
 
     artconfig_keys = yaml['artconfig'].keys()
 
+    if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+        pre_processing.execute()
+
     if 'outputToFile' in artconfig_keys and yaml['artconfig']['outputToFile']:
         if 'outputFilePath' in artconfig_keys:
             sys.stdout = open(yaml['artconfig']['outputFilePath'], 'w')
@@ -41,6 +45,10 @@ def main():
             wrf.execute(yaml)
         else:
             raise ValueError("No valid simulation module given.")
+
+    if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
+        post_processing.execute()
+        
     print("------------- ART RUN FINISHED -------------")
 
 
