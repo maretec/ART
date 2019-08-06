@@ -26,7 +26,7 @@ def run_mohid(yaml):
     mohid_keys = yaml['mohid']
     if 'outputToFile' in mohid_keys and yaml['artconfig']['mohid']['outputToFile']:
         if 'outputFilePath' in mohid_keys:
-            file = open(yaml['artconfig']['mohid']['outputFilePath'], 'w+')
+            file = open(yaml['mohid']['outputFilePath'], 'w+')
         else:
             file = open("./mohid_output.txt", 'w+')
     else:
