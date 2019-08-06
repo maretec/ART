@@ -303,7 +303,7 @@ def execute(yaml):
     static.logger.debug("Run MOHID enabled")
     if yaml['artconfig']['operationalMode']:
         today = datetime.datetime.today()
-        today.replace(minute=00, hour=00, second=00)
+        today = today.replace(minute=00, hour=00, second=00)
         cfg.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
         for i in range(1, cfg.number_of_runs+1):
             cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
