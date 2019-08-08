@@ -28,12 +28,12 @@ def run_mohid(yaml):
         mpi = yaml['mohid']['mpi']
         static.logger.info("Starting MOHID MPI")
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-         yaml['mohid']['exePath']], subprocess.PIPE)
+         yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
         subprocess.run("./MohidDDC.exe")
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE)
+        subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
         static.logger.info("MOHID run finished")
 
 
@@ -309,11 +309,14 @@ def execute(yaml):
             static.logger.info("========================================")
             process_models(yaml)
     else:
-        cfg.current_initial_date = cfg.global_initial_date
-        cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
-        static.logger.info("========================================")
-        static.logger.info("STARTING FORECAST")
-        static.logger.info("========================================")
-        process_models(yaml)
+        cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
+        cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+        while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
+            static.logger.info("========================================")
+            static.logger.info("STARTING FORECAST")
+            static.logger.info("========================================")
+            process_models(yaml)
+            cfg.current_initial_date = cfg.current_intial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
 
     return None
