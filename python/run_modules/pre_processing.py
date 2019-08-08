@@ -1,6 +1,7 @@
 import subprocess
 import common.file_modifier as file_modifier
 import common.config as cfg
+import os
 
 
 def dat_date_change(filePath):
@@ -20,7 +21,7 @@ def execute(yaml):
         run_array = [block_dict['exePath']] + flags_array
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
           with open(block_dict['outputFilePath'], 'w') as log:
-            subprocess.run(run_array, stdout=log)
+            subprocess.run(run_array, stdout=log, cwd=os.path.dirname(block_dict['exePath']))
             log.close()
       else:
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
