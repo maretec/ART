@@ -321,6 +321,8 @@ def execute(yaml):
     else:
         cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
         cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+        print(cfg.current_final_date)
+        print(cfg.global_final_date)
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             print("hello")
             static.logger.info("========================================")
