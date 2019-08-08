@@ -33,15 +33,15 @@ def main():
         else:
             sys.stdout = open("./art_output.txt", 'w')
             
-        module = yaml['artconfig']['module']
-        if module == "mohid" or module == "Mohid":
-            mohid.execute(yaml)
-        elif module == "WW3":
-            ww3.execute(yaml)
-        elif module == "WRF":
-            wrf.execute(yaml)
-        else:
-            raise ValueError("No valid simulation module given.")
+    module = yaml['artconfig']['module']
+    if module == "mohid" or module == "Mohid":
+        mohid.execute(yaml)
+    elif module == "WW3":
+        ww3.execute(yaml)
+    elif module == "WRF":
+        wrf.execute(yaml)
+    else:
+        raise ValueError("No valid simulation module given.")
         
     print("------------- ART RUN FINISHED -------------")
 

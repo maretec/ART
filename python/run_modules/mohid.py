@@ -298,7 +298,6 @@ def process_models(yaml):
 
 
 def execute(yaml):
-    print("debug")
     artconfig_keys = yaml['artconfig'].keys()
 
     static.logger.debug("Run MOHID enabled")
