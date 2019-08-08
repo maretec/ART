@@ -333,7 +333,7 @@ def execute(yaml):
                 process_models(yaml)
             if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
                 post_processing.execute(yaml)
-            cfg.current_initial_date = cfg.current_intial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
             cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
 
     return None
