@@ -7,6 +7,8 @@ from shutil import copy2
 import subprocess
 import sys
 import glob
+import pre_processing
+import post_processing
 
 def create_folder_structure(yaml, model):
     model_path = yaml['artconfig']['mainPath'] + model["path"]
@@ -296,6 +298,9 @@ def process_models(yaml):
 
 
 def execute(yaml):
+
+    artconfig_keys = yaml['artconfig'].keys()
+
     static.logger.debug("Run MOHID enabled")
     if yaml['artconfig']['operationalMode']:
         today = datetime.datetime.today()
@@ -315,7 +320,12 @@ def execute(yaml):
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST")
             static.logger.info("========================================")
-            process_models(yaml)
+            if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+                pre_processing.execute(yaml)
+            if yaml['artconfig']['runSimulation']:
+                process_models(yaml)
+            if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
+                post_processing.execute(yaml)
             cfg.current_initial_date = cfg.current_intial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
             cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
 
