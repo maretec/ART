@@ -5,7 +5,6 @@ import os
 
 
 def dat_date_change(filePath):
-  prrint("try")
   file_modifier.modify_line(filePath, "START", file_modifier.date_to_mohid_date(cfg.current_initial_date))
   file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_initial_date))
 
