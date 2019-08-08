@@ -13,6 +13,7 @@ def execute(yaml):
   for block in yaml['preProcessing']:
     block_keys = yaml['preProcessing'][block].keys()
     block_dict = yaml['preProcessing'][block]
+    print(block)
     if block_dict['run']:
       if 'datDataChange' in  block_keys and block_dict['datDataChange']:
         dat_date_change(block_dict['configFilePath'])
