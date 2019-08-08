@@ -285,13 +285,13 @@ def backup_simulation(yaml):
         
 
 def process_models(yaml):
-    #for model in yaml['mohid']['models']:
-     #   create_folder_structure(yaml, yaml['mohid']['models'][model])
-      #  get_meteo_file(yaml, yaml['mohid']['models'][model])
-       # gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
-        #change_model_dat(yaml, yaml['mohid']['models'][model])
-        #gather_restart_files(yaml, yaml['mohid']['models'][model])
-    #run_mohid(yaml)
+    for model in yaml['mohid']['models']:
+        create_folder_structure(yaml, yaml['mohid']['models'][model])
+        get_meteo_file(yaml, yaml['mohid']['models'][model])
+        gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
+        change_model_dat(yaml, yaml['mohid']['models'][model])
+        gather_restart_files(yaml, yaml['mohid']['models'][model])
+    run_mohid(yaml)
     backup_simulation(yaml)
 
 
