@@ -7,8 +7,8 @@ from shutil import copy2
 import subprocess
 import sys
 import glob
-import pre_processing
-import post_processing
+import run_modules.pre_processing
+import run_modules.post_processing
 
 def create_folder_structure(yaml, model):
     model_path = yaml['artconfig']['mainPath'] + model["path"]
