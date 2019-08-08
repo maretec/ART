@@ -16,11 +16,14 @@ def validate_path(path):
 
 def main():
 
+
     yaml = yaml_lib.open_yaml_file(sys.argv[1])
 
     #yaml_lib.validate_yaml_file(yaml)
     #yaml_lib.validate_date(yaml)
     validate_path(yaml['artconfig']['mainPath'])
+
+    artconfig_keys = yaml['artconfig'].keys()
 
     running_mode(yaml)
 
