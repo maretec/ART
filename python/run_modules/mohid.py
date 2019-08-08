@@ -7,8 +7,8 @@ from shutil import copy2
 import subprocess
 import sys
 import glob
-import run_modules.pre_processing
-import run_modules.post_processing
+import run_modules.pre_processing as pre_processing
+import run_modules.post_processing as post_processing
 
 def create_folder_structure(yaml, model):
     model_path = yaml['artconfig']['mainPath'] + model["path"]
@@ -312,7 +312,12 @@ def execute(yaml):
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
             static.logger.info("========================================")
-            process_models(yaml)
+            if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+                pre_processing.execute(yaml)
+            if yaml['artconfig']['runSimulation']:
+                process_models(yaml)
+            if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
+                post_processing.execute(yaml)
     else:
         cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
         cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
