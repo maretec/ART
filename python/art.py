@@ -27,7 +27,7 @@ def main():
     artconfig_keys = yaml['artconfig'].keys()
 
     if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
-        pre_processing.execute()
+        pre_processing.execute(yaml)
 
     if 'outputToFile' in artconfig_keys and yaml['artconfig']['outputToFile']:
         if 'outputFilePath' in artconfig_keys:
