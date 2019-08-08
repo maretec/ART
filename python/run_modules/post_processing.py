@@ -25,7 +25,7 @@ def execute(yaml):
       else:
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
          with open(block_dict['outputFilePath'], 'w') as log:
-            subprocess.run(block_dict['exePath'], stdout=log)
+            subprocess.run(run_array, stdout=log)
             log.close()
         else:
           subprocess.run(block_dict['exePath'])
