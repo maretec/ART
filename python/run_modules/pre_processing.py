@@ -9,7 +9,7 @@ def dat_date_change(filePath):
   file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_initial_date))
 
 def execute(yaml):
-  
+  print("debug")
   for block in yaml['preProcessing']:
     block_keys = yaml['preProcessing'][block].keys()
     block_dict = yaml['preProcessing'][block]
