@@ -3,6 +3,7 @@ import run_modules.mohid as mohid
 import run_modules.ww3 as ww3
 import run_modules.wrf as wrf
 import run_modules.pre_processing as pre_processing
+import run_modules.post_processing as post_processing
 import common.constants as static
 import common.config as cfg
 import datetime

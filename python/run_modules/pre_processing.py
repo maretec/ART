@@ -5,8 +5,9 @@ import os
 
 
 def dat_date_change(filePath):
-  file_modifier.modify_line(filePath, "START", cfg.current_initial_date)
-  file_modifier.modify_line(filePath, "END", cfg.current_final_date)
+  prrint("try")
+  file_modifier.modify_line(filePath, "START", file_modifier.date_to_mohid_date(cfg.current_initial_date))
+  file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_initial_date))
 
 def execute(yaml):
   
