@@ -323,16 +323,17 @@ def execute(yaml):
         print(cfg.current_final_date)
         print(cfg.global_final_date)
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
-            print("hello")
-            static.logger.info("========================================")
-            static.logger.info("STARTING FORECAST")
-            static.logger.info("========================================")
-            if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
-                pre_processing.execute(yaml)
-            if yaml['artconfig']['runSimulation']:
-                process_models(yaml)
-            if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
-                post_processing.execute(yaml)
+            print("intial_date: " + str(cfg.current_initial_date))
+            print("final_date: " + str(cfg.current_final_date) + "\n")
+            #static.logger.info("========================================")
+            #static.logger.info("STARTING FORECAST")
+            #static.logger.info("========================================")
+            #if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+            #    pre_processing.execute(yaml)
+            #if yaml['artconfig']['runSimulation']:
+            #    process_models(yaml)
+            #if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
+            #    post_processing.execute(yaml)
             cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
             cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
 
