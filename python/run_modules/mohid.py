@@ -237,10 +237,10 @@ def gather_restart_files(yaml, model):
     fin_files = glob.glob(path_fin_files + "*.fin")
     fin5_files = glob.glob(path_fin_files + "*.fin5")
     for file in fin_files:
-        file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
+        file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "0.fin"
         copy2(file, file_destination)
     for file in fin5_files:
-        file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin5"
+        file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "0.fin5"
         copy2(file, file_destination)
 
 
@@ -356,8 +356,8 @@ def execute(yaml):
         cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
-            static.logger.info("STARTING FORECAST ( " + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
-                               cfg.current_final_date.strftime("%Y-%m-%d"))
+            static.logger.info("STARTING FORECAST (" + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
+                               cfg.current_final_date.strftime("%Y-%m-%d") + ")")
             static.logger.info("========================================")
             if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
                 pre_processing.execute(yaml)
