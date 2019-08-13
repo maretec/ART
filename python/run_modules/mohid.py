@@ -351,7 +351,8 @@ def execute(yaml):
         cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
-            static.logger.info("STARTING FORECAST ( " + str(i) + " of ")
+            static.logger.info("STARTING FORECAST ( " cfg.current_initial_date.strftime("%Y-%m-%d") " + "to" + 
+            cfg.current_final_date.strftime("%Y-%m-%d"))
             static.logger.info("========================================")
             if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
                 pre_processing.execute(yaml)
