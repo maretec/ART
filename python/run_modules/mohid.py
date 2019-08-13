@@ -214,8 +214,8 @@ def gather_restart_files(yaml, model):
     static.logger.debug("Gathering the restart files for model: " + model['name'])
    
     dateFormat = "%Y-%m-%d"
-    if 'dateFormat' in model['mohid'].keys():
-        dateFormat = model['mohid']['dateFormat']
+    if 'dateFormat' in yaml['mohid'].keys():
+        dateFormat = yaml['mohid']['dateFormat']
 
     previous_init_date = cfg.current_initial_date - datetime.timedelta(days=1)
     previous_final_date = previous_init_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])    
@@ -263,8 +263,8 @@ def gather_discharges_files(yaml, model):
 
 def backup_simulation(yaml):
     dateFormat = "%Y-%m-%d"
-    if 'dateFormat' in model['mohid'].keys():
-        dateFormat = model['mohid']['dateFormat']
+    if 'dateFormat' in yaml['mohid'].keys():
+        dateFormat = yaml['mohid']['dateFormat']
     initial_date = cfg.current_initial_date.strftime(dateFormat)
     tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
     final_date = tmp_date.strftime(dateFormat)
