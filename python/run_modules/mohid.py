@@ -248,7 +248,7 @@ def gather_discharges_files(yaml, model):
 
     file_destination = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Discharges/" + model[
         'name'] + "/"
-    files = glob.glob(path_discharges_files)
+    files = glob.glob(path_discharges_files + "*.*")
 
     if not os.path.isdir(file_destination):
         os.makedirs(file_destination)
