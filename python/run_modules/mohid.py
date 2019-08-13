@@ -51,7 +51,11 @@ def change_model_dat(yaml, model):
     file = open(file_path, 'w+')
     common.file_modifier.line_creator(file, "START",
                                       common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+    static.logger.debug("Changed START of " + str(file) + " to " +
+                        common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+    static.logger.debug("Changed END of " + str(file) + " to " +
+                        common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.line_creator(file, "DT", str(model['dt']))
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
@@ -245,7 +249,7 @@ def gather_discharges_files(yaml, model):
     if 'dateFormat' in model['discharges'].keys():
         date_format = model['discharges']['dateFormat']
 
-    static.logger.debug("Gathering Discharges Files for nodel " + model['name'])
+    static.logger.debug("Gathering Discharges Files for model " + model['name'])
     path_discharges_files = model['discharges']['path'] + cfg.current_initial_date.strftime(date_format) + "_" + \
         cfg.current_final_date.strftime(date_format) + "/"
 
@@ -352,7 +356,7 @@ def execute(yaml):
         cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
-            static.logger.info("STARTING FORECAST ( " + cfg.current_initial_date.strftime("%Y-%m-%d") + "to" +
+            static.logger.info("STARTING FORECAST ( " + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
                                cfg.current_final_date.strftime("%Y-%m-%d"))
             static.logger.info("========================================")
             if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
