@@ -5,10 +5,10 @@ import os.path
 import common.config as cfg
 from shutil import copy2
 import subprocess
-import sys
 import glob
 import run_modules.pre_processing as pre_processing
 import run_modules.post_processing as post_processing
+
 
 def create_folder_structure(yaml, model):
     model_path = yaml['artconfig']['mainPath'] + model["path"]
@@ -25,12 +25,10 @@ def create_folder_structure(yaml, model):
 
 
 def run_mohid(yaml):
-
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
-        mpi = yaml['mohid']['mpi']
         static.logger.info("Starting MOHID MPI")
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-         yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
+                        yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
         subprocess.run("./MohidDDC.exe")
         static.logger.info("MOHID MPI run finished")
     else:
@@ -52,7 +50,7 @@ def change_model_dat(yaml, model):
 
     file = open(file_path, 'w+')
     common.file_modifier.line_creator(file, "START",
-                                        common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+                                      common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     common.file_modifier.line_creator(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.line_creator(file, "DT", str(model['dt']))
     if 'mohid.dat' in keys:
@@ -68,10 +66,10 @@ def gather_boundary_conditions(yaml, model):
     if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
         static.logger.debug("Gathering boundary conditions for " + model['name'])
         obc_keys = model['obc'].keys()
-        
+
         simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
         folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
-        
+
         date_format = "%Y-%m-%d"
         if 'dateFormat' in obc_keys:
             date_format = model['obc']['dateFormat']
@@ -81,9 +79,8 @@ def gather_boundary_conditions(yaml, model):
             file_type = model['obc']['fileType']
         static.logger.debug("Boundary Conditions File Type: " + file_type)
 
-
         if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
-            model['obc']['hasSolutionFromFile']:
+                model['obc']['hasSolutionFromFile']:
             for n in range(0, simulations_available - 1, -1):
                 obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.current_initial_date + datetime.timedelta(days=simulations_available)
@@ -91,8 +88,8 @@ def gather_boundary_conditions(yaml, model):
                 obc_initial_date = obc_initial_date.strftime(date_format)
                 obc_final_date = obc_final_date.strftime(date_format)
 
-                obc_source_path = model['obc']['workPath'] + model['obc']['prefix'] + "_" + model['name'] + obc_initial_date \
-                    + "_" + obc_final_date + "." + file_type
+                obc_source_path = model['obc']['workPath'] + model['obc']['prefix'] + "_" + model[
+                    'name'] + obc_initial_date + "_" + obc_final_date + "." + file_type
 
                 if os.path.isfile(obc_source_path):
                     obc_dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
@@ -115,7 +112,7 @@ def gather_boundary_conditions(yaml, model):
                 obc_final_date = obc_final_date.strftime(date_format)
 
                 hydro_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
-                 "Hydrodynamic"
+                    "Hydrodynamic"
                 water_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
                     "WaterProperties"
 
@@ -123,22 +120,21 @@ def gather_boundary_conditions(yaml, model):
                     hydro_source_path += "_" + model['obc']['suffix']
                     water_source_path += "_" + model['obc']['suffix']
 
-                hydro_source_path +=  "." + file_type
+                hydro_source_path += "." + file_type
                 water_source_path += "." + file_type
-               
 
                 if os.path.isfile(hydro_source_path):
                     if os.path.isfile(water_source_path):
                         dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
                         if not os.path.isdir(dest_folder):
                             os.makedirs(dest_folder)
-                        hydro_dest_file = dest_folder + "/Hydrodynamic" 
+                        hydro_dest_file = dest_folder + "/Hydrodynamic"
                         water_dest_file = dest_folder + "/WaterProperties"
 
                         if 'suffix' in obc_keys:
                             hydro_dest_file += "_" + model['obc']['suffix']
-                            water_dest_file += "_" + model['obc']['suffix'] 
-                        
+                            water_dest_file += "_" + model['obc']['suffix']
+
                         hydro_dest_file += "." + file_type
                         water_dest_file += "." + file_type
 
@@ -147,7 +143,8 @@ def gather_boundary_conditions(yaml, model):
                         copy2(hydro_source_path, hydro_dest_file)
                         copy2(water_source_path, water_dest_file)
                     else:
-                        static.logger.debug("gather_boundary_conditions: File " + water_source_path + " does not exist.")
+                        static.logger.debug(
+                            "gather_boundary_conditions: File " + water_source_path + " does not exist.")
                 else:
                     static.logger.debug("gather_boundary_conditions: File " + hydro_source_path + " does not exist. ")
 
@@ -163,76 +160,74 @@ def get_meteo_file(yaml, model):
             date_format = "%Y-%m-%d"
             if 'dateFormat' in meteo_keys:
                 date_format = model['meteo'][meteo_model]['dateFormat']
-            
+
             meteo_initial_date = cfg.current_initial_date.strftime(date_format)
-            meteo_final_date = None
             if 'simulatedDays' in meteo_keys:
                 meteo_final_date = cfg.current_initial_date + datetime.timedelta(days=model['meteo']['models']
-                [meteo_model]['simulatedDays'])
+                    [meteo_model]['simulatedDays'])
                 meteo_final_date = meteo_final_date.strftime(date_format)
             else:
                 meteo_final_date = cfg.current_final_date.strftime(date_format)
-        
+
             file_type = "hdf5"
             if 'fileType' in meteo_keys:
                 file_type = model['meteo']['models'][meteo_model]['fileType']
 
-            meteo_sufix = "TAGUS3D"
-            meteo_file_source = None
             if 'fileNameFromModel' in meteo_keys and model['meteo']['models'][meteo_model]['fileNameFromModel']:
                 meteo_sufix = model['meteo']['models'][meteo_model]['name']
                 meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + \
-                    model['meteo']['models'][meteo_model]['name'] + "_" + model['name'] + "_" + meteo_initial_date + "_" + \
-                    meteo_final_date + "." + file_type 
+                    model['meteo']['models'][meteo_model]['name'] + "_" + model['name'] + "_" + meteo_initial_date +\
+                    "_" + meteo_final_date + "." + file_type
             else:
-                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + "meteo" + "_" + meteo_initial_date \
-                    + "_" + meteo_final_date + "." + file_type
-        
+                meteo_file_source = model['meteo']['models'][meteo_model][
+                                        'workPath'] + "meteo" + "_" + meteo_initial_date \
+                                    + "_" + meteo_final_date + "." + file_type
+
             print(meteo_file_source)
             if os.path.isfile(meteo_file_source):
-                meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" + \
-                    model['name'] + "/" + model['meteo']['models'][meteo_model]['name'] + "/"
-                
+                meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" \
+                    + model['name'] + "/" + model['meteo']['models'][meteo_model]['name'] + "/"
+
                 if not os.path.isdir(meteo_file_dest_folder):
                     os.makedirs(meteo_file_dest_folder)
 
-                meteo_file_dest = meteo_file_dest_folder +  model['meteo']['models'][meteo_model]['name'] + "_" + \
+                meteo_file_dest = meteo_file_dest_folder + model['meteo']['models'][meteo_model]['name'] + "_" + \
                     model['name'] + "." + file_type
-                    
-                copy2(meteo_file_source,meteo_file_dest)
+
+                copy2(meteo_file_source, meteo_file_dest)
                 static.logger.debug("Copied meteo file from " + meteo_file_source + " to " + meteo_file_dest)
                 return
             else:
                 continue
-        
+
         static.logger.debug("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
         raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
-            "errors.")
-        
+                                "errors.")
+
 
 def gather_restart_files(yaml, model):
     static.logger.debug("Gathering the restart files for model: " + model['name'])
-   
-    dateFormat = "%Y-%m-%d"
+
+    date_format = "%Y-%m-%d"
     if 'dateFormat' in yaml['mohid'].keys():
-        dateFormat = yaml['mohid']['dateFormat']
+        date_format = yaml['mohid']['dateFormat']
 
     previous_init_date = cfg.current_initial_date - datetime.timedelta(days=1)
-    previous_final_date = previous_init_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])    
-    path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime(dateFormat) + "_" + \
-         previous_final_date.strftime(dateFormat) + "/"
+    previous_final_date = previous_init_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+    path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime(date_format) + "_" + \
+        previous_final_date.strftime(date_format) + "/"
 
     if not os.path.isdir(path_fin_files):
         static.logger.debug("Restart folder: " + path_fin_files + "does not exist.")
-        return 
-        
+        return
+
     model_keys = model.keys()
 
     restart_files_dest = yaml['artconfig']['mainPath'] + model['path'] + "res/"
     if not os.path.isdir(restart_files_dest):
         os.makedirs(restart_files_dest)
 
-    fin_files = glob.glob(path_fin_files+"*.fin")
+    fin_files = glob.glob(path_fin_files + "*.fin")
     fin5_files = glob.glob(path_fin_files + "*.fin5")
     for file in fin_files:
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
@@ -243,15 +238,16 @@ def gather_restart_files(yaml, model):
 
 
 def gather_discharges_files(yaml, model):
-    dateFormat = "%Y-%m-%d"
+    date_format = "%Y-%m-%d"
     if 'dateFormat' in model['discharges'].keys():
-        dateFormat = model['discharges']['dateFormat']
-        
-    static.logger.debug("Gathering Discharges Files for nodel " + model['name'])
-    path_discharges_files = model['discharges']['path'] + cfg.current_initial_date.strftime(dateFormat) + "_" + \
-        cfg.current_final_date.strftime(dateFormat) + "/"
+        date_format = model['discharges']['dateFormat']
 
-    file_destination = yaml['artconfig']['mainPath'] + "GenetalData/BoundaryConditions/Discharges/" + model['name'] + "/"
+    static.logger.debug("Gathering Discharges Files for nodel " + model['name'])
+    path_discharges_files = model['discharges']['path'] + cfg.current_initial_date.strftime(date_format) + "_" + \
+        cfg.current_final_date.strftime(date_format) + "/"
+
+    file_destination = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Discharges/" + model[
+        'name'] + "/"
     files = glob.glob(path_discharges_files)
 
     if not os.path.isdir(file_destination):
@@ -261,30 +257,31 @@ def gather_discharges_files(yaml, model):
         file_destination = file_destination + os.path.split(file)[1]
         copy2(file, file_destination)
 
-def backup_simulation(yaml):
-    dateFormat = "%Y-%m-%d"
-    if 'dateFormat' in yaml['mohid'].keys():
-        dateFormat = yaml['mohid']['dateFormat']
-    initial_date = cfg.current_initial_date.strftime(dateFormat)
-    tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
-    final_date = tmp_date.strftime(dateFormat)
 
-    for model in yaml['mohid']['models']:    
-        storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
-    
+def backup_simulation(yaml):
+    date_format = "%Y-%m-%d"
+    if 'dateFormat' in yaml['mohid'].keys():
+        date_format = yaml['mohid']['dateFormat']
+    initial_date = cfg.current_initial_date.strftime(date_format)
+    tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
+    final_date = tmp_date.strftime(date_format)
+
+    for model in yaml['mohid']['models']:
+        storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date + "/"
+
         model_keys = yaml['mohid']['models'][model].keys()
         mohid_keys = yaml['mohid']
         results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
-        
+
         generic_path = yaml['mohid']['models'][model]['storagePath']
-        date_path = initial_date + "_" + final_date +"/"
+        date_path = initial_date + "_" + final_date + "/"
         restart_storage = generic_path + "Restart/" + date_path
         results_storage = generic_path + "Results_HDF/" + date_path
         time_series_storage = generic_path + "Results_TimeSeries/" + date_path
-        discharged_storage = generic_path + "Discharges/" + date_path
+        discharges_storage = generic_path + "Discharges/" + date_path
 
         if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
-            fin_files = glob.glob(results_path+"*_1.fin")
+            fin_files = glob.glob(results_path + "*_1.fin")
             fin5_files = glob.glob(results_path + "*_1.fin5")
             fin_files = fin5_files + fin_files
             if len(fin_files) > 0 and not os.path.isdir(restart_storage):
@@ -294,8 +291,8 @@ def backup_simulation(yaml):
                         continue
                     file_destination = restart_storage + os.path.split(file)[1]
                     copy2(file, file_destination)
-    
-        hdf5_files = glob.glob(results_path+"*.hdf5")
+
+        hdf5_files = glob.glob(results_path + "*.hdf5")
         if len(hdf5_files) > 0 and not os.path.isdir(results_storage):
             os.makedirs(results_storage)
             for file in hdf5_files:
@@ -303,14 +300,14 @@ def backup_simulation(yaml):
                     continue
                 file_destination = results_storage + os.path.split(file)[1]
                 copy2(file, file_destination)
-        
+
         time_series_files = glob.glob(results_path + "Run1/*.*")
         if len(time_series_files) > 0 and not os.path.isdir(time_series_storage):
             os.makedirs(time_series_storage)
             for file in time_series_files:
                 file_destination = time_series_storage + os.path.split(file)[1]
                 copy2(file, file_destination)
-        
+
 
 def process_models(yaml):
     for model in yaml['mohid']['models']:
@@ -320,7 +317,7 @@ def process_models(yaml):
         change_model_dat(yaml, yaml['mohid']['models'][model])
         gather_restart_files(yaml, yaml['mohid']['models'][model])
         if 'discharges' in yaml['mohid']['models'][model].keys() and 'enable' in \
-            yaml['mohid']['models'][model]['discharges'].keys() and yaml['mohid']['discharges']['enable']:
+                yaml['mohid']['models'][model]['discharges'].keys() and yaml['mohid']['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
     backup_simulation(yaml)
@@ -334,8 +331,8 @@ def execute(yaml):
         today = datetime.datetime.today()
         today = today.replace(minute=00, hour=00, second=00)
         cfg.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
-        for i in range(1, cfg.number_of_runs+1):
-            cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i-1)
+        for i in range(1, cfg.number_of_runs + 1):
+            cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i - 1)
             cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
@@ -351,8 +348,8 @@ def execute(yaml):
         cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
-            static.logger.info("STARTING FORECAST ( " + cfg.current_initial_date.strftime("%Y-%m-%d")  + "to" + 
-            cfg.current_final_date.strftime("%Y-%m-%d"))
+            static.logger.info("STARTING FORECAST ( " + cfg.current_initial_date.strftime("%Y-%m-%d") + "to" +
+                               cfg.current_final_date.strftime("%Y-%m-%d"))
             static.logger.info("========================================")
             if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
                 pre_processing.execute(yaml)
@@ -360,7 +357,8 @@ def execute(yaml):
                 process_models(yaml)
             if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
                 post_processing.execute(yaml)
-            cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
+                days=yaml['artconfig']['daysPerRun'])
             cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
 
     return None
