@@ -111,8 +111,8 @@ def gather_boundary_conditions(yaml, model):
                 obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
-                obc_initial_date = obc_initial_date.strftime("%Y-%m-%d")
-                obc_final_date = obc_final_date.strftime("%Y-%m-%d")
+                obc_initial_date = obc_initial_date.strftime(date_format)
+                obc_final_date = obc_final_date.strftime(date_format)
 
                 hydro_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
                  "Hydrodynamic"
@@ -212,9 +212,15 @@ def get_meteo_file(yaml, model):
 
 def gather_restart_files(yaml, model):
     static.logger.debug("Gathering the restart files for model: " + model['name'])
+   
+    dateFormat = "%Y-%m-%d"
+    if 'dateFormat' in model['mohid'].keys():
+        dateFormat = model['mohid']['dateFormat']
+
     previous_init_date = cfg.current_initial_date - datetime.timedelta(days=1)
     previous_final_date = previous_init_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])    
-    path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime("%Y-%m-%d") + "_" + previous_final_date.strftime("%Y-%m-%d") + "/"
+    path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime(dateFormat) + "_" + \
+         previous_final_date.strftime(dateFormat) + "/"
 
     if not os.path.isdir(path_fin_files):
         static.logger.debug("Restart folder: " + path_fin_files + "does not exist.")
@@ -236,12 +242,32 @@ def gather_restart_files(yaml, model):
         copy2(file, file_destination)
 
 
+def gather_discharges_files(yaml, model):
+    dateFormat = "%Y-%m-%d"
+    if 'dateFormat' in model['discharges'].keys():
+        dateFormat = model['discharges']['dateFormat']
+        
+    static.logger.debug("Gathering Discharges Files for nodel " + model['name'])
+    path_discharges_files = model['discharges']['path'] + cfg.current_initial_date.strftime(dateFormat) + "_" + \
+        cfg.current_final_date.strftime(dateFormat) + "/"
 
+    file_destination = yaml['artconfig']['mainPath'] + "GenetalData/BoundaryConditions/Discharges/" + model['name'] + "/"
+    files = glob.glob(path_discharges_files)
+
+    if not os.path.isdir(file_destination):
+        os.makedirs(file_destination)
+
+    for file in files:
+        file_destination = file_destination + os.path.split(file)[1]
+        copy2(file, file_destination)
 
 def backup_simulation(yaml):
-    initial_date = cfg.current_initial_date.strftime("%Y-%m-%d")
+    dateFormat = "%Y-%m-%d"
+    if 'dateFormat' in model['mohid'].keys():
+        dateFormat = model['mohid']['dateFormat']
+    initial_date = cfg.current_initial_date.strftime(dateFormat)
     tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
-    final_date = tmp_date.strftime("%Y-%m-%d")
+    final_date = tmp_date.strftime(dateFormat)
 
     for model in yaml['mohid']['models']:    
         storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date +"/"
@@ -293,6 +319,9 @@ def process_models(yaml):
         gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
         change_model_dat(yaml, yaml['mohid']['models'][model])
         gather_restart_files(yaml, yaml['mohid']['models'][model])
+        if 'discharges' in yaml['mohid']['models'][model].keys() and 'enable' in \
+            yaml['mohid']['models'][model]['discharges'] and yaml['mohid']['discharges']['enable']:
+            gather_discharges_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
     backup_simulation(yaml)
 
