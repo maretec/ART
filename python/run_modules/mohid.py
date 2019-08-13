@@ -214,6 +214,9 @@ def gather_restart_files(yaml, model):
 
     previous_init_date = cfg.current_initial_date - datetime.timedelta(days=1)
     previous_final_date = previous_init_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+    static.logger.debug("Initial Day: " + previous_init_date.strftime(date_format))
+    static.logger.debug("Final Day: " + previous_final_date.strftime(date_format))
+
     path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime(date_format) + "_" + \
         previous_final_date.strftime(date_format) + "/"
 
@@ -320,7 +323,7 @@ def process_models(yaml):
                 yaml['mohid']['models'][model]['discharges'].keys() and \
                 yaml['mohid']['models'][model]['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    run_mohid(yaml)
+    #run_mohid(yaml)
     backup_simulation(yaml)
 
 
