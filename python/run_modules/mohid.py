@@ -320,7 +320,7 @@ def process_models(yaml):
         change_model_dat(yaml, yaml['mohid']['models'][model])
         gather_restart_files(yaml, yaml['mohid']['models'][model])
         if 'discharges' in yaml['mohid']['models'][model].keys() and 'enable' in \
-            yaml['mohid']['models'][model]['discharges'] and yaml['mohid']['discharges']['enable']:
+            yaml['mohid']['models'][model]['discharges'].keys() and yaml['mohid']['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
     backup_simulation(yaml)
