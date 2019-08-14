@@ -224,6 +224,8 @@ def gather_restart_files(yaml, model):
     path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime(date_format) + "_" + \
         previous_final_date.strftime(date_format) + "/"
 
+    static.logger("Path fin files: " + path_fin_files)
+
     if not os.path.isdir(path_fin_files):
         static.logger.debug("Restart folder: " + path_fin_files + "does not exist.")
         return
@@ -237,9 +239,11 @@ def gather_restart_files(yaml, model):
     fin_files = glob.glob(path_fin_files + "*.fin")
     fin5_files = glob.glob(path_fin_files + "*.fin5")
     for file in fin_files:
+        static.logger(os.path(file))
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
         copy2(file, file_destination)
     for file in fin5_files:
+        static.logger(os.path(file))
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin5"
         copy2(file, file_destination)
 
@@ -327,7 +331,7 @@ def process_models(yaml):
                 yaml['mohid']['models'][model]['discharges'].keys() and \
                 yaml['mohid']['models'][model]['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    run_mohid(yaml)
+    #run_mohid(yaml)
     backup_simulation(yaml)
 
 
