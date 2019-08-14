@@ -239,11 +239,11 @@ def gather_restart_files(yaml, model):
     fin_files = glob.glob(path_fin_files + "*.fin")
     fin5_files = glob.glob(path_fin_files + "*.fin5")
     for file in fin_files:
-        static.logger.debug(os.path(file))
+        static.logger.debug(file)
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
         copy2(file, file_destination)
     for file in fin5_files:
-        static.logger.debug(os.path(file))
+        static.logger.debug(file)
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin5"
         copy2(file, file_destination)
 
