@@ -57,10 +57,6 @@ def change_model_dat(yaml, model):
     static.logger.debug("Changed END of " + str(file) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.line_creator(file, "DT", str(model['dt']))
-
-    print("MODEL.DAT START " +  common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    print("MODEL.DAT END " +  common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
             common.file_modifier.line_creator(file, key, model['mohid.dat'][key])
@@ -225,9 +221,6 @@ def gather_restart_files(yaml, model):
     static.logger.debug("Initial Day: " + previous_init_date.strftime(date_format))
     static.logger.debug("Final Day: " + previous_final_date.strftime(date_format))
 
-    print("RESTART_FILES INIT:" + previous_init_date.strftime(date_format))
-    print("RESTART_FILES INIT:" + previous_final_date.strftime(date_format))
-
     path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime(date_format) + "_" + \
         previous_final_date.strftime(date_format) + "/"
 
@@ -264,9 +257,6 @@ def gather_discharges_files(yaml, model):
     path_discharges_files = model['discharges']['path'] + cfg.current_initial_date.strftime(date_format) + "_" + \
         cfg.current_final_date.strftime(date_format) + "/"
 
-    print("Discharges INIT: " + cfg.current_initial_date.strftime(date_format) )
-    print("Discharges END: " + cfg.current_final_date.strftime(date_format) )
-
     file_destination = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Discharges/" + model[
         'name'] + "/"
     files = glob.glob(path_discharges_files + "*.*")
@@ -287,8 +277,6 @@ def backup_simulation(yaml):
     tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
     final_date = tmp_date.strftime(date_format)
 
-    print("BACKUP INIT: " + initial_date)
-    print("BACKUP END: " + final_date)
     for model in yaml['mohid']['models']:
         storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date + "/"
 
@@ -343,7 +331,7 @@ def process_models(yaml):
                 yaml['mohid']['models'][model]['discharges'].keys() and \
                 yaml['mohid']['models'][model]['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    #run_mohid(yaml)
+    run_mohid(yaml)
     backup_simulation(yaml)
 
 
@@ -375,8 +363,6 @@ def execute(yaml):
             static.logger.info("STARTING FORECAST (" + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
                                cfg.current_final_date.strftime("%Y-%m-%d") + ")")
             static.logger.info("========================================")
-            print("RUN INIT: " + cfg.current_initial_date.strftime("%Y-%m-%d"))
-            print("RUN FINAL: " + cfg.current_final_date.strftime("%Y-%m-%d"))
             if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
                 pre_processing.execute(yaml)
             if yaml['artconfig']['runSimulation']:
