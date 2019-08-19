@@ -295,8 +295,9 @@ def backup_simulation(yaml):
             fin_files = glob.glob(results_path + "*_1.fin")
             fin5_files = glob.glob(results_path + "*_1.fin5")
             fin_files = fin5_files + fin_files
-            if len(fin_files) > 0 and not os.path.isdir(restart_storage):
-                os.makedirs(restart_storage)
+            if len(fin_files) > 0:
+                if not os.path.isdir(restart_storage):
+                    os.makedirs(restart_storage)
                 for file in fin_files:
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
@@ -304,9 +305,10 @@ def backup_simulation(yaml):
                     copy2(file, file_destination)
 
         hdf5_files = glob.glob(results_path + "*.hdf5")
-        print(hdf5_files)
-        if len(hdf5_files) > 0 and not os.path.isdir(results_storage):
-            os.makedirs(results_storage)
+        if len(hdf5_files) > 0:
+            if not os.path.isdir(results_storage):
+                os.makedirs(results_storage)
+            print(hdf5_files)
             for file in hdf5_files:
                 if os.path.split(file)[1].startswith("MPI"):
                     continue
@@ -314,8 +316,9 @@ def backup_simulation(yaml):
                 copy2(file, file_destination)
 
         time_series_files = glob.glob(results_path + "Run1/*.*")
-        if len(time_series_files) > 0 and not os.path.isdir(time_series_storage):
-            os.makedirs(time_series_storage)
+        if len(time_series_files) > 0:
+            if not os.path.isdir(time_series_storage):
+                os.makedirs(time_series_storage)
             for file in time_series_files:
                 file_destination = time_series_storage + os.path.split(file)[1]
                 copy2(file, file_destination)
