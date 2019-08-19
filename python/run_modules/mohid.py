@@ -304,6 +304,7 @@ def backup_simulation(yaml):
                     copy2(file, file_destination)
 
         hdf5_files = glob.glob(results_path + "*.hdf5")
+        print(hdf5_files)
         if len(hdf5_files) > 0 and not os.path.isdir(results_storage):
             os.makedirs(results_storage)
             for file in hdf5_files:
@@ -331,7 +332,7 @@ def process_models(yaml):
                 yaml['mohid']['models'][model]['discharges'].keys() and \
                 yaml['mohid']['models'][model]['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    run_mohid(yaml)
+    #run_mohid(yaml)
     backup_simulation(yaml)
 
 
