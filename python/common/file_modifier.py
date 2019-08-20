@@ -2,8 +2,7 @@ import fileinput
 import sys
 
 
-def line_creator(filepath, parameter, value):
-    file = open(filepath, "w+")
+def line_creator(file, parameter, value):
     file.write('{0:30}{1}'.format(parameter, ": " + value + "\n"))
     file.flush()
 
@@ -17,9 +16,7 @@ def modify_line(filepath, parameter, new_value):
     for line in fileinput.input(filepath, inplace=True):
         if parameter in line:
             line = parameter + " : " + new_value + "\n"
-            return
         sys.stdout.write(line)
-    line_creator(filepath, parameter, new_value)
 
 
 def nomfinch_creator(workPath, parameters, values):
