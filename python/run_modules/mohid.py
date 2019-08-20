@@ -28,20 +28,18 @@ def create_folder_structure(yaml, model):
 def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
-        subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']),
-                        stderr="error.log")
-        if os.path.getsize("error.log") > 0:
+        return_object =  subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
+                        yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
+        if return_object.check_returncode() != 0 :
             raise Exception("Mohid_mpi: Executing Error")
-        subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']), stderr="error.log")
-        if os.path.getsize("error.log") > 0:
+        return_object = subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
+        if return_object.check_returncode() != 0 :˙
             raise Exception("MohidDDC: Executing Error ")
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']), 
-            stderr="error.log")
-        if os.path.getsize("error.log") > 0:
+        return_object = subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']),)
+        if return_object.check_returncode() != 0 :
             raise Exception("Mohid_mpi: Executing Error")
         static.logger.info("MOHID run finished")
 
