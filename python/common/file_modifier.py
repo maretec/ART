@@ -15,12 +15,14 @@ def date_to_mohid_date(date):
 
 
 def modify_line(filepath, parameter, new_value):
-    for line in fileinput.input(filepath, inplace=True):
+    changed = False
+    for line in fileinput.FileInput(filepath, inplace=True):
         if parameter in line:
-            line = parameter + " : " + new_value + "\n"
-            return
+            changed = True
+            line = '{0:30}{1}'.format(parameter, ": " + new_value + "\n")
         sys.stdout.write(line)
-    line_creator(filepath, parameter, new_value)
+    if not changed:
+        line_creator(filepath, parameter, new_value)
 
 
 def nomfinch_creator(workPath, parameters, values):

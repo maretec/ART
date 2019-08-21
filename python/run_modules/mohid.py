@@ -29,18 +29,18 @@ def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
         return_object =  subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
-        if return_object.check_returncode() != 0 :
+                        yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']))
+        if return_object.return_code != 0 :
             raise Exception("Mohid_mpi: Executing Error")
         return_object = subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
-        if return_object.check_returncode() != 0 :
+        if return_object.returncode != 0 :
             raise Exception("MohidDDC: Executing Error ")
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        return_object = subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']),)
-        if return_object.check_returncode() != 0 :
-            raise Exception("Mohid_mpi: Executing Error")
+        return_object = subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']),)
+        if return_object.returncode != 0 :
+            raise Exception("Mohid: Executing Error")
         static.logger.info("MOHID run finished")
 
 
@@ -149,8 +149,6 @@ def gather_boundary_conditions(yaml, model):
                         hydro_dest_file += "." + file_type
                         water_dest_file += "." + file_type
 
-                        print(hydro_source_path)
-                        print(water_source_path)
                         copy2(hydro_source_path, hydro_dest_file)
                         copy2(water_source_path, water_dest_file)
                     else:
@@ -194,7 +192,6 @@ def get_meteo_file(yaml, model):
                                         'workPath'] + "meteo" + "_" + meteo_initial_date \
                                     + "_" + meteo_final_date + "." + file_type
 
-            print(meteo_file_source)
             if os.path.isfile(meteo_file_source):
                 meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" \
                     + model['name'] + "/" + model['meteo']['models'][meteo_model]['name'] + "/"
@@ -315,7 +312,6 @@ def backup_simulation(yaml):
         if len(hdf5_files) > 0:
             if not os.path.isdir(results_storage):
                 os.makedirs(results_storage)
-            print(hdf5_files)
             for file in hdf5_files:
                 if os.path.split(file)[1].startswith("MPI"):
                     continue
