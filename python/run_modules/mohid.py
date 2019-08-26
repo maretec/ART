@@ -33,14 +33,12 @@ def run_mohid(yaml):
         if return_object.return_code != 0 :
             raise Exception("Mohid_mpi: Executing Error")
         return_object = subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
-        if return_object.returncode != 0 :
-            raise Exception("MohidDDC: Executing Error ")
+        return_object.check_returncode()
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
         return_object = subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']),)
-        if return_object.returncode != 0 :
-            raise Exception("Mohid: Executing Error")
+        return_object.check_returncode()
         static.logger.info("MOHID run finished")
 
 
