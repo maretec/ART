@@ -267,26 +267,34 @@ def gather_restart_files(yaml, model):
     fin5_files = glob.glob(path_fin_files + "*.fin5")
     for file in fin_files:
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
-        static.logger.info("Copying " + file + " to " + file_destination)
+        static.logger.info("Restart Files: Copying " + file + " to " + file_destination)
         copy2(file, file_destination)
     for file in fin5_files:
         static.logger.info(file)
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin5"
-        static.logger.info("Copying " + file + " to " + file_destination)
+        static.logger.info("Restart Files: Copying " + file + " to " + file_destination)
         copy2(file, file_destination)
 
 
 def gather_discharges_files(yaml, model):
+    static.logger.info("Gathering Discharges Files for model " + model['name'])
+
     date_format = "%Y-%m-%d"
     if 'dateFormat' in model['discharges'].keys():
         date_format = model['discharges']['dateFormat']
+    static.logger.info("Discharges Files Date Format: " + date_format)
 
-    static.logger.info("Gathering Discharges Files for model " + model['name'])
     path_discharges_files = model['discharges']['path'] + cfg.current_initial_date.strftime(date_format) + "_" + \
         cfg.current_final_date.strftime(date_format) + "/"
+    
+    static.logger.info("Source Discharges Files " + path_discharges_files)
+
 
     file_destination = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Discharges/" + model[
         'name'] + "/"
+    
+    static.logger.info("Discharges Files Destination " +  file_destination)
+
     files = glob.glob(path_discharges_files + "*.*")
 
     if not os.path.isdir(file_destination):
@@ -294,6 +302,7 @@ def gather_discharges_files(yaml, model):
 
     for file in files:
         file_destination = file_destination + os.path.split(file)[1]
+        static.logger.info("Discharges: Copying " + file + " to " + file_destination)
         copy2(file, file_destination)
 
 
@@ -301,9 +310,15 @@ def backup_simulation(yaml):
     date_format = "%Y-%m-%d"
     if 'dateFormat' in yaml['mohid'].keys():
         date_format = yaml['mohid']['dateFormat']
+
+    static.logger.info("Simulation Date Format: " + date_format)
+
     initial_date = cfg.current_initial_date.strftime(date_format)
     tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
     final_date = tmp_date.strftime(date_format)
+
+    static.logger.info("Simulation Results Initial Date: " + initial_date)
+    static.logger.info("Simulation Results Final Date: " + final_date)
 
     for model in yaml['mohid']['models']:
         storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date + "/"
@@ -330,6 +345,7 @@ def backup_simulation(yaml):
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
                     file_destination = restart_storage + os.path.split(file)[1]
+                    static.logger.info("Backup Simulation Fin_files: Copying " + file + " to " + file_destination)
                     copy2(file, file_destination)
 
         hdf5_files = glob.glob(results_path + "*.hdf5")
@@ -340,6 +356,8 @@ def backup_simulation(yaml):
                 if os.path.split(file)[1].startswith("MPI"):
                     continue
                 file_destination = results_storage + os.path.split(file)[1]
+                static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+
                 copy2(file, file_destination)
 
         time_series_files = glob.glob(results_path + "Run1/*.*")
@@ -348,6 +366,7 @@ def backup_simulation(yaml):
                 os.makedirs(time_series_storage)
             for file in time_series_files:
                 file_destination = time_series_storage + os.path.split(file)[1]
+                static.logger.info("Backup Simulation TimeSeries: Copying " + file + " to " + file_destination)
                 copy2(file, file_destination)
 
 
@@ -380,10 +399,12 @@ def execute(yaml):
             static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
             static.logger.info("========================================")
             if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+                static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
             if yaml['artconfig']['runSimulation']:
                 process_models(yaml)
             if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
+                static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
     else:
         cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
@@ -394,11 +415,13 @@ def execute(yaml):
                                cfg.current_final_date.strftime("%Y-%m-%d") + ")")
             static.logger.info("========================================")
             if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+                static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
             if yaml['artconfig']['runSimulation']:
                 process_models(yaml)
             if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
                 post_processing.execute(yaml)
+                static.logger.info("Executing Post Processing")
             cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
                 days=yaml['artconfig']['daysPerRun'])
             cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
