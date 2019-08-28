@@ -366,7 +366,6 @@ def backup_simulation(yaml):
                 os.makedirs(time_series_storage)
             for file in time_series_files:
                 file_destination = time_series_storage + os.path.split(file)[1]
-                static.logger.info("Backup Simulation TimeSeries: Copying " + file + " to " + file_destination)
                 copy2(file, file_destination)
 
 
@@ -381,7 +380,7 @@ def process_models(yaml):
                 yaml['mohid']['models'][model]['discharges'].keys() and \
                 yaml['mohid']['models'][model]['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    run_mohid(yaml)
+    #run_mohid(yaml)
     backup_simulation(yaml)
 
 
