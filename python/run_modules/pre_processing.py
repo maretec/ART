@@ -2,6 +2,8 @@ import subprocess
 import common.file_modifier as file_modifier
 import common.config as cfg
 import os
+import common.constants as static
+
 
 
 def dat_date_change(filePath):
@@ -9,7 +11,6 @@ def dat_date_change(filePath):
   file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_initial_date))
 
 def execute(yaml):
-  print("debug")
   for block in yaml['preProcessing']:
     block_keys = yaml['preProcessing'][block].keys()
     block_dict = yaml['preProcessing'][block]
@@ -26,9 +27,11 @@ def execute(yaml):
       else:
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
          with open(block_dict['outputFilePath'], 'w') as log:
+            static.logger.info("Executing Pre Processing module: " +  block_dict['exePath'])
             subprocess.run(block_dict['exePath'], stdout=log, cwd=os.path.dirname(block_dict['exePath']))
             log.close()
         else:
+          static.logger.info("Executing Pre Processing module: " +  block_dict['exePath'])
           subprocess.run(block_dict['exePath'], cwd=os.path.dirname(block_dict['exePath']))
 
   return  

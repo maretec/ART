@@ -1,6 +1,7 @@
 import subprocess
 import common.file_modifier as file_modifier
 import common.config as cfg
+import common.constants as static
 
 
 def dat_date_change(filePath):
@@ -20,14 +21,18 @@ def execute(yaml):
         run_array = [block_dict['exePath']] + flags_array
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
           with open(block_dict['outputFilePath'], 'w') as log:
+            static.logger.info("Executing Post Processing module: " +  block_dict['exePath'])
             subprocess.run(run_array, stdout=log)
             log.close()
       else:
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
+     
          with open(block_dict['outputFilePath'], 'w') as log:
+            static.logger.info("Executing Post Processing module: " +  block_dict['exePath'])
             subprocess.run(run_array, stdout=log)
             log.close()
         else:
+          static.logger.info("Executing Post Processing module: " +  block_dict['exePath'])
           subprocess.run(block_dict['exePath'])
 
   return  
