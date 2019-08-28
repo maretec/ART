@@ -2,8 +2,7 @@ import fileinput
 import sys
 
 
-def line_creator(filepath, parameter, value):
-    file = open(filepath, "w+")
+def line_creator(file, parameter, value):
     file.write('{0:30}{1}'.format(parameter, ": " + value + "\n"))
     file.flush()
     file.close()
@@ -23,7 +22,6 @@ def modify_line(filepath, parameter, new_value):
         sys.stdout.write(line)
     if not changed:
         line_creator(filepath, parameter, new_value)
-
 
 def nomfinch_creator(workPath, parameters, values):
     file = open(workPath + "/exe/nomfinch.dat", 'w+')
