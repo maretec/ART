@@ -1,6 +1,6 @@
 import smtplib
 
-def send_email(to_addr_list, message, cc_addr_list=[], from_addr="mailing.maretec@gmail.com", password="Maretec2004", subject="MOHID_RUN"):
+def send_email(to_addr_list, message="MOHID run has finished", cc_addr_list=[], from_addr="mailing.maretec@gmail.com", password="Maretec2004", subject="MOHID_RUN"):
     #To Addresses and Ccs have to come in the form of lists
     user = from_addr.split("@")[0]
     smtpserver = "smtp.gmail.com:587"
