@@ -74,12 +74,12 @@ def gather_boundary_conditions(yaml, model):
         simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
         folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
 
-        date_format = "%Y-%m-%d"
+        # date_format = "%Y-%m-%d"
         # if 'dateFormat' in obc_keys:
         #     date_format = model['obc']['dateFormat']
         date_format = model['obc']['dateFormat'] if 'dateFormat' in obc_keys else "%Y-%m-%d"
 
-        file_type = "hdf5"
+        # file_type = "hdf5"
         # if 'fileType' in obc_keys:
         #     file_type = model['obc']['fileType']
         file_type = model['obc']['fileType'] if 'fileType' in obc_keys else "hdf5"
@@ -163,7 +163,7 @@ def get_meteo_file(yaml, model):
         for meteo_model in meteo_models_keys:
             meteo_keys = model['meteo']['models'][meteo_model].keys()
 
-            date_format = "%Y-%m-%d"
+            # date_format = "%Y-%m-%d"
             # if 'dateFormat' in meteo_keys:
             #     date_format = model['meteo'][meteo_model]['dateFormat']
             date_format = model['meteo'][meteo_model]['dateFormat'] if 'dateFormat' in meteo_keys else "%Y-%m-%d"
@@ -176,7 +176,7 @@ def get_meteo_file(yaml, model):
             else:
                 meteo_final_date = cfg.current_final_date.strftime(date_format)
 
-            file_type = "hdf5"
+            # file_type = "hdf5"
             # if 'fileType' in meteo_keys:
             #     file_type = model['meteo']['models'][meteo_model]['fileType']
             file_type = model['meteo']['models'][meteo_model]['fileType'] if 'fileType' in meteo_keys else "hdf5"
@@ -217,7 +217,7 @@ def get_meteo_file(yaml, model):
 def gather_restart_files(yaml, model):
     static.logger.debug("Gathering the restart files for model: " + model['name'])
 
-    date_format = "%Y-%m-%d"
+    # date_format = "%Y-%m-%d"
     # if 'dateFormat' in yaml['mohid'].keys():
     #     date_format = yaml['mohid']['dateFormat']
     date_format = yaml['mohid']['dateFormat'] if 'dateFormat' in yaml['mohid'].keys() else "%Y-%m-%d"
@@ -256,7 +256,7 @@ def gather_restart_files(yaml, model):
 
 
 def gather_discharges_files(yaml, model):
-    date_format = "%Y-%m-%d"
+    # date_format = "%Y-%m-%d"
     # if 'dateFormat' in model['discharges'].keys():
     #     date_format = model['discharges']['dateFormat']
     date_format = model['discharge']['dateFormat'] if 'dateFormat' in model['discharge'].keys() else "%Y-%m-%d"
@@ -279,7 +279,7 @@ def gather_discharges_files(yaml, model):
 
 
 def backup_simulation(yaml):
-    date_format = "%Y-%m-%d"
+    # date_format = "%Y-%m-%d"
     # if 'dateFormat' in yaml['mohid'].keys():
     #     date_format = yaml['mohid']['dateFormat']
     date_format = yaml['mohid']['dateFormat'] if 'dateFormat' in yaml['mohid'].keys() else "%Y-%m-%d"
