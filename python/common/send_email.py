@@ -11,7 +11,9 @@ def send_email(to_addr_list, message, cc_addr_list=[], from_addr="mailing.marete
         server.starttls()
         server.ehlo()
         server.login(user, password)
-        server.sendmail(from_addr, to_addr, msg)
+        server.sendmail(from_addr, ','.join(to_addr_list), msg)
         server.close()
     except:
         raise ValueError("Failed to send message")
+
+send_email(["tomasta2010@gmail.com"],"ok")
