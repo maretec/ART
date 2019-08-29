@@ -2,7 +2,7 @@ import os
 
 general_keys = ['artconfig', 'mohid', 'model', 'discharges', 'obc', 'meteo', 'model.dat', 'preprocessing', 'postprocessing']
 artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'ouputFile', 'outputFilePath', 'sendEmail', 'email']
-mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
+mohid_modules = ['exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
 model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath']
 discharges_modules = ['enable', 'path', 'dateFormat']
@@ -12,9 +12,6 @@ models_modules = ['uniqueId', 'name', 'simulatedDays', 'fileNameFromModel', 'wor
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
 preprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 postprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
-
-def validatePath(path):
-    return os.path.exists(path) and path[-1] == '/'
 
 def general_validation(yaml):
     valid = True
@@ -31,6 +28,7 @@ def artconfig_validation(yaml):
         if i not in yaml['artconfig'].keys():
             valid = False
 
+    return valid
 
 
 def mohid_validation(yaml):
@@ -42,6 +40,9 @@ def mohid_validation(yaml):
     for i in mpi_modules:
         if i not in yaml['mohid']['mpi'].keys():
             valid = False
+    
+    return valid
+
 
 def discharge_validation(yaml):    
     valid = True
@@ -49,12 +50,16 @@ def discharge_validation(yaml):
         if i not in yaml['discharge'].keys():
             valid = False
 
+    return valid
+
 
 def obc_validation(yaml):
     valid = True
     for i in obc_modules:
         if i not in yaml['obc'].keys():
             valid = False
+
+    return valid
 
 
 def meteo_validation(yaml):
@@ -67,12 +72,16 @@ def meteo_validation(yaml):
         if i not in yaml['meteo']['models'].keys():
             valid = False
     
+    return valid
+    
 
 def modeldat_validation(yaml):
     valid = True
     for i in modeldat_modules:
         if i not in yaml['model.dat'].keys():
             valid = False
+    
+    return valid
 
 
 def preprocessing_validation(yaml):
@@ -80,6 +89,8 @@ def preprocessing_validation(yaml):
     for i in preprocessing_modules:
         if i not in yaml['preprocessing'].keys():
             valid = False
+    
+    return valid
 
 
 def postprocessing_validation(yaml):
@@ -87,3 +98,16 @@ def postprocessing_validation(yaml):
     for i in postprocessing_modules:
         if i not in yaml['postprocessing'].keys():
             valid = False
+    
+    return valid
+
+def validate_yaml(yaml):
+    return general_validation(yaml) and\
+    artconfig_validation(yaml) and\
+    mohid_validation(yaml) and\
+    discharge_validation(yaml) and\
+    obc_validation(yaml) and\
+    meteo_validation(yaml) and\
+    modeldat_validation(yaml) and\
+    preprocessing_validation(yaml) and\
+    postprocessing_validation(yaml)
