@@ -31,17 +31,14 @@ def run_mohid(yaml):
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
                         yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
         subprocess.run("./MohidDDC.exe")
-        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig']['sendEmail'] and yaml['artconfig']['sendEmail'] == 1 else pass
+        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig'].keys() and yaml['artconfig']['sendEmail'] == 1 else pass
         static.logger.info("MOHID MPI run finished")
-        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig']['sendEmail'] and yaml['artconfig']['sendEmail'] == 1 else pass
+        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig'].keys() and yaml['artconfig']['sendEmail'] == 1 else pass
     else:
         static.logger.info("Starting MOHID run")
         subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
-        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig']['sendEmail'] and yaml['artconfig']['sendEmail'] == 1 else pass
-        static.logger.info("MOHID run finished")
-        
         send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig'].keys() and yaml['artconfig']['sendEmail'] == 1 else pass
-
+        static.logger.info("MOHID run finished")
 
 def change_model_dat(yaml, model):
     static.logger.debug("Creating new model file for model: " + model['name'])
