@@ -8,6 +8,7 @@ import subprocess
 import glob
 import run_modules.pre_processing as pre_processing
 import run_modules.post_processing as post_processing
+import common.send_email as send_email
 
 
 def create_folder_structure(yaml, model):
@@ -26,15 +27,23 @@ def create_folder_structure(yaml, model):
 
 def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
-        static.logger.info("Starting MOHID MPI")
-        subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
-        subprocess.run("./MohidDDC.exe")
-        static.logger.info("MOHID MPI run finished")
+        try:
+            static.logger.info("Starting MOHID MPI")
+            subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
+                            yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
+            subprocess.run("./MohidDDC.exe")
+            send_email([],"MOHID run was successful")
+            static.logger.info("MOHID MPI run finished")
+        except:
+            send_email([],"MOHID run finished unsuccessfully")
     else:
-        static.logger.info("Starting MOHID run")
-        subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
-        static.logger.info("MOHID run finished")
+        try:
+            static.logger.info("Starting MOHID run")
+            subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
+            send_email([],"MOHID run was successful")
+            static.logger.info("MOHID run finished")
+        except:
+            send_email([],"MOHID run finished unsuccessfully")
 
 
 def change_model_dat(yaml, model):
