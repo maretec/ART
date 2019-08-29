@@ -33,7 +33,6 @@ def run_mohid(yaml):
         subprocess.run("./MohidDDC.exe")
         send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig'].keys() and yaml['artconfig']['sendEmail'] == 1 else pass
         static.logger.info("MOHID MPI run finished")
-        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig'].keys() and yaml['artconfig']['sendEmail'] == 1 else pass
     else:
         static.logger.info("Starting MOHID run")
         subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
