@@ -15,5 +15,3 @@ def send_email(to_addr_list, message="MOHID run has finished", cc_addr_list=[], 
         server.close()
     except:
         raise ValueError("Failed to send message")
-
-send_email(["tomasta2010@gmail.com"],"ok")
