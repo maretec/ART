@@ -40,7 +40,7 @@ def run_mohid(yaml):
         send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig']['sendEmail'] and yaml['artconfig']['sendEmail'] == 1 else pass
         static.logger.info("MOHID run finished")
         
-        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig']['sendEmail'] and yaml['artconfig']['sendEmail'] == 1 else pass
+        send_email([yaml['artconfig']['email']]) if 'sendEmail' in yaml['artconfig'].keys() and yaml['artconfig']['sendEmail'] == 1 else pass
 
 
 def change_model_dat(yaml, model):
