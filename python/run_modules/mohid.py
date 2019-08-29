@@ -31,16 +31,16 @@ def run_mohid(yaml):
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
                         yaml['mohid']['exePath']], subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
         subprocess.run("./MohidDDC.exe")
-        send_email([yaml['artconfig']['email']],"MOHID run was successful")
+        send_email([yaml['artconfig']['email']]) if sendEmail == 1 else pass
         static.logger.info("MOHID MPI run finished")
-        send_email([yaml['artconfig']['email']],"MOHID run finished unsuccessfully")
+        send_email([yaml['artconfig']['email']]) if sendEmail == 1 else pass
     else:
         static.logger.info("Starting MOHID run")
         subprocess.run(yaml['mohid']['exePath'], stdout=subprocess.PIPE, cwd=os.path.dirname(yaml['mohid']['exePath']))
-        send_email([yaml['artconfig']['email']],"MOHID run was successful")
+        send_email([yaml['artconfig']['email']]) if sendEmail == 1 else pass
         static.logger.info("MOHID run finished")
         
-        send_email([yaml['artconfig']['email']],"MOHID run finished unsuccessfully")
+        send_email([yaml['artconfig']['email']]) if sendEmail == 1 else pass
 
 
 def change_model_dat(yaml, model):
