@@ -13,6 +13,10 @@ modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
 preprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 postprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 
+def validatePath(path):
+    return os.path.exists(path) and path[-1] == "/"
+
+
 def general_validation(yaml):
     valid = True
     for i in general_keys:
@@ -28,8 +32,13 @@ def artconfig_validation(yaml):
         if i not in yaml['artconfig'].keys():
             valid = False
 
-    return valid
+    valid = validatePath(yaml['artconfig']['mainPath'])
 
+    if yaml['artconfig']['sendEmail']:
+        valid = yaml['artconfig']['email'] != []
+
+    return valid
+    
 
 def mohid_validation(yaml):
     valid = True
@@ -41,6 +50,22 @@ def mohid_validation(yaml):
         if i not in yaml['mohid']['mpi'].keys():
             valid = False
     
+    valid = validatePath(yaml['mohid']['exePath'])
+
+    if yaml['mohid']['mpi']['enable']:
+        valid = validatePath(yaml['mohid']['mpi']['exePath'])
+    
+    return valid
+
+
+def model_validation(yaml):
+    valid = True
+    for i in model_modules:
+        if i not in yaml['model'].keys():
+            valid = False
+    
+    valid = validatePath(yaml['artconfig']['mainPath'] + yaml['model']['path'])
+
     return valid
 
 
