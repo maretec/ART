@@ -56,7 +56,7 @@ def change_model_dat(yaml, model):
                                       common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     static.logger.info("Changed START of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    common.file_modifier.modify_line(file_path, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+    common.file_modifier.modify_line(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     static.logger.info("Changed END of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.modify_line(file, "DT", str(model['dt']))
