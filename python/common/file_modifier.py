@@ -3,6 +3,7 @@ import sys
 
 
 def line_creator(file, parameter, value):
+    file = open(file, 'w+')
     file.write('{0:30}{1}'.format(parameter, ": " + value + "\n"))
     file.flush()
     file.close()
