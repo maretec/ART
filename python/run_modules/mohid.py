@@ -52,17 +52,17 @@ def change_model_dat(yaml, model):
 
     file_path = path + "Model_1.dat"
     file = open(file_path, 'w+')
-    common.file_modifier.modify_line(file_path, "START",
+    common.file_modifier.modify_line(file, "START",
                                       common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     static.logger.info("Changed START of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     common.file_modifier.modify_line(file_path, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     static.logger.info("Changed END of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-    common.file_modifier.modify_line(file_path, "DT", str(model['dt']))
+    common.file_modifier.modify_line(file, "DT", str(model['dt']))
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
-            common.file_modifier.modify_line(file_path, key, model['mohid.dat'][key])
+            common.file_modifier.modify_line(file, key, model['mohid.dat'][key])
     static.logger.info("Model " + model["name"] + " .dat file was created.")
     file.close()
     return
