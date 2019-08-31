@@ -5,23 +5,23 @@ import sys
 def line_creator(file, parameter, value):
     file.write('{0:30}{1}'.format(parameter, ": " + value + "\n"))
     file.flush()
-    file.close()
 
+    
 def date_to_mohid_date(date):
     mohid_date = str(date.year) + " " + str(date.month) + " " + str(date.day) + " " + str(0) + " " + \
                                                               str(0) + " " + str(0)
     return mohid_date
 
 
-def modify_line(filepath, parameter, new_value):
+def modify_line(file, parameter, new_value):
     changed = False
-    for line in fileinput.FileInput(filepath, inplace=True):
+    for line in fileinput.FileInput(file, inplace=True):
         if parameter in line:
             changed = True
             line = '{0:30}{1}'.format(parameter, ": " + new_value + "\n")
         sys.stdout.write(line)
     if not changed:
-        line_creator(filepath, parameter, new_value)
+        line_creator(file, parameter, new_value)
 
 def nomfinch_creator(workPath, parameters, values):
     file = open(workPath + "/exe/nomfinch.dat", 'w+')
