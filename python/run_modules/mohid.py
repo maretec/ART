@@ -263,7 +263,6 @@ def gather_restart_files(yaml, model):
         static.logger.info("Restart Files: Copying " + file + " to " + file_destination)
         copy2(file, file_destination)
     for file in fin5_files:
-        static.logger.info(file)
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin5"
         static.logger.info("Restart Files: Copying " + file + " to " + file_destination)
         copy2(file, file_destination)
