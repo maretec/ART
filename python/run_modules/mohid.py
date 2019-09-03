@@ -345,7 +345,7 @@ def backup_simulation(yaml):
             for file in hdf5_files:
                 if os.path.split(file)[1].startswith("MPI"):
                     continue
-                file_destination = results_storage + os.path.split(file)[1]
+                file_destination = results_storage + os.path.split(file)[1].split("_")[0]
                 static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
 
                 copy2(file, file_destination)
