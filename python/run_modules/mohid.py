@@ -3,7 +3,7 @@ import datetime
 import common.file_modifier
 import os.path
 import common.config as cfg
-from shutil import copy2
+from shutil import copy
 import subprocess
 import glob
 import run_modules.pre_processing as pre_processing
@@ -28,15 +28,14 @@ def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
         return_object =  subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), shell=False)
+                        yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']))
         return_object.check_returncode()
         return_object = subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
         return_object.check_returncode()
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        return_object = subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']), 
-        shell=False)
+        return_object = subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']))
         return_object.check_returncode()
         static.logger.info("MOHID run finished")
 
@@ -109,7 +108,7 @@ def gather_boundary_conditions(yaml, model):
                         os.path.makedirs(obc_dest_folder)
                     obc_dest_file = obc_dest_folder + model['obc']['prefix'] + "_" + model['name'] + "." + file_type
                     static.logger.info("OBC File Destination: " + obc_dest_file)
-                    copy2(obc_source_path, obc_dest_file)   
+                    copy(obc_source_path, obc_dest_file)   
                 else:
                     static.logger.info("Source files for OBC file not found: " + obc_source_path)
                     raise FileNotFoundError("Source file for OBC file not found: " + obc_source_path)
@@ -153,8 +152,8 @@ def gather_boundary_conditions(yaml, model):
                         hydro_dest_file += "." + file_type
                         water_dest_file += "." + file_type
 
-                        copy2(hydro_source_path, hydro_dest_file)
-                        copy2(water_source_path, water_dest_file)
+                        copy(hydro_source_path, hydro_dest_file)
+                        copy(water_source_path, water_dest_file)
                     else:
                         static.logger.info(
                             "gather_boundary_conditions: File " + water_source_path + " does not exist.")
@@ -218,7 +217,7 @@ def get_meteo_file(yaml, model):
                     model['name'] + "." + file_type
                 static.logger.info("Meteo Destination File: " + meteo_file_dest)
 
-                copy2(meteo_file_source, meteo_file_dest)
+                copy(meteo_file_source, meteo_file_dest)
                 static.logger.info("Copied meteo file from " + meteo_file_source + " to " + meteo_file_dest)
                 return
             else:
@@ -261,11 +260,11 @@ def gather_restart_files(yaml, model):
     for file in fin_files:
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
         static.logger.info("Restart Files: Copying " + file + " to " + file_destination)
-        copy2(file, file_destination)
+        copy(file, file_destination)
     for file in fin5_files:
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin5"
         static.logger.info("Restart Files: Copying " + file + " to " + file_destination)
-        copy2(file, file_destination)
+        copy(file, file_destination)
 
 
 def gather_discharges_files(yaml, model):
@@ -294,7 +293,7 @@ def gather_discharges_files(yaml, model):
     for file in files:
         file_destination = file_destination + os.path.split(file)[1]
         static.logger.info("Discharges: Copying " + file + " to " + file_destination)
-        copy2(file, file_destination)
+        copy(file, file_destination)
 
 
 def backup_simulation(yaml):
@@ -310,7 +309,6 @@ def backup_simulation(yaml):
     static.logger.info("Simulation Results Final Date: " + final_date)
 
     for model in yaml['mohid']['models']:
-        storage = yaml['mohid']['models'][model]['storagePath'] + "Restart/" + initial_date + "_" + final_date + "/"
 
         model_keys = yaml['mohid']['models'][model].keys()
         mohid_keys = yaml['mohid']
@@ -335,7 +333,7 @@ def backup_simulation(yaml):
                         continue
                     file_destination = restart_storage + os.path.split(file)[1]
                     static.logger.info("Backup Simulation Fin_files: Copying " + file + " to " + file_destination)
-                    copy2(file, file_destination)
+                    copy(file, file_destination)
 
         hdf5_files = glob.glob(results_path + "*.hdf5")
         if len(hdf5_files) > 0:
@@ -347,7 +345,7 @@ def backup_simulation(yaml):
                 file_destination = results_storage + os.path.split(file)[1].split("_")[0]
                 static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
 
-                copy2(file, file_destination)
+                copy(file, file_destination)
 
         time_series_files = glob.glob(results_path + "Run1/*.*")
         if len(time_series_files) > 0:
@@ -355,7 +353,7 @@ def backup_simulation(yaml):
                 os.makedirs(time_series_storage)
             for file in time_series_files:
                 file_destination = time_series_storage + os.path.split(file)[1]
-                copy2(file, file_destination)
+                copy(file, file_destination)
 
 
 def process_models(yaml):
