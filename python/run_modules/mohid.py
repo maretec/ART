@@ -132,8 +132,8 @@ def gather_boundary_conditions(yaml, model):
                     "WaterProperties"
 
                 if 'suffix' in obc_keys:
-                    hydro_source_path += "_" + model['obc']['suffix']
-                    water_source_path += "_" + model['obc']['suffix']
+                    hydro_source_path += model['obc']['suffix']
+                    water_source_path += model['obc']['suffix']
 
                 hydro_source_path += "." + file_type
                 water_source_path += "." + file_type
@@ -147,8 +147,8 @@ def gather_boundary_conditions(yaml, model):
                         water_dest_file = dest_folder + "/WaterProperties"
 
                         if 'suffix' in obc_keys:
-                            hydro_dest_file += "_" + model['obc']['suffix']
-                            water_dest_file += "_" + model['obc']['suffix']
+                            hydro_dest_file += model['obc']['suffix']
+                            water_dest_file += model['obc']['suffix']
 
                         hydro_dest_file += "." + file_type
                         water_dest_file += "." + file_type
