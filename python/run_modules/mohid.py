@@ -339,13 +339,27 @@ def backup_simulation(yaml):
         if len(hdf5_files) > 0:
             if not os.path.isdir(results_storage):
                 os.makedirs(results_storage)
-            for file in hdf5_files:
-                if os.path.split(file)[1].startswith("MPI"):
+           
+           #only backup specific result files
+            if 'resultList' in model_keys:
+                if os.path.split(file)[1].split(".")[0] not in yaml['mohid']['models'][model]['resultList']:
                     continue
-                file_destination = results_storage + os.path.split(file)[1].split("_")[0]
-                static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+                for file in hdf5_files:
+                    if os.path.split(file)[1].startswith("MPI"):
+                        continue
+            
+                    file_destination = results_storage + os.path.split(file)[1].split("_")[0]
+                    static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+            #defaults to backup all results files
+            else:
+                for file in hdf5_files:
+                    if os.path.split(file)[1].startswith("MPI"):
+                        continue
+                
+                    file_destination = results_storage + os.path.split(file)[1].split("_")[0]
+                    static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
 
-                copy(file, file_destination)
+                    copy(file, file_destination)
 
         time_series_files = glob.glob(results_path + "Run1/*.*")
         if len(time_series_files) > 0:
