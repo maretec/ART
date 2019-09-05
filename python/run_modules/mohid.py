@@ -23,6 +23,8 @@ def create_folder_structure(yaml, model):
     if not os.path.isdir(model_path + "exe/"):
         os.makedirs(model_path + "exe/")
 
+def check_triggers(yaml):
+
 
 def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
@@ -348,7 +350,8 @@ def backup_simulation(yaml):
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
             
-                    file_destination = results_storage + os.path.split(file)[1].split("_")[0]
+                    file_destination = results_storage + os.path.split(file)[1].split("_")[0] + \
+                         os.path.split(file).split(".")[1]
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
             #defaults to backup all results files
             else:
@@ -356,7 +359,8 @@ def backup_simulation(yaml):
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
                 
-                    file_destination = results_storage + os.path.split(file)[1].split("_")[0]
+                    file_destination = results_storage + os.path.split(file)[1].split("_")[0]+ \
+                         os.path.split(file).split(".")[1]
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
 
                     copy(file, file_destination)
