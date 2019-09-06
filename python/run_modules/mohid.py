@@ -23,9 +23,8 @@ def create_folder_structure(yaml, model):
     if not os.path.isdir(model_path + "exe/"):
         os.makedirs(model_path + "exe/")
 
-
 def run_mohid(yaml):
-    output_file =  open("MOHID" + cfg.current_initial_date.strftime("%Y-%m-%d") + "_" + 
+    output_file =  open("MOHID_" + cfg.current_initial_date.strftime("%Y-%m-%d") + "_" + 
         cfg.current_final_date.strftime("%Y-%m-%d") + ".log", "w+")
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
