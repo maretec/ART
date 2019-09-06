@@ -29,16 +29,14 @@ def check_triggers(yaml):
 def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
-        return_object =  subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']))
-        return_object.check_returncode()
-        return_object = subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
-        return_object.check_returncode()
+        subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
+                        yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), 
+                        stdout="mohid_output.txt")
+        subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        return_object = subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']))
-        return_object.check_returncode()
+        subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']))
         static.logger.info("MOHID run finished")
 
 
