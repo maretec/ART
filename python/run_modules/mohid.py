@@ -23,8 +23,6 @@ def create_folder_structure(yaml, model):
     if not os.path.isdir(model_path + "exe/"):
         os.makedirs(model_path + "exe/")
 
-def check_triggers(yaml):
-
 
 def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
