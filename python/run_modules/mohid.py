@@ -23,21 +23,59 @@ def create_folder_structure(yaml, model):
     if not os.path.isdir(model_path + "exe/"):
         os.makedirs(model_path + "exe/")
 
+
+def verify_run(filename, messages):
+    success_messages = ['Program Mohid Water successfully terminated', 'Program Mohid Water successfully terminated',  
+    'Program MohidDDC successfully terminated']
+
+    with open(filename, 'r') as f:
+        lines = f.read().splitlines()
+        for i in range (-1, -30, -1):
+            for message in messages:
+                if message in lines[i]:
+                    return True
+    return False
+
+
 def run_mohid(yaml):
-    output_file =  open("MOHID_" + cfg.current_initial_date.strftime("%Y-%m-%d") + "_" + 
-        cfg.current_final_date.strftime("%Y-%m-%d") + ".log", "w+")
+    output_file_name = "MOHID_RUN_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
+    output_file = open(output_file_name, "w+")
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
                         yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), 
                         stdout=output_file)
-        subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
-        static.logger.info("MOHID MPI run finished")
+        output_file.close()
+
+        if not verify_run(output_file_name, ['Program Mohid Water successfully terminated', 
+            'Program Mohid Land successfully terminated']):
+            static.logger.info("MOHID RUN NOT SUCCESSFUL")
+            raise ValueError("MOHID RUN NOT SUCCESSFUL")
+        else:
+            static.logger.info("MOHID RUN successful")
+
+        ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
+        mohid_ddc_output_log = open(ddc_output_filename, "w+")
+        subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']), stdout=mohid_ddc_output_log)
+        mohid_ddc_output_log.close()
+        if not verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
+            static.logger.info("MohidDDC NOT SUCCESSFUL")
+            raise ValueError("MohidDDC NOT SUCCESSFUL")
+        else:
+            static.logger.info("MohidDDC successful")
     else:
         static.logger.info("Starting MOHID run")
         subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']), 
         stdout=output_file)
-        static.logger.info("MOHID run finished")
+        output_file.close()
+    
+        if not verify_run(output_file_name, ['Program Mohid Water successfully terminated', 
+            'Program Mohid Land successfully terminated']):
+            static.logger.info("MOHID RUN NOT SUCCESSFUL")
+            raise ValueError("MOHID RUN NOT SUCCESSFUL")
+        else:
+            static.logger.info("MOHID RUN successful")
+
 
 
 def change_model_dat(yaml, model):
