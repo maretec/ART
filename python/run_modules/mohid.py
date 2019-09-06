@@ -27,9 +27,10 @@ def create_folder_structure(yaml, model):
 def run_mohid(yaml):
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
+        output_file =  open("mohid_output.txt", "w+")
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
                         yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), 
-                        stdout="mohid_output.txt")
+                        stdout=output_file)
         subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']))
         static.logger.info("MOHID MPI run finished")
     else:
