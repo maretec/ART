@@ -356,7 +356,7 @@ def backup_simulation(yaml):
                         continue
                 
                     file_destination = results_storage + os.path.split(file)[1].split("_")[0]+ \
-                         os.path.split(file).split(".")[1]
+                         os.path.split(file)[1].split(".")[1]
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
 
                     copy(file, file_destination)
