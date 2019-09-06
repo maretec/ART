@@ -34,8 +34,9 @@ def run_mohid(yaml):
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
+        output_file =  open("mohid_output.txt", "w+")
         subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']), 
-        stdout="mohid_output.txt")
+        stdout=output_file)
         static.logger.info("MOHID run finished")
 
 
