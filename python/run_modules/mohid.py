@@ -25,9 +25,10 @@ def create_folder_structure(yaml, model):
 
 
 def run_mohid(yaml):
+    output_file =  open("MOHID" + cfg.current_initial_date.strftime("%Y-%m-%d") + "_" + 
+        cfg.current_final_date.strftime("%Y-%m-%d") + ".log", "w+")
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
-        output_file =  open("mohid_output.txt", "w+")
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
                         yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), 
                         stdout=output_file)
@@ -35,7 +36,6 @@ def run_mohid(yaml):
         static.logger.info("MOHID MPI run finished")
     else:
         static.logger.info("Starting MOHID run")
-        output_file =  open("mohid_output.txt", "w+")
         subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']), 
         stdout=output_file)
         static.logger.info("MOHID run finished")
