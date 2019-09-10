@@ -7,7 +7,7 @@ model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath']
 discharges_modules = ['enable', 'path', 'dateFormat']
 obc_modules = ['enable', 'suffix', 'hasSolutionFromFile', 'prefix', 'dateFormat', 'filetype', 'simulatedDays', 'subFolders', 'workPath']
 meteo_modules = ['enable', 'models']
-models_modules = ['uniqueId', 'name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
+models_modules = ['<put meteo model Id here>', 'name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
 preprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 postprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
@@ -24,13 +24,10 @@ def create_mohid_block(filename):
     for i in mpi_modules:
         filename.write("\t\t" + i + str(":"))
 
-def create_model_block(filename, n):
+def create_model_block(filename):
     filename.write("model:")
-    for i in range(n):
-        tmp = "model" + str(i+1)
-        filename.write("\ttmp")
-        for i in model_modules:
-            filename.write("\t\t" + i + str(":"))
+    for i in model_modules:
+        filename.write("\t\t" + i + str(":"))
 
 def create_discharges_block(filename):
     filename.write("discharges:")
@@ -40,10 +37,12 @@ def create_discharges_block(filename):
 def create_obc_block(filename):
     pass #ToDo this
 
-def create_meteo_block(filename):
+def create_meteo_block(filename, n):
     filename.write("meteo:")
     for i in meteo_modules:
         filename.write("\t" + i + ":")
+    for i in range(n):
+        filename.write("\t\t" + i + ":")
 
 def create_model_dat_block(filename):
     filename.write("model.dat:")
