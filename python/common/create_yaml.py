@@ -24,10 +24,13 @@ def create_mohid_block(filename):
     for i in mpi_modules:
         filename.write("\t\t" + i + str(":"))
 
-def create_model_block(filename):
+def create_model_block(filename, n):
     filename.write("model:")
-    for i in model_modules:
-        filename.write("\t" + i + str(":"))
+    for i in range(n):
+        tmp = "model" + str(i+1)
+        filename.write("\ttmp")
+        for i in model_modules:
+            filename.write("\t\t" + i + str(":"))
 
 def create_discharges_block(filename):
     filename.write("discharges:")
@@ -40,18 +43,24 @@ def create_obc_block(filename):
 def create_meteo_block(filename):
     filename.write("meteo:")
     for i in meteo_modules:
-        filename.write("")
+        filename.write("\t" + i + ":")
 
 def create_model_dat_block(filename):
+    filename.write("model.dat:")
+    for i in modeldat_modules:
+        filename.write("\t" + i + ":")
 
+def create_preprocessing_block(filename, n):
+    filename.write("preprocessing:")
+    for i in range(n):
+        for i in preprocessing_modules:
+            filename.write("\t\t" + i + ":")
 
-def create_preprocessing_block(filename):
-
-
-def create_postprocessing_block(filename):
-
-
-
+def create_postprocessing_block(filename, n):
+    filename.write("postprocessing:")
+    for i in range(n):
+        for i in postprocessing_modules:
+            filename.write("\t\t" + i + ":")
 
 def create_yaml():
     filename = input("filename: ")
@@ -63,10 +72,10 @@ def create_yaml():
 
     create_artconfig_block(filename)
     create_mohid_block(filename)
-    create_model_block(filename)
+    create_model_block(filename, number_model_blocks)
     create_discharges_block(filename)
     create_obc_block(filename)
     create_meteo_block(filename)
     create_model_dat_block(filename)
-    create_preprocessing_block(filename)
-    create_postprocessing_block(filename)
+    create_preprocessing_block(filename, number_preprocessing_blocks)
+    create_postprocessing_block(filename, number_postprocessing_blocks)
