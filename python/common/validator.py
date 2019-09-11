@@ -1,21 +1,24 @@
 import os
 
 general_keys = ['artconfig', 'mohid', 'model', 'discharges', 'obc', 'meteo', 'model.dat', 'preprocessing', 'postprocessing']
-artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'ouputFile', 'outputFilePath', 'sendEmail', 'email']
-mohid_modules = ['exePath', 'outputToFile', 'outputFilePath', 'mpi']
+artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
+mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
-model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath']
+model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList']
 discharges_modules = ['enable', 'path', 'dateFormat']
-obc_modules = ['enable', 'suffix', 'hasSolutionFromFile', 'prefix', 'dateFormat', 'filetype', 'simulatedDays', 'subFolders', 'workPath']
+obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'files', 'workPath']
 meteo_modules = ['enable', 'models']
-models_modules = ['uniqueId', 'name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
+models_modules = ['#put meteo model Id here']
+uniqueId_modules=['name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
-preprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
-postprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_pre=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 
 def validatePath(path):
-    return os.path.exists(path) and path[-1] == "/"
+    return path != None and os.path.exists(path) and path[-1] == "/"
 
+def validateFile(path):
+    return  path != None and os.path.isfile(path) and path[-1] == "/"
 
 def general_validation(yaml):
     valid = True
@@ -75,6 +78,7 @@ def discharge_validation(yaml):
         if i not in yaml['discharge'].keys():
             valid = False
 
+    valid = yaml['discharges']['enable'] and validatePath(yaml['discharges']['path'])
     return valid
 
 
@@ -111,19 +115,29 @@ def modeldat_validation(yaml):
 
 def preprocessing_validation(yaml):
     valid = True
-    for i in preprocessing_modules:
-        if i not in yaml['preprocessing'].keys():
-            valid = False
+    valid = yaml['preprocessing'].keys() != []
+    for i in yaml['preprocessing'].keys():
+        if yaml['postprocessing'][i]['datDateChange']:
+            valid = validateFile(yaml['postprocessing'][i]['configFilePath'])
+        for j in name_of_block_modules_pre:
+            if j not in yaml['preprocessing'][i].keys():
+                valid = False
     
+    valid = validateFile(yaml['preprocessing']['exePath'])
     return valid
 
 
 def postprocessing_validation(yaml):
     valid = True
-    for i in postprocessing_modules:
-        if i not in yaml['postprocessing'].keys():
-            valid = False
+    valid = yaml['postprocessing'].keys() != []
+    for i in yaml['postprocessing'].keys():
+        if yaml['postprocessing'][i]['datDateChange']:
+            valid = validateFile(yaml['postprocessing'][i]['configFilePath'])
+        for j in name_of_block_modules_pre:
+            if j not in yaml['postprocessing'][i].keys():
+                valid = False
     
+    valid = validateFile(yaml['postprocessing']['exePath'])
     return valid
 
 def validate_yaml(yaml):
