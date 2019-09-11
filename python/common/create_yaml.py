@@ -1,11 +1,9 @@
-#!/usr/bin/bash
-
 artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'ouputFile', 'outputFilePath', 'sendEmail', 'email']
 mohid_modules = ['exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
 model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath']
 discharges_modules = ['enable', 'path', 'dateFormat']
-obc_modules = ['enable', 'suffix', 'hasSolutionFromFile', 'prefix', 'dateFormat', 'filetype', 'simulatedDays', 'subFolders', 'workPath']
+obc_modules = ['enable', 'fileType', 'simulatedDays', 'suffix', 'hasSolutionFromFile', 'prefix', 'dateFormat', 'subFolders', 'workPath']
 meteo_modules = ['enable', 'models']
 models_modules = ['<put meteo model Id here>', 'name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
@@ -78,3 +76,5 @@ def create_yaml():
     create_model_dat_block(filename)
     create_preprocessing_block(filename, number_preprocessing_blocks)
     create_postprocessing_block(filename, number_postprocessing_blocks)
+
+create_yaml()
