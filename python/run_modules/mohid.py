@@ -105,11 +105,27 @@ def change_model_dat(yaml, model):
     return
 
 
+def create_file_name_with_date(filename, initial_date, final_date):
+    if '%Yi' in filename:
+        filename = filename.replace("%Yi", str(initial_date.year))
+    if '%mi' in filename:
+        filename = filename.replace("%mi", str(initial_date.month))
+    if '%di' in filename:
+       filename = filename.replace("%di", str(initial_date.day))
+    if '%Yf' in filename:
+        filename = filename.replace("%Yf", str(final_date.year))
+    if '%mi' in filename:
+        filename = filename.replace("%mf", str(final_date.month))
+    if '%di' in filename:
+        filename = filename.replace("%df", str(final_date.day))
+    return filename
+
+
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
     if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
         static.logger.info("OBC flag enabled")
-        static.logger.info("Gathering Boundary Conditions for " + model['name'])
+        static.logger.info("Gathering Boundary Condition for " + model['name'])
         obc_keys = model['obc'].keys()
 
         simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
@@ -124,79 +140,58 @@ def gather_boundary_conditions(yaml, model):
             file_type = model['obc']['fileType']
         static.logger.debug("Boundary Conditions File Type: " + file_type)
 
-        if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
-                model['obc']['hasSolutionFromFile']:
-            for n in range(0, simulations_available - 1, -1):
-                obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
-                obc_final_date = cfg.current_initial_date + datetime.timedelta(days=simulations_available)
+        for n in range(0, simulations_available - 1, -1):
+            obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+            obc_final_date = cfg.current_final_date + datetime.timedelta(days=n)
 
-                obc_initial_date = obc_initial_date.strftime(date_format)
-                obc_final_date = obc_final_date.strftime(date_format)
+            obc_initial_date_str = obc_initial_date.strftime(date_format)
+            obc_final_date_str = obc_final_date.strftime(date_format)
 
-               
+            workpath = model['obc']['workpath']
 
-                obc_source_path = model['obc']['workPath'] + model['obc']['prefix'] + "_" + model[
-                    'name'] + obc_initial_date + "_" + obc_final_date + "." + file_type
-
-                static.logger.info("OBC Source Path: " + obc_source_path)
-
-                if os.path.isfile(obc_source_path):
-                    obc_dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
-                    if not os.path.isdir(obc_dest_folder):
-                        os.path.makedirs(obc_dest_folder)
-                    obc_dest_file = obc_dest_folder + model['obc']['prefix'] + "_" + model['name'] + "." + file_type
-                    static.logger.info("OBC File Destination: " + obc_dest_file)
-                    copy(obc_source_path, obc_dest_file)   
-                else:
-                    static.logger.info("Source files for OBC file not found: " + obc_source_path)
-                    raise FileNotFoundError("Source file for OBC file not found: " + obc_source_path)
-
-        elif 'hasSolutionFromFile' in obc_keys and model['obc']['hasSolutionFromFile']:
-            static.logger.info("HasSolutionFromFile flag enabled")
-            for n in range(0, simulations_available - 1, -1):
+            if 'fromModelResults' in obc_keys and model['obc']['fromModelResults']:
                 obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
-                obc_initial_date = obc_initial_date.strftime(date_format)
-                obc_final_date = obc_final_date.strftime(date_format)
+                obc_initial_date_str = obc_initial_date.strftime(date_format)
+                obc_final_date_str = obc_final_date.strftime(date_format)
 
-                static.logger.info("OBC Initial Date: " + obc_initial_date)
-                static.logger.info("OBC Final Date: " + obc_final_date)
+                static.logger.info("OBC Initial Date: " + obc_initial_date_str)
+                static.logger.info("OBC Final Date: " + obc_final_date_str)
+            
+                folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
 
-                hydro_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
-                    "Hydrodynamic"
-                water_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
-                    "WaterProperties"
+                for file in model['obc']['files']:
+                    file_source = folder_source + file + "." + file_type
 
-                if 'suffix' in obc_keys:
-                    hydro_source_path += model['obc']['suffix']
-                    water_source_path += model['obc']['suffix']
-
-                hydro_source_path += "." + file_type
-                water_source_path += "." + file_type
-
-                if os.path.isfile(hydro_source_path):
-                    if os.path.isfile(water_source_path):
-                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
+                    if os.path.isfile(file_source):
+                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
                         if not os.path.isdir(dest_folder):
                             os.makedirs(dest_folder)
-                        hydro_dest_file = dest_folder + "/Hydrodynamic"
-                        water_dest_file = dest_folder + "/WaterProperties"
+                            file_destination = dest_folder + file + "." + file_type
+                            copy(file_source, file_destination)
+                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+            else:
+                if 'subFolders' in obc_keys and model['obc']['subFolders'] != 0:
+                    if model['obc']['subFolders'] == 1:
+                        workpath = workpath + str(obc_initial_date.year) + "/"
+                    
+                    elif model['obc']['subFolders'] == 2:
+                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
 
-                        if 'suffix' in obc_keys:
-                            hydro_dest_file += model['obc']['suffix']
-                            water_dest_file += model['obc']['suffix']
-
-                        hydro_dest_file += "." + file_type
-                        water_dest_file += "." + file_type
-
-                        copy(hydro_source_path, hydro_dest_file)
-                        copy(water_source_path, water_dest_file)
-                    else:
-                        static.logger.info(
-                            "gather_boundary_conditions: File " + water_source_path + " does not exist.")
-                else:
-                    static.logger.info("gather_boundary_conditions: File " + hydro_source_path + " does not exist. ")
+                    elif model['obc']['subFolders'] == 3:
+                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
+                            str(obc_initial_date.days) + "/"
+                    for file in model['obc']['files']:
+                        filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
+                        file_source = workpath +  filename + "." + file_type
+                        if os.path.isfile(file_source):
+                            dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
+                            if not os.path.isdir(dest_folder):
+                                os.makedirs(dest_folder)
+                                file_destination = dest_folder + filename + "." + file_type
+                                copy(file_source, file_destination)
+                                static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
 
 
 def get_meteo_file(yaml, model):
