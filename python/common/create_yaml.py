@@ -1,63 +1,72 @@
-artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'ouputFile', 'outputFilePath', 'sendEmail', 'email']
-mohid_modules = ['exePath', 'outputToFile', 'outputFilePath', 'mpi']
+artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
+mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
-model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath']
+model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList']
 discharges_modules = ['enable', 'path', 'dateFormat']
-obc_modules = ['enable', 'fileType', 'simulatedDays', 'suffix', 'hasSolutionFromFile', 'prefix', 'dateFormat', 'subFolders', 'workPath']
+obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'files', 'workPath']
 meteo_modules = ['enable', 'models']
-models_modules = ['<put meteo model Id here>', 'name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
+models_modules = ['#put meteo model Id here>']
+uniqueId_modules=['name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
-preprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
-postprocessing_modules = ['name of block', 'run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+preprocessing_modules = ['#name of block']
+name_of_block_modules_pre=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+postprocessing_modules = ['#name of block']
+name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 
 def create_artconfig_block(filename):
-    filename.write("artconfig:")
+    filename.write("artconfig:\n")
     for i in artconfig_modules:
-        filename.write("\t" + i + str(":"))
+        filename.write("\t" + i + ":\n")
 
 def create_mohid_block(filename):
-    filename.write("mohid:")
+    filename.write("mohid:\n")
     for i in mohid_modules:
-        filename.write("\t" + i + str(":"))
+        filename.write("\t" + i + ":\n")
     for i in mpi_modules:
-        filename.write("\t\t" + i + str(":"))
+        filename.write("\t\t" + i + ":\n")
 
 def create_model_block(filename):
-    filename.write("model:")
+    filename.write("model:\n")
     for i in model_modules:
-        filename.write("\t\t" + i + str(":"))
+        filename.write("\t\t" + i + ":\n")
 
 def create_discharges_block(filename):
-    filename.write("discharges:")
+    filename.write("discharges:\n")
     for i in discharges_modules:
-        filename.write("\t" + i + str(":"))
+        filename.write("\t" + i + ":\n")
 
 def create_obc_block(filename):
-    pass #ToDo this
+    filename.write("obc:\n")
+    for i in obc_modules:
+        filename.write("\t" + i + ":\n")
 
 def create_meteo_block(filename, n):
-    filename.write("meteo:")
+    filename.write("meteo:\n")
     for i in meteo_modules:
-        filename.write("\t" + i + ":")
-    for i in range(n):
-        filename.write("\t\t" + i + ":")
+        filename.write("\t" + i + ":\n")
+    for _ in range(n):
+        filename.write("\t\t" + models_modules[0] + ":\n")
+        for i in uniqueId_modules:
+            filename.write("\t\t\t" + i + ":\n")
 
 def create_model_dat_block(filename):
-    filename.write("model.dat:")
+    filename.write("model.dat:\n")
     for i in modeldat_modules:
-        filename.write("\t" + i + ":")
+        filename.write("\t" + i + ":\n")
 
 def create_preprocessing_block(filename, n):
-    filename.write("preprocessing:")
+    filename.write("preprocessing:\n")
     for i in range(n):
-        for i in preprocessing_modules:
-            filename.write("\t\t" + i + ":")
+        filename.write("\t\t" + preprocessing_modules[0] + ":\n")
+        for i in name_of_block_modules_pre:
+            filename.write("\t\t\t" + i + ":\n")
 
 def create_postprocessing_block(filename, n):
-    filename.write("postprocessing:")
+    filename.write("postprocessing:\n")
     for i in range(n):
-        for i in postprocessing_modules:
-            filename.write("\t\t" + i + ":")
+        filename.write("\t\t" + postprocessing_modules[0] + ":\n")
+        for i in name_of_block_modules_post:
+            filename.write("\t\t\t" + i + ":\n")
 
 def create_yaml():
     filename = input("filename: ")
@@ -67,14 +76,14 @@ def create_yaml():
     number_preprocessing_blocks = int(input("number of preprocessing blocks: "))
     number_postprocessing_blocks = int(input("number of postprocessing blocks: "))
 
-    create_artconfig_block(filename)
-    create_mohid_block(filename)
-    create_model_block(filename, number_model_blocks)
-    create_discharges_block(filename)
-    create_obc_block(filename)
-    create_meteo_block(filename)
-    create_model_dat_block(filename)
-    create_preprocessing_block(filename, number_preprocessing_blocks)
-    create_postprocessing_block(filename, number_postprocessing_blocks)
+    create_artconfig_block(f)
+    create_mohid_block(f)
+    create_model_block(f)
+    create_discharges_block(f)
+    create_obc_block(f)
+    create_meteo_block(f, number_model_blocks)
+    create_model_dat_block(f)
+    create_preprocessing_block(f, number_preprocessing_blocks)
+    create_postprocessing_block(f, number_postprocessing_blocks)
 
 create_yaml()
