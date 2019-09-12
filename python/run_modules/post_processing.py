@@ -8,7 +8,7 @@ import common.constants as static
 
 def dat_date_change(filePath):
   file_modifier.modify_line(filePath, "START", file_modifier.date_to_mohid_date(cfg.current_initial_date))
-  file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_initial_date))
+  file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_final_date))
 
 def execute(yaml):
   for block in yaml['postProcessing']:
