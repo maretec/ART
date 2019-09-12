@@ -4,15 +4,14 @@ general_keys = ['artconfig', 'mohid', 'model', 'discharges', 'obc', 'meteo', 'mo
 artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
 mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
-model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList']
+model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList', 'hasSolutionFromFile']
 discharges_modules = ['enable', 'path', 'dateFormat']
-obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'files', 'workPath']
+obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'dateFormat', 'files', 'workPath']
 meteo_modules = ['enable', 'models']
-models_modules = ['#put meteo model Id here']
 uniqueId_modules=['name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
-name_of_block_modules_pre=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
-name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_pre=['run', 'workingDirectory', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_post=['run', 'datDateChange', 'workingDirectory', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 
 def check_unique_names(block):
     tmp=[]
@@ -175,7 +174,7 @@ def postprocessing_validation(yaml):
     valid = check_unique_names(yaml['postprocessing'])
     if valid == False:
         return False
-        
+
     valid = validateFile(yaml['postprocessing']['exePath'])
     return valid
 
