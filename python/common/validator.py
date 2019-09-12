@@ -14,6 +14,16 @@ modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
 name_of_block_modules_pre=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 
+def check_unique_names(block):
+    tmp=[]
+    for i in block.keys():
+        if i not in tmp:
+            tmp.append(i)
+        else:
+            return False
+    
+    return True
+
 def validatePath(path):
     return path != None and os.path.exists(path) and path[-1] == "/"
 
@@ -36,6 +46,8 @@ def artconfig_validation(yaml):
             valid = False
 
     valid = validatePath(yaml['artconfig']['mainPath'])
+    if valid == False:
+        return False
 
     if yaml['artconfig']['sendEmail']:
         valid = yaml['artconfig']['email'] != []
@@ -54,6 +66,8 @@ def mohid_validation(yaml):
             valid = False
     
     valid = validatePath(yaml['mohid']['exePath'])
+    if valid == False:
+        return False
 
     if yaml['mohid']['mpi']['enable']:
         valid = validatePath(yaml['mohid']['mpi']['exePath'])
@@ -67,6 +81,9 @@ def model_validation(yaml):
         if i not in yaml['model'].keys():
             valid = False
     
+    if valid == False:
+        return False
+
     valid = validatePath(yaml['artconfig']['mainPath'] + yaml['model']['path'])
 
     return valid
@@ -77,6 +94,9 @@ def discharge_validation(yaml):
     for i in discharges_modules:
         if i not in yaml['discharge'].keys():
             valid = False
+
+    if valid == False:
+        return False
 
     valid = yaml['discharges']['enable'] and validatePath(yaml['discharges']['path'])
     return valid
@@ -97,9 +117,10 @@ def meteo_validation(yaml):
         if i not in yaml['meteo'].keys():
             valid = False
     
-    for i in model_modules:
-        if i not in yaml['meteo']['models'].keys():
-            valid = False
+    for j in yaml['meteo']['models'].keys():
+        for k in uniqueId_modules:
+            if k not in j.keys():
+                valid = False
     
     return valid
     
@@ -115,28 +136,46 @@ def modeldat_validation(yaml):
 
 def preprocessing_validation(yaml):
     valid = True
-    valid = yaml['preprocessing'].keys() != []
+    if yaml['preprocessing'].keys() == []:
+        return False
+    
     for i in yaml['preprocessing'].keys():
         if yaml['postprocessing'][i]['datDateChange']:
             valid = validateFile(yaml['postprocessing'][i]['configFilePath'])
+            if valid == False:
+                return False
+
         for j in name_of_block_modules_pre:
             if j not in yaml['preprocessing'][i].keys():
-                valid = False
+                return False
     
+    valid = check_unique_names(yaml['preprocessing'])
+    if valid == False:
+        return False
+
     valid = validateFile(yaml['preprocessing']['exePath'])
     return valid
 
 
 def postprocessing_validation(yaml):
     valid = True
-    valid = yaml['postprocessing'].keys() != []
+    if yaml['postprocessing'].keys() == []:
+        return False
+
     for i in yaml['postprocessing'].keys():
         if yaml['postprocessing'][i]['datDateChange']:
             valid = validateFile(yaml['postprocessing'][i]['configFilePath'])
+            if valid == False:
+                return False
+
         for j in name_of_block_modules_pre:
             if j not in yaml['postprocessing'][i].keys():
-                valid = False
+                return False
     
+    valid = check_unique_names(yaml['postprocessing'])
+    if valid == False:
+        return False
+        
     valid = validateFile(yaml['postprocessing']['exePath'])
     return valid
 
