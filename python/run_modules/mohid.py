@@ -56,7 +56,7 @@ def run_mohid(yaml):
         else:
             static.logger.info("MOHID RUN successful")
 
-        #DDC is ran when an MPI run is done to join all the outputs 
+        #DDC is ran when an MPI run is done to join all the results into a single one.
         ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
         mohid_ddc_output_log = open(ddc_output_filename, "w+")
         subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']), stdout=mohid_ddc_output_log)
@@ -115,15 +115,35 @@ def change_model_dat(yaml, model):
 
 
 '''
+Allows to create dynamic names for the files in static folders for OBC gathering.
+Example: if given the datetime object that represents "2019-07-23" for initial_date and "2019-08-12" for final_date
+it changes "Hydrodynamic_%Yi-%Mi-%di_%Yf-%Mf-%df" to "Hydrodynamic_2019-07-23_%2019-08-12"
+'''
+def create_file_name_with_date(filename, initial_date, final_date):
+    if '%Yi' in filename:
+        filename = filename.replace("%Yi", str(initial_date.year))
+    if '%mi' in filename:
+        filename = filename.replace("%Mi", str(initial_date.month))
+    if '%di' in filename:
+       filename = filename.replace("%di", str(initial_date.day))
+    if '%Yf' in filename:
+        filename = filename.replace("%Yf", str(final_date.year))
+    if '%mi' in filename:
+        filename = filename.replace("%Mf", str(final_date.month))
+    if '%di' in filename:
+        filename = filename.replace("%df", str(final_date.day))
+    return filename
+
+'''
 Gathers boundary conditions for each model in the mohid block if the 'obc' dictionary has the parameter 'enable' and if
 it is a different value from 0. The user can define the file type and the date format. It copies the files the user 
-
+defined in the list 'files' in the yaml file.
 '''
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
     if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
         static.logger.info("OBC flag enabled")
-        static.logger.info("Gathering Boundary Conditions for " + model['name'])
+        static.logger.info("Gathering Boundary Condition for " + model['name'])
         obc_keys = model['obc'].keys()
 
         simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
@@ -138,79 +158,62 @@ def gather_boundary_conditions(yaml, model):
             file_type = model['obc']['fileType']
         static.logger.debug("Boundary Conditions File Type: " + file_type)
 
-        if 'hasSolutionFromFile' not in obc_keys or 'hasSolutionFromFile' in obc_keys and not \
-                model['obc']['hasSolutionFromFile']:
-            for n in range(0, simulations_available - 1, -1):
-                obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
-                obc_final_date = cfg.current_initial_date + datetime.timedelta(days=simulations_available)
+        for n in range(0, simulations_available - 1, -1):
+            obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+            obc_final_date = cfg.current_final_date + datetime.timedelta(days=n)
 
-                obc_initial_date = obc_initial_date.strftime(date_format)
-                obc_final_date = obc_final_date.strftime(date_format)
+            obc_initial_date_str = obc_initial_date.strftime(date_format)
+            obc_final_date_str = obc_final_date.strftime(date_format)
 
-               
+            workpath = model['obc']['workpath']
 
-                obc_source_path = model['obc']['workPath'] + model['obc']['prefix'] + "_" + model[
-                    'name'] + obc_initial_date + "_" + obc_final_date + "." + file_type
-
-                static.logger.info("OBC Source Path: " + obc_source_path)
-
-                if os.path.isfile(obc_source_path):
-                    obc_dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
-                    if not os.path.isdir(obc_dest_folder):
-                        os.path.makedirs(obc_dest_folder)
-                    obc_dest_file = obc_dest_folder + model['obc']['prefix'] + "_" + model['name'] + "." + file_type
-                    static.logger.info("OBC File Destination: " + obc_dest_file)
-                    copy(obc_source_path, obc_dest_file)   
-                else:
-                    static.logger.info("Source files for OBC file not found: " + obc_source_path)
-                    raise FileNotFoundError("Source file for OBC file not found: " + obc_source_path)
-
-        elif 'hasSolutionFromFile' in obc_keys and model['obc']['hasSolutionFromFile']:
-            static.logger.info("HasSolutionFromFile flag enabled")
-            for n in range(0, simulations_available - 1, -1):
+            '''
+            if 'hasSolutionFromFile' it needs to get the OBC files from a "parent" model, and needs to follow the structure
+            we use to backup our results. U
+            '''
+            if 'hasSolutionFromFile' in model_keys and model['hasSolutionFromFile']:
                 obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
-                obc_initial_date = obc_initial_date.strftime(date_format)
-                obc_final_date = obc_final_date.strftime(date_format)
+                obc_initial_date_str = obc_initial_date.strftime(date_format)
+                obc_final_date_str = obc_final_date.strftime(date_format)
 
-                static.logger.info("OBC Initial Date: " + obc_initial_date)
-                static.logger.info("OBC Final Date: " + obc_final_date)
+                static.logger.info("OBC Initial Date: " + obc_initial_date_str)
+                static.logger.info("OBC Final Date: " + obc_final_date_str)
+            
+                folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
 
-                hydro_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
-                    "Hydrodynamic"
-                water_source_path = model['obc']['workPath'] + str(obc_initial_date) + "_" + obc_final_date + "/" + \
-                    "WaterProperties"
+                for file in model['obc']['files']:
+                    file_source = folder_source + file + "." + file_type
 
-                if 'suffix' in obc_keys:
-                    hydro_source_path += model['obc']['suffix']
-                    water_source_path += model['obc']['suffix']
-
-                hydro_source_path += "." + file_type
-                water_source_path += "." + file_type
-
-                if os.path.isfile(hydro_source_path):
-                    if os.path.isfile(water_source_path):
-                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name']
+                    if os.path.isfile(file_source):
+                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
                         if not os.path.isdir(dest_folder):
                             os.makedirs(dest_folder)
-                        hydro_dest_file = dest_folder + "/Hydrodynamic"
-                        water_dest_file = dest_folder + "/WaterProperties"
+                            file_destination = dest_folder + file + "." + file_type
+                            copy(file_source, file_destination)
+                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+            else:
+                if 'subFolders' in obc_keys and model['obc']['subFolders'] != 0:
+                    if model['obc']['subFolders'] == 1:
+                        workpath = workpath + str(obc_initial_date.year) + "/"
+                    
+                    elif model['obc']['subFolders'] == 2:
+                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
 
-                        if 'suffix' in obc_keys:
-                            hydro_dest_file += model['obc']['suffix']
-                            water_dest_file += model['obc']['suffix']
-
-                        hydro_dest_file += "." + file_type
-                        water_dest_file += "." + file_type
-
-                        copy(hydro_source_path, hydro_dest_file)
-                        copy(water_source_path, water_dest_file)
-                    else:
-                        static.logger.info(
-                            "gather_boundary_conditions: File " + water_source_path + " does not exist.")
-                else:
-                    static.logger.info("gather_boundary_conditions: File " + hydro_source_path + " does not exist. ")
+                    elif model['obc']['subFolders'] == 3:
+                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
+                            str(obc_initial_date.days) + "/"
+                    for file in model['obc']['files']:
+                        filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
+                        file_source = workpath +  filename + "." + file_type
+                        if os.path.isfile(file_source):
+                            dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
+                            if not os.path.isdir(dest_folder):
+                                os.makedirs(dest_folder)
+                                file_destination = dest_folder + filename + "." + file_type
+                                copy(file_source, file_destination)
+                                static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
 
 
 def get_meteo_file(yaml, model):
@@ -280,6 +283,9 @@ def get_meteo_file(yaml, model):
                                 "errors.")
 
 
+'''
+Gets restart files from previous run. These files need to be put in /res folder of the project you're trying to run.
+'''
 def gather_restart_files(yaml, model):
     static.logger.info("Gathering the restart files for model: " + model['name'])
 
@@ -307,9 +313,12 @@ def gather_restart_files(yaml, model):
     if not os.path.isdir(restart_files_dest):
         os.makedirs(restart_files_dest)
 
+    #glob creates a list with all files that match the regex experssion
     fin_files = glob.glob(path_fin_files + "*.fin")
     fin5_files = glob.glob(path_fin_files + "*.fin5")
     for file in fin_files:
+        #the nomfich.dat file for mohid is not changed and when a restart file is generated it ends with _1.fin
+        #and because of that an input restart file needs to finish with _0.fin. So we simply change it when we copy it.
         file_destination = restart_files_dest + os.path.split(file)[1].split("_")[0] + "_0.fin"
         static.logger.info("Restart Files: Copying " + file + " to " + file_destination)
         copy(file, file_destination)
@@ -348,6 +357,11 @@ def gather_discharges_files(yaml, model):
         copy(file, file_destination)
 
 
+'''
+Backups all the rersults located in the res/ folder of the project. It ignores all the results before consolidation 
+(those that start with "MPI_"). Copies all the consolidated .hdf5 files to the Results_HDF/ folder in the backup path
+that the user defined. And the same goes for the Restart, TimeSeries and Discharges files.
+'''
 def backup_simulation(yaml):
     date_format = "%Y-%m-%d"
     if 'dateFormat' in yaml['mohid'].keys():
@@ -424,6 +438,9 @@ def backup_simulation(yaml):
                 copy(file, file_destination)
 
 
+'''
+Main cycle for the ART run. It has all the functions that are need for a project.
+'''
 def process_models(yaml):
     for model in yaml['mohid']['models']:
         create_folder_structure(yaml, yaml['mohid']['models'][model])
@@ -442,8 +459,10 @@ def process_models(yaml):
 def execute(yaml):
     artconfig_keys = yaml['artconfig'].keys()
     static.logger.info("Run MOHID enabled")
+    #operational mode is used relative to the current day of the machine
     if yaml['artconfig']['operationalMode']:
         today = datetime.datetime.today()
+        #Time needs to start on hour 00:00:00 otherwise will start the models at the wrong time
         today = today.replace(minute=00, hour=00, second=00)
         cfg.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
         for i in range(1, cfg.number_of_runs + 1):
