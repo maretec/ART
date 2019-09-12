@@ -414,7 +414,7 @@ def backup_simulation(yaml):
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
             
-                    file_destination = results_storage + os.path.split(file)[1].split("_")[0] + \
+                    file_destination = results_storage + os.path.split(file)[1].split("_")[0] + "." + \
                          os.path.split(file).split(".")[1]
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
             #defaults to backup all results files
