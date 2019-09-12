@@ -8,8 +8,8 @@ def line_creator(file, parameter, value):
 
     
 def date_to_mohid_date(date):
-    mohid_date = date.strftime("%Y %M %d") 
-    mohid_date = " " + str(0) + " " + str(0) + " " + str(0)
+    mohid_date = date.strftime("%Y %m %d") 
+    mohid_date = mohid_date + " " + str(0) + " " + str(0) + " " + str(0)
     return mohid_date
 
 
