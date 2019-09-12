@@ -42,11 +42,13 @@ def run_mohid(yaml):
     output_file = open(output_file_name, "w+")
     if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
         static.logger.info("Starting MOHID MPI")
+        #cwd is the working directory where the command will execute. stdout is the output file of the command
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
                         yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), 
                         stdout=output_file)
         output_file.close()
 
+        #Mohid alwyas writes these strings in the last lines of the logs. We use it to verify that run was successful
         if not verify_run(output_file_name, ['Program Mohid Water successfully terminated', 
             'Program Mohid Land successfully terminated']):
             static.logger.info("MOHID RUN NOT SUCCESSFUL")
@@ -54,6 +56,7 @@ def run_mohid(yaml):
         else:
             static.logger.info("MOHID RUN successful")
 
+        #DDC is ran when an MPI run is done to join all the outputs 
         ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
         mohid_ddc_output_log = open(ddc_output_filename, "w+")
         subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']), stdout=mohid_ddc_output_log)
@@ -65,6 +68,7 @@ def run_mohid(yaml):
             static.logger.info("MohidDDC successful")
     else:
         static.logger.info("Starting MOHID run")
+        #cwd is the working directory where the command will execute. stdout is the output file of the command
         subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']), 
         stdout=output_file)
         output_file.close()
@@ -77,7 +81,12 @@ def run_mohid(yaml):
             static.logger.info("MOHID RUN successful")
 
 
-
+'''
+MOHID needs the file model.dat to be changed, especially START and END times.
+This function changes that file in each iteration to update START and END and other parameters that can be defined
+in the yaml config file.
+It receives the yaml object and the 'model' dictionary which is in 'mohid' dictionary.
+'''
 def change_model_dat(yaml, model):
     static.logger.info("Creating new model file for model: " + model['name'])
     keys = model.keys()
@@ -105,6 +114,11 @@ def change_model_dat(yaml, model):
     return
 
 
+'''
+Gathers boundary conditions for each model in the mohid block if the 'obc' dictionary has the parameter 'enable' and if
+it is a different value from 0. The user can define the file type and the date format. It copies the files the user 
+
+'''
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
     if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
