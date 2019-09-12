@@ -23,18 +23,18 @@ def execute(yaml):
         print(run_array)
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
           with open(block_dict['outputFilePath'], 'w') as log:
-            subprocess.run(run_array, stdout=log, cwd=os.path.dirname(block_dict['exePath']))
+            subprocess.run(run_array, stdout=log, cwd=block_dict['workingDirectory'])
             log.close()
         else:
-          subprocess.run(run_array, cwd=os.path.dirname(block_dict['exePath']))
+          subprocess.run(run_array, cwd=block_dict['workingDirectory'])
       else:
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
          with open(block_dict['outputFilePath'], 'w') as log:
             static.logger.info("Executing Post Processing module: " +  block_dict['exePath'])
-            subprocess.run(block_dict['exePath'], stdout=log, cwd=os.path.dirname(block_dict['exePath']))
+            subprocess.run(block_dict['exePath'], stdout=log, cwd=block_dict['workingDirectory'])
             log.close()
         else:
           static.logger.info("Executing Post Processing module: " +  block_dict['exePath'])
-          subprocess.run(block_dict['exePath'], cwd=os.path.dirname(block_dict['exePath']))
+          subprocess.run(block_dict['exePath'], cwd=block_dict['workingDirectory'])
 
   return  
