@@ -420,7 +420,8 @@ def backup_simulation(yaml):
                         #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
                         file_name = name_array[0] + "_" + name_array[2]
                     else:
-                        file_name = name_array[0] + name_array[1]
+                        file_type = name_array[-1].split(".")[1]
+                        file_name = name_array[0] + "." + file_type
                     file_destination = results_storage + file_name
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
             #defaults to backup all results files
