@@ -44,6 +44,11 @@ def artconfig_validation(yaml):
         if i not in yaml['artconfig'].keys():
             valid = False
 
+    if yaml['artconfig']['runPreProcessing']:
+        valid = yaml['preprocessing'].keys() != [] and yaml['postprocessing'].keys() != []
+        if valid == False:
+            return False
+
     valid = validatePath(yaml['artconfig']['mainPath'])
     if valid == False:
         return False
