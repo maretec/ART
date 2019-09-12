@@ -3,15 +3,15 @@ mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
 model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList']
 discharges_modules = ['enable', 'path', 'dateFormat']
-obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'files', 'workPath']
+obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'dateFormat', 'files', 'workPath']
 meteo_modules = ['enable', 'models']
 models_modules = ['#put meteo model Id here']
 uniqueId_modules=['name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
 preprocessing_modules = ['#name of block']
-name_of_block_modules_pre=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_pre=['run', 'datDateChange', 'workingDirectory', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 postprocessing_modules = ['#name of block']
-name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'workingDirectory', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 
 def create_artconfig_block(filename):
     filename.write("artconfig:\n")
