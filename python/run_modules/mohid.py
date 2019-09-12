@@ -8,6 +8,7 @@ import subprocess
 import glob
 import run_modules.pre_processing as pre_processing
 import run_modules.post_processing as post_processing
+import common.send_email as send_email
 
 
 def create_folder_structure(yaml, model):
@@ -156,6 +157,7 @@ def gather_boundary_conditions(yaml, model):
         file_type = "hdf5"
         if 'fileType' in obc_keys:
             file_type = model['obc']['fileType']
+            
         static.logger.debug("Boundary Conditions File Type: " + file_type)
 
         for n in range(0, simulations_available - 1, -1):
@@ -240,7 +242,6 @@ def get_meteo_file(yaml, model):
 
             static.logger.info("Meteo Initial Date: " + meteo_initial_date)
             static.logger.info("Meteo Final Date: " + meteo_final_date)
-
 
             file_type = "hdf5"
             if 'fileType' in meteo_keys:
