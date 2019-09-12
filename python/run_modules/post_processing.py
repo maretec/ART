@@ -20,6 +20,7 @@ def execute(yaml):
       if 'flags' in block_keys:
         flags_array = block_dict['flags'].split(" ") 
         run_array = [block_dict['exePath']] + flags_array
+        print(run_array)
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
           with open(block_dict['outputFilePath'], 'w') as log:
             subprocess.run(run_array, stdout=log, cwd=os.path.dirname(block_dict['exePath']))
