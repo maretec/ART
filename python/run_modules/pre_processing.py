@@ -2,14 +2,15 @@ import subprocess
 import common.file_modifier as file_modifier
 import common.config as cfg
 import os
+import common.constants as static
+
 
 
 def dat_date_change(filePath):
   file_modifier.modify_line(filePath, "START", file_modifier.date_to_mohid_date(cfg.current_initial_date))
-  file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_initial_date))
+  file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_final_date))
 
 def execute(yaml):
-  print("debug")
   for block in yaml['preProcessing']:
     block_keys = yaml['preProcessing'][block].keys()
     block_dict = yaml['preProcessing'][block]
@@ -21,14 +22,16 @@ def execute(yaml):
         run_array = [block_dict['exePath']] + flags_array
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
           with open(block_dict['outputFilePath'], 'w') as log:
-            subprocess.run(run_array, stdout=log, cwd=os.path.dirname(block_dict['exePath']))
+            subprocess.run(run_array, stdout=log, block_dict['workingDirectory'])
             log.close()
       else:
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
          with open(block_dict['outputFilePath'], 'w') as log:
-            subprocess.run(block_dict['exePath'], stdout=log, cwd=os.path.dirname(block_dict['exePath']))
+            static.logger.info("Executing Pre Processing module: " +  block_dict['exePath'])
+            subprocess.run(block_dict['exePath'], stdout=log, block_dict['workingDirectory'])
             log.close()
         else:
-          subprocess.run(block_dict['exePath'], cwd=os.path.dirname(block_dict['exePath']))
+          static.logger.info("Executing Pre Processing module: " +  block_dict['exePath'])
+          subprocess.run(block_dict['exePath'], block_dict['workingDirectory'])
 
   return  
