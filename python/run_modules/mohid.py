@@ -429,6 +429,7 @@ def backup_simulation(yaml):
 
                     #if the file_name is not in the resultList it will be ignored
                     if file_name not in yaml['mohid']['models'][model]['resultList']:
+                        print(file_name)
                         continue
 
                     file_destination = results_storage + file_name
