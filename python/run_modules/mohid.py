@@ -25,6 +25,9 @@ def create_folder_structure(yaml, model):
         os.makedirs(model_path + "exe/")
 
 
+'''
+Checks MOHID log to verify that the run was successful
+'''
 def verify_run(filename, messages):
     success_messages = ['Program Mohid Water successfully terminated', 'Program Mohid Water successfully terminated',  
     'Program MohidDDC successfully terminated']
@@ -196,6 +199,9 @@ def gather_boundary_conditions(yaml, model):
                             copy(file_source, file_destination)
                             static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
             else:
+                '''
+                subFolders within the workpath for the OBC files. They can be subdivided with year, month and year.
+                '''
                 if 'subFolders' in obc_keys and model['obc']['subFolders'] != 0:
                     if model['obc']['subFolders'] == 1:
                         workpath = workpath + str(obc_initial_date.year) + "/"
@@ -359,7 +365,7 @@ def gather_discharges_files(yaml, model):
 
 
 '''
-Backups all the rersults located in the res/ folder of the project. It ignores all the results before consolidation 
+Backups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
 (those that start with "MPI_"). Copies all the consolidated .hdf5 files to the Results_HDF/ folder in the backup path
 that the user defined. And the same goes for the Restart, TimeSeries and Discharges files.
 '''
@@ -409,23 +415,39 @@ def backup_simulation(yaml):
            
            #only backup specific result files
             if 'resultList' in model_keys:
-                if os.path.split(file)[1].split(".")[0] not in yaml['mohid']['models'][model]['resultList']:
-                    continue
                 for file in hdf5_files:
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
-            
-                    file_destination = results_storage + os.path.split(file)[1].split("_")[0] + "." + \
-                         os.path.split(file).split(".")[1]
+                    file_name = os.path.split(file)
+                    name_array = file_name.split("_")
+                    if name_array > 2:
+                        #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
+                        file_name = name_array[0] + "_" + name_array[2]
+                    else:
+                        file_type = name_array[-1].split(".")[1]
+                        file_name = name_array[0] + "." + file_type
+
+                    #if the file_name is not in the resultList it will be ignored
+                    if file_name not in yaml['mohid']['models'][model]['resultList']:
+                        continue
+
+                    file_destination = results_storage + file_name
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
             #defaults to backup all results files
             else:
                 for file in hdf5_files:
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
-                
-                    file_destination = results_storage + os.path.split(file)[1].split("_")[0]+ \
-                         os.path.split(file)[1].split(".")[1]
+                    
+                    file_name = os.path.split(file)
+                    name_array = file_name.split("_")
+                    if name_array > 2:
+                        #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
+                        file_name = name_array[0] + "_" + name_array[2]
+                    else:
+                        file_type = name_array[-1].split(".")[1]
+                        file_name = name_array[0] + "." + file_type
+                    file_destination = results_storage + file_name
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
 
                     copy(file, file_destination)
