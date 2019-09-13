@@ -190,7 +190,6 @@ def gather_boundary_conditions(yaml, model):
 
                 for file in model['obc']['files']:
                     file_source = folder_source + file + "." + file_type
-                    print(file_source)
                     if os.path.isfile(file_source):
                         dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
                         if not os.path.isdir(dest_folder):
