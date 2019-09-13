@@ -420,7 +420,7 @@ def backup_simulation(yaml):
                         continue
                     file_name = os.path.split(file)[1]
                     name_array = file_name.split("_")
-                    if name_array > 2:
+                    if len(name_array) > 2:
                         #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
                         file_name = name_array[0] + "_" + name_array[2]
                     else:
@@ -441,7 +441,7 @@ def backup_simulation(yaml):
                     
                     file_name = os.path.split(file)[1]
                     name_array = file_name.split("_")
-                    if name_array > 2:
+                    if len(name_array) > 2:
                         #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
                         file_name = name_array[0] + "_" + name_array[2]
                     else:
