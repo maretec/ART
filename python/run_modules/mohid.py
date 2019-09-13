@@ -415,8 +415,6 @@ def backup_simulation(yaml):
            
            #only backup specific result files
             if 'resultList' in model_keys:
-                if os.path.split(file)[1].split(".")[0] not in yaml['mohid']['models'][model]['resultList']:
-                    continue
                 for file in hdf5_files:
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
@@ -428,6 +426,11 @@ def backup_simulation(yaml):
                     else:
                         file_type = name_array[-1].split(".")[1]
                         file_name = name_array[0] + "." + file_type
+
+                    #if the file_name is not in the resultList it will be ignored
+                    if file_name not in yaml['mohid']['models'][model]['resultList']:
+                        continue
+
                     file_destination = results_storage + file_name
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
             #defaults to backup all results files
