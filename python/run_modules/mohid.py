@@ -418,7 +418,7 @@ def backup_simulation(yaml):
                 for file in hdf5_files:
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
-                    file_name = os.path.split(file)
+                    file_name = os.path.split(file)[1]
                     name_array = file_name.split("_")
                     if name_array > 2:
                         #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
@@ -475,7 +475,7 @@ def process_models(yaml):
                 yaml['mohid']['models'][model]['discharges'].keys() and \
                 yaml['mohid']['models'][model]['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    run_mohid(yaml)
+    #run_mohid(yaml)
     backup_simulation(yaml)
 
 
