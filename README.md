@@ -1,5 +1,7 @@
 # ART
 
+[Roadmap](https://www.notion.so/ad599eeba2794af4b7fd8d736d37ff5a)
+
 # YAML
 
 ---
@@ -48,9 +50,10 @@ All paths to folders should end on a dash.                                      
 
 - `name`
 - `path` - path relative to mainPath
-- `gridFile` - path for the bathymetry file that will be used in the `IN_BATIM` field of the *nomfich.dat* file. If empty or non defined it will default to use the value already define in the *nomfich.dat* file.
 - `dt`
 - `storagePath`
+- `resultsList` - defined as a list `['Hydrodynamic_surface', 'WaterProperties']`. When used makes so that the Backup of the results is only made if the file name is in the list. If this parameter is not present the behavior will default to backup all files.
+- `hasSolutionFromFile`
 
 ### discharges
 
@@ -61,13 +64,16 @@ All paths to folders should end on a dash.                                      
 ### obc
 
 - `enable`
-- `suffix` - defines the suffix of the obc file, it's case sensitive.
-- `hasSolutionFromFile` -
-- `prefix` - defines the prefix of the obc file, it's case sensitive.
-- `dateFormat` - determines the date format for the obc files' names. If not defined it defaults to `YYYYMMDD`.
-- `filetype` - file type of the obc file (usually hdf5 or netcdf). When not defined it defaults to `hdf5`.
+- `fileType` - file type of the obc file (usually hdf5 or netcdf). When not defined it defaults to `hdf5`.
 - `simulatedDays`
-- `subFolders` - if set to `1` it searches it assumes that OBC workpath is structured with subfolders for `year` and within those there are subfolders for `month`. If `0` or non defined it defaults to assuming no structure inside OBC workpath.
+- `subFolders` - if set to `1` it searches it assumes that OBC workpath is structured with subfolders for `year` if set to `2` it has subfolders `month` and `year` and if set to `3` it has `year` , `month`, and `day`. If `0` or non defined it defaults to assuming no structure inside OBC workpath.
+- `dateInFileName` -  if set to `1` assumes date is in the files' names (uses `dateFormat`). If `0` or non defined it defaults to not having date on the obc files.
+- `dateFormat` - determines the date format for the obc files' names. If not defined it defaults to `YYYYMMDD`
+- `files` - list of files you want from the OBC workpath `['Hydrodynamic', 'WaterProperties']` it can be costumized with date variables `%Yi, %Mi, %di` for initial year, initial month and initial day and also  `%Yf, %Mf, %df` for final year, final month and final day.
+
+    Example:
+    `['Hydrodynamic_%Yi-%Mi-%di']` will become `Hydrodynamic_2019-09-12`.
+
 - `workPath`
 
 ### meteo
@@ -97,8 +103,9 @@ Arguments used here will be put or changed in the model.dat of its domain.
 
 - `name of block` - must be unique within the preprocessing block
     - `run`
-    - `datDateChange` - if the tool has a `START` and `END` based execution set this flag to `1` to make ART change the dates on the configuration of the tool.
-    - `configFilePath`
+    - `workingDirectory` - sets the workingDirectory of the Pre Processing tool the one desired.
+    - `datDateChange` - if the .dat of the script needs to change it START and END set this parameter to `1` and define `configFilePath`.
+    - `configFilePath` - path to where the .dat file is. Only necessary when `datDateChange` is enabled.
     - `exePath` - mandatory - path to the executable that you want to run before the simutaltion
     - `flags` - any flags or arguments you must give in the command line to the executable
 
@@ -111,9 +118,11 @@ Arguments used here will be put or changed in the model.dat of its domain.
 
 - `name of block` - must be unique within the preprocessing block
     - `run`
-    - `datDateChange`
-    - `configFilePath`
-    - `exePath` - mandatory - path to the executable that you want to run after the simutaltion
+    - `workingDirectory` - sets the workingDirectory of the postProcessing tool the one desired.
+    - `datDateChange` - if the .dat of the script needs to change it START and END set this parameter to `1` and define `configFilePath`.
+    - `configFilePath` - path to where the .dat file is. Only necessary when `datDateChange` is enabled.
+    - `exePath` - mandatory - path to the executable that you want to run after the simutaltion. Can also be used to run a shell command such as `ls`. If you want to run a script such as `flags` parameter.
+        - Example: `exePath` : `python3` ; `flags` :`/pathToScript/script.py`
     - `flags` - any flags or arguments you must give in the command line to the executable
 
         ex. `ls -l -a /samba/lusitania` → flags: "-l -a /samba/lusitania"
@@ -199,3 +208,5 @@ Arguments used here will be put or changed in the model.dat of its domain.
     - `POROUS_PROP_INI`
     - `SQ_DATA`
     - `DT_LOG`
+
+[To-do's](https://www.notion.so/e2714efe0cca4d449fdf953c6c207cfc)
