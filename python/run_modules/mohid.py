@@ -170,7 +170,7 @@ def gather_boundary_conditions(yaml, model):
             obc_initial_date_str = obc_initial_date.strftime(date_format)
             obc_final_date_str = obc_final_date.strftime(date_format)
 
-            workpath = model['obc']['workpath']
+            workpath = model['obc']['workPath']
 
             '''
             if 'hasSolutionFromFile' it needs to get the OBC files from a "parent" model, and needs to follow the structure
@@ -188,6 +188,7 @@ def gather_boundary_conditions(yaml, model):
             
                 folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
 
+                print(folder_source)
                 for file in model['obc']['files']:
                     file_source = folder_source + file + "." + file_type
 
