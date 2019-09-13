@@ -475,7 +475,7 @@ def process_models(yaml):
                 yaml['mohid']['models'][model]['discharges'].keys() and \
                 yaml['mohid']['models'][model]['discharges']['enable']:
             gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    #run_mohid(yaml)
+    run_mohid(yaml)
     backup_simulation(yaml)
 
 
