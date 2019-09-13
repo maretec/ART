@@ -195,9 +195,9 @@ def gather_boundary_conditions(yaml, model):
                         dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
                         if not os.path.isdir(dest_folder):
                             os.makedirs(dest_folder)
-                            file_destination = dest_folder + file + "." + file_type
-                            copy(file_source, file_destination)
-                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                        file_destination = dest_folder + file + "." + file_type
+                        copy(file_source, file_destination)
+                        static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
             else:
                 '''
                 subFolders within the workpath for the OBC files. They can be subdivided with year, month and year.
@@ -219,9 +219,9 @@ def gather_boundary_conditions(yaml, model):
                             dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
                             if not os.path.isdir(dest_folder):
                                 os.makedirs(dest_folder)
-                                file_destination = dest_folder + filename + "." + file_type
-                                copy(file_source, file_destination)
-                                static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                            file_destination = dest_folder + filename + "." + file_type
+                            copy(file_source, file_destination)
+                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
 
 
 def get_meteo_file(yaml, model):
