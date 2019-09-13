@@ -428,12 +428,10 @@ def backup_simulation(yaml):
                         file_name = name_array[0] + "." + file_type
 
                     #if the file_name is not in the resultList it will be ignored
-                    if file_name not in yaml['mohid']['models'][model]['resultList']:
-                        print(file_name)
-                        continue
-
-                    file_destination = results_storage + file_name
-                    static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+                    if file_name in yaml['mohid']['models'][model]['resultList']:
+                        file_destination = results_storage + file_name
+                        static.logger.info("Backup Simulation HDF Files: Copying " + file_name + " to " + file_destination)
+                    
             #defaults to backup all results files
             else:
                 for file in hdf5_files:
