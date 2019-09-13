@@ -429,9 +429,16 @@ def backup_simulation(yaml):
                 for file in hdf5_files:
                     if os.path.split(file)[1].startswith("MPI"):
                         continue
-                
-                    file_destination = results_storage + os.path.split(file)[1].split("_")[0]+ \
-                         os.path.split(file)[1].split(".")[1]
+                    
+                    file_name = os.path.split(file)
+                    name_array = file_name.split("_")
+                    if name_array > 2:
+                        #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
+                        file_name = name_array[0] + "_" + name_array[2]
+                    else:
+                        file_type = name_array[-1].split(".")[1]
+                        file_name = name_array[0] + "." + file_type
+                    file_destination = results_storage + file_name
                     static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
 
                     copy(file, file_destination)
