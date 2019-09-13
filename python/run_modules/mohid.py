@@ -192,7 +192,7 @@ def gather_boundary_conditions(yaml, model):
                     file_source = folder_source + file + "." + file_type
                     print(file_source)
                     if os.path.isfile(file_source):
-                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
+                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
                         if not os.path.isdir(dest_folder):
                             os.makedirs(dest_folder)
                         file_destination = dest_folder + file + "." + file_type
@@ -216,7 +216,7 @@ def gather_boundary_conditions(yaml, model):
                         filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
                         file_source = workpath +  filename + "." + file_type
                         if os.path.isfile(file_source):
-                            dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
+                            dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] + "/"
                             if not os.path.isdir(dest_folder):
                                 os.makedirs(dest_folder)
                             file_destination = dest_folder + filename + "." + file_type
