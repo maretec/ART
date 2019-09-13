@@ -427,9 +427,11 @@ def backup_simulation(yaml):
                         file_type = name_array[-1].split(".")[1]
                         file_name = name_array[0] + "." + file_type
 
+                    print(file_name)
                     #if the file_name is not in the resultList it will be ignored
                     if file_name in yaml['mohid']['models'][model]['resultList']:
                         file_destination = results_storage + file_name
+                        copy(file, file_destination)
                         static.logger.info("Backup Simulation HDF Files: Copying " + file_name + " to " + file_destination)
                     
             #defaults to backup all results files
