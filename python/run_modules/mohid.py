@@ -25,6 +25,9 @@ def create_folder_structure(yaml, model):
         os.makedirs(model_path + "exe/")
 
 
+'''
+Checks MOHID log to verify that the run was successful
+'''
 def verify_run(filename, messages):
     success_messages = ['Program Mohid Water successfully terminated', 'Program Mohid Water successfully terminated',  
     'Program MohidDDC successfully terminated']
@@ -196,6 +199,9 @@ def gather_boundary_conditions(yaml, model):
                             copy(file_source, file_destination)
                             static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
             else:
+                '''
+                subFolders within the workpath for the OBC files. They can be subdivided with year, month and year.
+                '''
                 if 'subFolders' in obc_keys and model['obc']['subFolders'] != 0:
                     if model['obc']['subFolders'] == 1:
                         workpath = workpath + str(obc_initial_date.year) + "/"
@@ -359,7 +365,7 @@ def gather_discharges_files(yaml, model):
 
 
 '''
-Backups all the rersults located in the res/ folder of the project. It ignores all the results before consolidation 
+Backups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
 (those that start with "MPI_"). Copies all the consolidated .hdf5 files to the Results_HDF/ folder in the backup path
 that the user defined. And the same goes for the Restart, TimeSeries and Discharges files.
 '''
