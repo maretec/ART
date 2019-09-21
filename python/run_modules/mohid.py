@@ -48,7 +48,7 @@ def run_mohid(yaml):
         static.logger.info("Starting MOHID MPI")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
         subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), 
+                        yaml['mohid']['exePath'], "&"], cwd=os.path.dirname(yaml['mohid']['exePath']), 
                         stdout=output_file)
         output_file.close()
 
@@ -63,7 +63,7 @@ def run_mohid(yaml):
         #DDC is ran when an MPI run is done to join all the results into a single one.
         ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
         mohid_ddc_output_log = open(ddc_output_filename, "w+")
-        subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']), stdout=mohid_ddc_output_log)
+        subprocess.run(["./MohidDDC.exe", "&"], cwd=os.path.dirname(yaml['mohid']['exePath']), stdout=mohid_ddc_output_log)
         mohid_ddc_output_log.close()
         if not verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
             static.logger.info("MohidDDC NOT SUCCESSFUL")
@@ -73,7 +73,7 @@ def run_mohid(yaml):
     else:
         static.logger.info("Starting MOHID run")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']), 
+        subprocess.run([yaml['mohid']['exePath'], "&"], cwd=os.path.dirname(yaml['mohid']['exePath']), 
         stdout=output_file)
         output_file.close()
     
