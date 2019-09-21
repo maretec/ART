@@ -110,8 +110,11 @@ def obc_validation(yaml):
     valid = True
     for i in obc_modules:
         if i not in yaml['obc'].keys():
-            valid = False
+            return False
 
+    if yaml['obc']['files'] == []:
+        return False
+        
     return valid
 
 
