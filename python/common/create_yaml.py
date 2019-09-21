@@ -38,6 +38,8 @@ def create_discharges_block(filename):
 def create_obc_block(filename):
     filename.write("obc:\n")
     for i in obc_modules:
+        if i == "files":
+            filename.write("\t" + i + ": [<write list of files you want from the OBC workpath (e.g. ['Hydrodynamic', 'WaterProperties']). Different files require a new list>]\n")
         filename.write("\t" + i + ":\n")
 
 def create_meteo_block(filename, n):
