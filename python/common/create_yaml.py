@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
 mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
