@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
 mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
@@ -18,59 +16,59 @@ name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'workingDi
 def create_artconfig_block(filename):
     filename.write("artconfig:\n")
     for i in artconfig_modules:
-        filename.write("\t" + i + ":\n")
+        filename.write("  " + i + ":\n")
 
 def create_mohid_block(filename):
     filename.write("mohid:\n")
     for i in mohid_modules:
-        filename.write("\t" + i + ":\n")
+        filename.write("  " + i + ":\n")
     for i in mpi_modules:
-        filename.write("\t\t" + i + ":\n")
+        filename.write("    " + i + ":\n")
 
 def create_model_block(filename):
     filename.write("model:\n")
     for i in model_modules:
-        filename.write("\t\t" + i + ":\n")
+        filename.write("  " + i + ":\n")
 
 def create_discharges_block(filename):
-    filename.write("discharges:\n")
+    filename.write("  discharges:\n")
     for i in discharges_modules:
-        filename.write("\t" + i + ":\n")
+        filename.write("    " + i + ":\n")
 
 def create_obc_block(filename):
-    filename.write("obc:\n")
+    filename.write("  obc:\n")
     for i in obc_modules:
         if i == "files":
-            filename.write("\t" + i + ": [<write list of files you want from the OBC workpath (e.g. ['Hydrodynamic', 'WaterProperties']). Different files require a new list>]\n")
-        filename.write("\t" + i + ":\n")
+            filename.write("    " + i + ": [<write list of files you want from the OBC workpath (e.g. ['Hydrodynamic', 'WaterProperties']). Different files require a new list>]\n")
+        filename.write("    " + i + ":\n")
 
 def create_meteo_block(filename, n):
-    filename.write("meteo:\n")
+    filename.write("  meteo:\n")
     for i in meteo_modules:
-        filename.write("\t" + i + ":\n")
+        filename.write("    " + i + ":\n")
     for _ in range(n):
-        filename.write("\t\t" + models_modules[0] + ":\n")
+        filename.write("      " + models_modules[0] + ":\n")
         for i in uniqueId_modules:
-            filename.write("\t\t\t" + i + ":\n")
+            filename.write("        " + i + ":\n")
 
 def create_model_dat_block(filename):
-    filename.write("model.dat:\n")
+    filename.write("  model.dat:\n")
     for i in modeldat_modules:
-        filename.write("\t" + i + ":\n")
+        filename.write("    " + i + ":\n")
 
 def create_preprocessing_block(filename, n):
     filename.write("preprocessing:\n")
     for i in range(n):
-        filename.write("\t\t" + preprocessing_modules[0] + ":\n")
+        filename.write("  " + preprocessing_modules[0] + ":\n")
         for i in name_of_block_modules_pre:
-            filename.write("\t\t\t" + i + ":\n")
+            filename.write("    " + i + ":\n")
 
 def create_postprocessing_block(filename, n):
     filename.write("postprocessing:\n")
     for i in range(n):
-        filename.write("\t\t" + postprocessing_modules[0] + ":\n")
+        filename.write("  " + postprocessing_modules[0] + ":\n")
         for i in name_of_block_modules_post:
-            filename.write("\t\t\t" + i + ":\n")
+            filename.write("    " + i + ":\n")
 
 def create_yaml():
     filename = input("filename: ")
