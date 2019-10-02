@@ -1,17 +1,17 @@
 import os
 
-general_keys = ['artconfig', 'mohid', 'model', 'discharges', 'obc', 'meteo', 'model.dat', 'preprocessing', 'postprocessing']
+general_keys = ['artconfig', 'mohid', 'model', 'preprocessing', 'postprocessing']
 artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
 mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
-model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList', 'hasSolutionFromFile']
+model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList', 'hasSolutionFromFile', 'discharges', 'obc', 'meteo', 'model.dat']
 discharges_modules = ['enable', 'path', 'dateFormat']
 obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'dateFormat', 'files', 'workPath']
 meteo_modules = ['enable', 'models']
 uniqueId_modules=['name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
 name_of_block_modules_pre=['run', 'workingDirectory', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
-name_of_block_modules_post=['run', 'datDateChange', 'workingDirectory', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_post=['run', 'workingDirectory', 'datDateChange', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
 
 def check_unique_names(block):
     tmp=[]
@@ -96,23 +96,23 @@ def model_validation(yaml):
 def discharge_validation(yaml):    
     valid = True
     for i in discharges_modules:
-        if i not in yaml['discharge'].keys():
+        if i not in yaml['model']['discharge'].keys():
             valid = False
 
     if valid == False:
         return False
 
-    valid = yaml['discharges']['enable'] and validatePath(yaml['discharges']['path'])
+    valid = yaml['model']['discharges']['enable'] and validatePath(yaml['discharges']['path'])
     return valid
 
 
 def obc_validation(yaml):
     valid = True
     for i in obc_modules:
-        if i not in yaml['obc'].keys():
+        if i not in yaml['model']['obc'].keys():
             return False
 
-    if yaml['obc']['files'] == []:
+    if yaml['model']['obc']['files'] == []:
         return False
         
     return valid
@@ -121,10 +121,10 @@ def obc_validation(yaml):
 def meteo_validation(yaml):
     valid = True
     for i in meteo_modules:
-        if i not in yaml['meteo'].keys():
+        if i not in yaml['model']['meteo'].keys():
             valid = False
     
-    for j in yaml['meteo']['models'].keys():
+    for j in yaml['model']['meteo']['models'].keys():
         for k in uniqueId_modules:
             if k not in j.keys():
                 valid = False
@@ -135,7 +135,7 @@ def meteo_validation(yaml):
 def modeldat_validation(yaml):
     valid = True
     for i in modeldat_modules:
-        if i not in yaml['model.dat'].keys():
+        if i not in yaml['model']['model.dat'].keys():
             valid = False
     
     return valid
