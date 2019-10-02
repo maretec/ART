@@ -1,7 +1,7 @@
 artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
 mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
 mpi_modules = ['enable', 'exePath', 'totalProcessors']
-model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList']
+model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList', 'hasSolutionFromFile']
 discharges_modules = ['enable', 'path', 'dateFormat']
 obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'dateFormat', 'files', 'workPath']
 meteo_modules = ['enable', 'models']
@@ -72,7 +72,8 @@ def create_postprocessing_block(filename, n):
 
 def create_yaml():
     filename = input("filename: ")
-    f = open(filename, "w+")
+    f1 = filename + ".yaml"
+    f = open(f1, "w+")
 
     number_model_blocks = int(input("number of model blocks: "))
     number_preprocessing_blocks = int(input("number of preprocessing blocks: "))
