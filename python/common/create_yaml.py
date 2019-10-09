@@ -1,17 +1,17 @@
-artconfig_modules = ['mainPath', 'operationalMode', 'runPreProcessing', 'daysPerRun', 'refDaysToStart', 'numberOfRuns', 'module', 'runSimulation', 'startDate', 'endDate', 'outputToFile', 'outputFilePath', 'sendEmail', 'email']
-mohid_modules = ['maxTime', 'exePath', 'outputToFile', 'outputFilePath', 'mpi']
-mpi_modules = ['enable', 'exePath', 'totalProcessors']
-model_modules = ['name', 'path', 'gridFile', 'dt', 'storagePath', 'resultsList', 'hasSolutionFromFile']
-discharges_modules = ['enable', 'path', 'dateFormat']
-obc_modules = ['enable', 'fileType', 'simulatedDays', 'subFolders', 'dateInFileName', 'dateFormat', 'files', 'workPath']
-meteo_modules = ['enable', 'models']
+artconfig_modules = ['MAIN_PATH', 'OPERATIONAL_MODE', 'RUN_PRE_PROCESSING', 'DAYS_PER_RUN', 'REF_DAYS_TO_START', 'NUMBER_OF_RUNS', 'MODULE', 'RUN_SIMULATION', 'START_DATE', 'END_DATE', 'OUTPUT_TO_FILE', 'OUTPUT_FILEPATH', 'SEND_EMAIL', 'EMAIL']
+mohid_modules = ['MAX_TIME', 'EXE_PATH', 'OUTPUT_TO_FILE', 'OUTPUT_FiLE_PATH', 'MPI']
+mpi_modules = ['ENABLE', 'EXE_PATH', 'TOTAL_PROCESSORS']
+model_modules = ['NAME', 'PATH', 'GRID_FILE', 'DT', 'STORAGE_PATH', 'RESULTS_LIST', 'HAS_SOLUTION_FROM_FILE']
+discharges_modules = ['ENABLE', 'PATH', 'DATE_FORMAT']
+obc_modules = ['ENABLE', 'FILE_TYPE', 'SIMULATED_DAYS', 'SUB_FOLDERS', 'DATE_IN_FILENAME', 'DATE_FORMAT', 'FILES', 'WORK_PATH']
+meteo_modules = ['ENABLE', 'MODELS']
 models_modules = ['#put meteo model Id here']
-uniqueId_modules=['name', 'simulatedDays', 'fileNameFromModel', 'workPath', 'dateFormat', 'fileType']
+uniqueId_modules=['NAME', 'SIMULATED_DAYS', 'FILENAME_FROM_MODEL', 'WORK_PATH', 'DATE_FORMAT', 'FILE_TYPE']
 modeldat_modules = ['MAXDT', 'GMTREFERENCE', 'DT_PREDICTION_INTERVAL']
 preprocessing_modules = ['#name of block']
-name_of_block_modules_pre=['run', 'datDateChange', 'workingDirectory', 'configFilePath', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_pre=['RUN', 'DAT_DATE_CHANGE', 'WORKING_DIRECTORY', 'CONFIG_FILEPATH', 'EXE_PATH', 'FLAGS', 'OUTPUT_TO_FILE', 'OUTPUT_FILEPATH']
 postprocessing_modules = ['#name of block']
-name_of_block_modules_post=['run', 'datDateChange', 'configFilePath', 'workingDirectory', 'exePath', 'flags', 'outputToFile', 'outputFilePath']
+name_of_block_modules_post=['RUN', 'DAT_DATE_CHANGE', 'WORKING_DIRECTORY', 'CONFIG_FILEPATH', 'EXE_PATH', 'FLAGS', 'OUTPUT_TO_FILE', 'OUTPUT_FILEPATH']
 
 def create_artconfig_block(filename):
     filename.write("artconfig:\n")
@@ -76,6 +76,12 @@ def create_yaml():
     f = open(f1, "w+")
 
     number_model_blocks = int(input("number of model blocks: "))
+    number_model_meteo_blocks = []
+    
+    for i in range(number_model_blocks):
+        t = int(input("number of meteo blocks for model nr." + str(i+1) + " : "))
+        number_model_meteo_blocks.append(t)
+
     number_preprocessing_blocks = int(input("number of preprocessing blocks: "))
     number_postprocessing_blocks = int(input("number of postprocessing blocks: "))
 
