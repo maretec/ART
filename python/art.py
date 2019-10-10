@@ -21,13 +21,13 @@ def main():
 
     #yaml_lib.validate_yaml_file(yaml)
     #yaml_lib.validate_date(yaml)
-    validate_path(yaml['artconfig']['mainPath'])
+    validate_path(yaml['ARTCONFIG']['MAIN_PATH'])
 
-    artconfig_keys = yaml['artconfig'].keys()
+    artconfig_keys = yaml['ARTCONFIG'].keys()
 
     running_mode(yaml)
             
-    module = yaml['artconfig']['module']
+    module = yaml['ARTCONFIG']['MODULE']
     if module == "mohid" or module == "Mohid":
         mohid.execute(yaml)
     elif module == "WW3":
@@ -41,24 +41,24 @@ def main():
 
 
 def running_mode(yaml):
-    if yaml['artconfig']['operationalMode']:
+    if yaml['ARTCONFIG']['OPERATIONAL_MODE']:
         static.logger.debug("Running in Operational Mode")
         today = datetime.datetime.today()
-        cfg.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
-        cfg.global_final_date = (today + datetime.timedelta(days=yaml['artconfig']['numberOfRuns'])
-                                    + datetime.timedelta(days=yaml['artconfig']['daysPerRun'] - 1))
-        cfg.number_of_runs = yaml['artconfig']['numberOfRuns']
+        cfg.global_initial_date = today + datetime.timedelta(days=yaml['ARTCONFIG']['REF_DAYS_TO_START'])
+        cfg.global_final_date = (today + datetime.timedelta(days=yaml['ARTCONFIG']['NUMBER_OF_RUNS'])
+                                    + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'] - 1))
+        cfg.number_of_runs = yaml['ARTCONFIG']['NUMBER_OF_RUNS']
         initial_date = cfg.global_initial_date
-        final_date = initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+        final_date = initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
         static.logger.debug("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
         static.logger.debug("Final Date: " + final_date.strftime(static.DATE_FORMAT))
         static.logger.debug("Number of runs : " + str(cfg.number_of_runs))
-    elif not (yaml['artconfig']['operationalMode']):
+    elif not (yaml['ARTCONFIG']['OPERATIONAL_MODE']):
         try:
             static.logger.debug("Running in Normal Mode")
-            cfg.global_initial_date = datetime.datetime.strptime(yaml['artconfig']['startDate'],
+            cfg.global_initial_date = datetime.datetime.strptime(yaml['ARTCONFIG']['START_DATE'],
                                                                     static.DATE_FORMAT)
-            cfg.global_final_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
+            cfg.global_final_date = datetime.datetime.strptime(yaml['ARTCONFIG']['END_DATE'], static.DATE_FORMAT)
 
             difference = cfg.global_final_date - cfg.global_initial_date
             cfg.number_of_runs = difference.days
@@ -66,7 +66,7 @@ def running_mode(yaml):
             static.logger.warning("KeyError")
             cfg.number_of_runs = 1
             global_initial_date = datetime.datetime.today()
-            global_final_date = global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            global_final_date = global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
             cfg.global_initial_date = datetime.datetime.strftime(datetime.datetime.today(), static.DATE_FORMAT)
             cfg.global_final_date = datetime.datetime.strftime(global_final_date, static.DATE_FORMAT)
         finally:
