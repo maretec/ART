@@ -12,11 +12,11 @@ import common.send_email as send_email
 
 
 def create_folder_structure(yaml, model):
-    model_path = yaml['artconfig']['mainPath'] + model["path"]
-    if not os.path.isdir(yaml['artconfig']['mainPath'] + "GeneralData/"):
-        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/Bathymetry")
-        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions")
-        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/TimeSeries")
+    model_path = yaml['ARTCONFIG']['mainPath'] + model["path"]
+    if not os.path.isdir(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/"):
+        os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/Bathymetry")
+        os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/BoundaryConditions")
+        os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/TimeSeries")
     if not os.path.isdir(model_path + "res/"):
         os.makedirs(model_path + "res/Run1/")
     if not os.path.isdir(model_path + "data/"):
@@ -44,11 +44,11 @@ def verify_run(filename, messages):
 def run_mohid(yaml):
     output_file_name = "MOHID_RUN_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
     output_file = open(output_file_name, "w+")
-    if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
+    if 'MPI' in yaml['MOHID'].keys() and yaml['MOHID']['MPI']['ENABLE']:
         static.logger.info("Starting MOHID MPI")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath'], "&"], cwd=os.path.dirname(yaml['mohid']['exePath']), 
+        subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']), "-f", "/opt/hosts",
+                        yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
                         stdout=output_file)
         output_file.close()
 
@@ -63,7 +63,7 @@ def run_mohid(yaml):
         #DDC is ran when an MPI run is done to join all the results into a single one.
         ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
         mohid_ddc_output_log = open(ddc_output_filename, "w+")
-        subprocess.run(["./MohidDDC.exe", "&"], cwd=os.path.dirname(yaml['mohid']['exePath']), stdout=mohid_ddc_output_log)
+        subprocess.run(["./MohidDDC.exe", "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), stdout=mohid_ddc_output_log)
         mohid_ddc_output_log.close()
         if not verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
             static.logger.info("MohidDDC NOT SUCCESSFUL")
@@ -73,7 +73,7 @@ def run_mohid(yaml):
     else:
         static.logger.info("Starting MOHID run")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run([yaml['mohid']['exePath'], "&"], cwd=os.path.dirname(yaml['mohid']['exePath']), 
+        subprocess.run([yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
         stdout=output_file)
         output_file.close()
     
@@ -92,9 +92,9 @@ in the yaml config file.
 It receives the yaml object and the 'model' dictionary which is in 'mohid' dictionary.
 '''
 def change_model_dat(yaml, model):
-    static.logger.info("Creating new model file for model: " + model['name'])
+    static.logger.info("Creating new model file for model: " + model['NAME'])
     keys = model.keys()
-    path = yaml['artconfig']['mainPath'] + model['path'] + "data/"
+    path = yaml['ARTCONFIG']['MAIN_PATH'] + model['PATH'] + "data/"
     if not os.path.isdir(path):
         static.logger.info("Path for model folder does not exist.")
         static.logger.info("Check path parameters in the yaml file. Exiting ART.")
@@ -109,11 +109,11 @@ def change_model_dat(yaml, model):
     common.file_modifier.modify_line(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     static.logger.info("Changed END of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-    common.file_modifier.modify_line(file, "DT", str(model['dt']))
+    common.file_modifier.modify_line(file, "DT", str(model['DT']))
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
             common.file_modifier.modify_line(file, key, model['mohid.dat'][key])
-    static.logger.info("Model " + model["name"] + " .dat file was created.")
+    static.logger.info("Model " + model['NAME'] + " .dat file was created.")
     file.close()
     return
 
@@ -145,21 +145,21 @@ defined in the list 'files' in the yaml file.
 '''
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
-    if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
+    if 'OBC' in model_keys and 'ENABLE' in model['OBC'].keys() and model['OBC']['ENABLE']:
         static.logger.info("OBC flag enabled")
-        static.logger.info("Gathering Boundary Condition for " + model['name'])
-        obc_keys = model['obc'].keys()
+        static.logger.info("Gathering Boundary Condition for " + model['NAME'])
+        obc_keys = model['OBC'].keys()
 
-        simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
+        simulations_available = yaml['ARTCONFIG']['DAYS_PER_RNU'] - model['OBC']['SIMULATED_DAYS']
         folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
 
         date_format = "%Y-%m-%d"
         if 'dateFormat' in obc_keys:
-            date_format = model['obc']['dateFormat']
+            date_format = model['OBC']['DATE_FORMAT']
 
         file_type = "hdf5"
         if 'fileType' in obc_keys:
-            file_type = model['obc']['fileType']
+            file_type = model['OBC']['FILE_TYPE']
             
         static.logger.debug("Boundary Conditions File Type: " + file_type)
 
@@ -170,13 +170,13 @@ def gather_boundary_conditions(yaml, model):
             obc_initial_date_str = obc_initial_date.strftime(date_format)
             obc_final_date_str = obc_final_date.strftime(date_format)
 
-            workpath = model['obc']['workpath']
+            workpath = model['OBC']['WORKPATH']
 
             '''
-            if 'hasSolutionFromFile' it needs to get the OBC files from a "parent" model, and needs to follow the structure
+            if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
             we use to backup our results. U
             '''
-            if 'hasSolutionFromFile' in model_keys and model['hasSolutionFromFile']:
+            if 'HAS_SOLUTION_FROM_FILE' in model_keys and model['HAS_SOLUTION_FROM_FILE']:
                 obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
                 obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
@@ -188,11 +188,11 @@ def gather_boundary_conditions(yaml, model):
             
                 folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
 
-                for file in model['obc']['files']:
+                for file in model['OBC']['FILES']:
                     file_source = folder_source + file + "." + file_type
 
                     if os.path.isfile(file_source):
-                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
+                        dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
                         if not os.path.isdir(dest_folder):
                             os.makedirs(dest_folder)
                             file_destination = dest_folder + file + "." + file_type
@@ -200,23 +200,23 @@ def gather_boundary_conditions(yaml, model):
                             static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
             else:
                 '''
-                subFolders within the workpath for the OBC files. They can be subdivided with year, month and year.
+                SUB_FOLDERS within the WORKPATH for the OBC files. They can be subdivided with year, month and year.
                 '''
-                if 'subFolders' in obc_keys and model['obc']['subFolders'] != 0:
-                    if model['obc']['subFolders'] == 1:
+                if 'SUB_FOLDERS' in obc_keys and model['obc']['subFolders'] != 0:
+                    if model['OBC']['SUB_FOLDERS'] == 1:
                         workpath = workpath + str(obc_initial_date.year) + "/"
                     
-                    elif model['obc']['subFolders'] == 2:
+                    elif model['OBC']['SUB_FOLDERS'] == 2:
                         workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
 
-                    elif model['obc']['subFolders'] == 3:
+                    elif model['OBC']['SUB_FOLDERS'] == 3:
                         workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
                             str(obc_initial_date.days) + "/"
-                    for file in model['obc']['files']:
+                    for file in model['OBC']['FILES']:
                         filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
                         file_source = workpath +  filename + "." + file_type
                         if os.path.isfile(file_source):
-                            dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
+                            dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
                             if not os.path.isdir(dest_folder):
                                 os.makedirs(dest_folder)
                                 file_destination = dest_folder + filename + "." + file_type
