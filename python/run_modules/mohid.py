@@ -139,7 +139,7 @@ def create_file_name_with_date(filename, initial_date, final_date):
     return filename
 
 '''
-Gathers boundary conditions for each model in the mohid block if the 'obc' dictionary has the parameter 'enable' and if
+Gathers boundary conditions for each model in the model block if the 'obc' dictionary has the parameter 'enable' and if
 it is a different value from 0. The user can define the file type and the date format. It copies the files the user 
 defined in the list 'files' in the yaml file.
 '''
