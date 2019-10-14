@@ -1,3 +1,5 @@
+#//TODO UPDATE
+'''
 import os
 
 general_keys = ['artconfig', 'mohid', 'model', 'preprocessing', 'postprocessing']
@@ -196,3 +198,5 @@ def validate_yaml(yaml):
     modeldat_validation(yaml) and\
     preprocessing_validation(yaml) and\
     postprocessing_validation(yaml)
+
+'''
