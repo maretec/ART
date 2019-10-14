@@ -462,25 +462,28 @@ def backup_simulation(yaml):
 
 
 '''
-Main cycle for the ART run. It has all the functions that are need for a project.
+Main cycle for the ART run. It has all the functions that are needed for a project.
 '''
 def process_models(yaml):
-    for model in yaml['mohid']['models']:
-        create_folder_structure(yaml, yaml['mohid']['models'][model])
-        get_meteo_file(yaml, yaml['mohid']['models'][model])
-        gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
-        change_model_dat(yaml, yaml['mohid']['models'][model])
-        gather_restart_files(yaml, yaml['mohid']['models'][model])
-        if 'discharges' in yaml['mohid']['models'][model].keys() and 'enable' in \
-                yaml['mohid']['models'][model]['discharges'].keys() and \
-                yaml['mohid']['models'][model]['discharges']['enable']:
-            gather_discharges_files(yaml, yaml['mohid']['models'][model])
+    for key in yaml.keys():
+        if key != "ARTCONFIG" and key != "POSTPROCESSING" and key != "PREPROCESSING" and key != "MOHID":
+            for model in yaml[key].keys():
+                create_folder_structure(yaml, yaml[key]['meteo']['models'][model])
+                get_meteo_file(yaml, yaml[key]['meteo']['models'][model])
+                gather_boundary_conditions(yaml, yaml[key]['meteo']['models'][model])
+                change_model_dat(yaml, yaml[key]['meteo']['models'][model])
+                gather_restart_files(yaml, yaml[key]['meteo']['models'][model])
+                if 'discharges' in yaml[key]['meteo']['models'][model].keys():
+                    for discharge in model.keys():
+                        if 'enable' in yaml[key]['meteo']['models'][model]['discharges'][discharge].keys()\
+                        and yaml[key]['meteo']['models'][model]['discharges'][discharge]['enable']:
+                    gather_discharges_files(yaml, yaml['mohid']['models'][model])
     run_mohid(yaml)
     backup_simulation(yaml)
 
 
 def execute(yaml):
-    artconfig_keys = yaml['artconfig'].keys()
+    artconfig_keys = yaml['ARTCONFIG'].keys()
     static.logger.info("Run MOHID enabled")
     #operational mode is used relative to the current day of the machine
     if yaml['artconfig']['operationalMode']:
