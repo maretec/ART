@@ -145,75 +145,77 @@ defined in the list 'files' in the yaml file.
 '''
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
-    if 'OBC' in model_keys and 'ENABLE' in model['OBC'].keys() and model['OBC']['ENABLE']:
-        static.logger.info("OBC flag enabled")
-        static.logger.info("Gathering Boundary Condition for " + model['NAME'])
-        obc_keys = model['OBC'].keys()
+    if 'OBC' in model_keys:
+        for obc_model in model['OBC']:
+            if 'ENABLE' in model['OBC'][obc_model].keys() and model['OBC'][obc_model]['ENABLE']:
+            static.logger.info("OBC flag enabled")
+            static.logger.info("Gathering Boundary Condition for " + model['NAME'])
+            obc_keys = model['OBC'][obc_model].keys()
 
-        simulations_available = yaml['ARTCONFIG']['DAYS_PER_RNU'] - model['OBC']['SIMULATED_DAYS']
-        folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
+            simulations_available = yaml['ARTCONFIG']['DAYS_PER_RNU'] - model['OBC'][obc_model]['SIMULATED_DAYS']
+            folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
 
-        date_format = "%Y-%m-%d"
-        if 'dateFormat' in obc_keys:
-            date_format = model['OBC']['DATE_FORMAT']
+            date_format = "%Y-%m-%d"
+            if 'dateFormat' in obc_keys:
+                date_format = model['OBC'][obc_model]['DATE_FORMAT']
 
-        file_type = "hdf5"
-        if 'fileType' in obc_keys:
-            file_type = model['OBC']['FILE_TYPE']
-            
-        static.logger.debug("Boundary Conditions File Type: " + file_type)
+            file_type = "hdf5"
+            if 'fileType' in obc_keys:
+                file_type = model['OBC'][obc_model]['FILE_TYPE']
+                
+            static.logger.debug("Boundary Conditions File Type: " + file_type)
 
-        for n in range(0, simulations_available - 1, -1):
-            obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
-            obc_final_date = cfg.current_final_date + datetime.timedelta(days=n)
-
-            obc_initial_date_str = obc_initial_date.strftime(date_format)
-            obc_final_date_str = obc_final_date.strftime(date_format)
-
-            workpath = model['OBC']['WORKPATH']
-
-            '''
-            if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
-            we use to backup our results. U
-            '''
-            if 'HAS_SOLUTION_FROM_FILE' in model_keys and model['HAS_SOLUTION_FROM_FILE']:
+            for n in range(0, simulations_available - 1, -1):
                 obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
-                obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
+                obc_final_date = cfg.current_final_date + datetime.timedelta(days=n)
 
                 obc_initial_date_str = obc_initial_date.strftime(date_format)
                 obc_final_date_str = obc_final_date.strftime(date_format)
 
-                static.logger.info("OBC Initial Date: " + obc_initial_date_str)
-                static.logger.info("OBC Final Date: " + obc_final_date_str)
-            
-                folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
+                workpath = model['OBC'][obc_model]['WORKPATH']
 
-                for file in model['OBC']['FILES']:
-                    file_source = folder_source + file + "." + file_type
+                '''
+                if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
+                we use to backup our results.
+                '''
+                if 'HAS_SOLUTION_FROM_FILE' in model_keys and model['HAS_SOLUTION_FROM_FILE']:
+                    obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+                    obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
 
-                    if os.path.isfile(file_source):
-                        dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
-                        if not os.path.isdir(dest_folder):
-                            os.makedirs(dest_folder)
-                            file_destination = dest_folder + file + "." + file_type
-                            copy(file_source, file_destination)
-                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                    obc_initial_date_str = obc_initial_date.strftime(date_format)
+                    obc_final_date_str = obc_final_date.strftime(date_format)
+
+                    static.logger.info("OBC Initial Date: " + obc_initial_date_str)
+                    static.logger.info("OBC Final Date: " + obc_final_date_str)
+                
+                    folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
+
+                    for obc_file in model['OBC'][obc_model]['FILES']:
+                        file_source = folder_source + obc_file + "." + file_type
+
+                        if os.path.isfile(file_source):
+                            dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
+                            if not os.path.isdir(dest_folder):
+                                os.makedirs(dest_folder)
+                                file_destination = dest_folder + obc_file + "." + file_type
+                                copy(file_source, file_destination)
+                                static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
             else:
                 '''
                 SUB_FOLDERS within the WORKPATH for the OBC files. They can be subdivided with year, month and year.
                 '''
                 if 'SUB_FOLDERS' in obc_keys and model['obc']['subFolders'] != 0:
-                    if model['OBC']['SUB_FOLDERS'] == 1:
+                    if model['OBC'][obc_model]['SUB_FOLDERS'] == 1:
                         workpath = workpath + str(obc_initial_date.year) + "/"
                     
-                    elif model['OBC']['SUB_FOLDERS'] == 2:
+                    elif model['OBC'][obc_model]['SUB_FOLDERS'] == 2:
                         workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
 
-                    elif model['OBC']['SUB_FOLDERS'] == 3:
+                    elif model['OBC'][obc_model]['SUB_FOLDERS'] == 3:
                         workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
                             str(obc_initial_date.days) + "/"
-                    for file in model['OBC']['FILES']:
-                        filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
+                    for obc_file in model['OBC'][obc_model]['FILES']:
+                        filename = create_file_name_with_date(obc_file, obc_initial_date, obc_final_date)
                         file_source = workpath +  filename + "." + file_type
                         if os.path.isfile(file_source):
                             dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
