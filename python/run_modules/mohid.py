@@ -287,9 +287,9 @@ def get_meteo_file(yaml, model):
             else:
                 continue
 
-        static.logger.info("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
-        raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
-                                "errors.")
+    static.logger.info("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
+    raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
+                            "errors.")
 
 
 '''
@@ -386,103 +386,107 @@ def backup_simulation(yaml):
     static.logger.info("Simulation Results Initial Date: " + initial_date)
     static.logger.info("Simulation Results Final Date: " + final_date)
 
-    for model in yaml['MOHID']['MODELS']:
+    for model in yaml.keys():
+        if model != "MOHID" and model != "ARTCONFIG" and model != "POSTPROCESSING"\
+            and model != "PREPROCESSING":
 
-        model_keys = yaml['MOHID']['MODELS'][model].keys()
-        mohid_keys = yaml['MOHID']
-        results_path = yaml['ARTCONFIG']['MAIN_PATH'] + yaml['MOHID']['models'][model]['path'] + "res/"
+            model_keys = yaml[model].keys()
+            mohid_keys = yaml['MOHID']
+            results_path = yaml['ARTCONFIG']['MAIN_PATH'] + yaml[model]['PATH'] + "res/"
 
-        generic_path = yaml['mohid']['models'][model]['storagePath']
-        date_path = initial_date + "_" + final_date + "/"
-        restart_storage = generic_path + "Restart/" + date_path
-        results_storage = generic_path + "Results_HDF/" + date_path
-        time_series_storage = generic_path + "Results_TimeSeries/" + date_path
-        discharges_storage = generic_path + "Discharges/" + date_path
+            generic_path = yaml[model]['STORAGE_PATH']
+            date_path = initial_date + "_" + final_date + "/"
+            restart_storage = generic_path + "Restart/" + date_path
+            results_storage = generic_path + "Results_HDF/" + date_path
+            time_series_storage = generic_path + "Results_TimeSeries/" + date_path
+            discharges_storage = generic_path + "Discharges/" + date_path
 
-        if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
-            fin_files = glob.glob(results_path + "*_1.fin")
-            fin5_files = glob.glob(results_path + "*_1.fin5")
-            fin_files = fin5_files + fin_files
-            if len(fin_files) > 0:
-                if not os.path.isdir(restart_storage):
-                    os.makedirs(restart_storage)
-                for file in fin_files:
-                    if os.path.split(file)[1].startswith("MPI"):
-                        continue
-                    file_destination = restart_storage + os.path.split(file)[1]
-                    static.logger.info("Backup Simulation Fin_files: Copying " + file + " to " + file_destination)
+            if 'HAS_SOLUTION_FROM_FILE' not in model_keys or not yaml[model]['HAS_SOLUTION_FROM_FILE']:
+                fin_files = glob.glob(results_path + "*_1.fin")
+                fin5_files = glob.glob(results_path + "*_1.fin5")
+                fin_files = fin5_files + fin_files
+                if len(fin_files) > 0:
+                    if not os.path.isdir(restart_storage):
+                        os.makedirs(restart_storage)
+                    for file in fin_files:
+                        if os.path.split(file)[1].startswith("MPI"):
+                            continue
+                        file_destination = restart_storage + os.path.split(file)[1]
+                        static.logger.info("Backup Simulation Fin_files: Copying " + file + " to " + file_destination)
+                        copy(file, file_destination)
+
+            hdf5_files = glob.glob(results_path + "*.hdf5")
+            if len(hdf5_files) > 0:
+                if not os.path.isdir(results_storage):
+                    os.makedirs(results_storage)
+            
+            #only backup specific result files
+                if 'RESULTS_LIST' in model_keys:
+                    for file in hdf5_files:
+                        if os.path.split(file)[1].startswith("MPI"):
+                            continue
+                        file_name = os.path.split(file)
+                        name_array = file_name.split("_")
+                        if name_array > 2:
+                            #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
+                            file_name = name_array[0] + "_" + name_array[2]
+                        else:
+                            file_type = name_array[-1].split(".")[1]
+                            file_name = name_array[0] + "." + file_type
+
+                        #if the file_name is not in the RESULTS_LIST it will be ignored
+                        if file_name not in yaml[model]['RESULTS_LIST']:
+                            continue
+
+                        file_destination = results_storage + file_name
+                        static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+                #defaults to backup all results files
+                else:
+                    for file in hdf5_files:
+                        if os.path.split(file)[1].startswith("MPI"):
+                            continue
+                        
+                        file_name = os.path.split(file)
+                        name_array = file_name.split("_")
+                        if name_array > 2:
+                            #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
+                            file_name = name_array[0] + "_" + name_array[2]
+                        else:
+                            file_type = name_array[-1].split(".")[1]
+                            file_name = name_array[0] + "." + file_type
+                        file_destination = results_storage + file_name
+                        static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+
+                        copy(file, file_destination)
+
+            time_series_files = glob.glob(results_path + "Run1/*.*")
+            if len(time_series_files) > 0:
+                if not os.path.isdir(time_series_storage):
+                    os.makedirs(time_series_storage)
+                for file in time_series_files:
+                    file_destination = time_series_storage + os.path.split(file)[1]
                     copy(file, file_destination)
-
-        hdf5_files = glob.glob(results_path + "*.hdf5")
-        if len(hdf5_files) > 0:
-            if not os.path.isdir(results_storage):
-                os.makedirs(results_storage)
-           
-           #only backup specific result files
-            if 'resultList' in model_keys:
-                for file in hdf5_files:
-                    if os.path.split(file)[1].startswith("MPI"):
-                        continue
-                    file_name = os.path.split(file)
-                    name_array = file_name.split("_")
-                    if name_array > 2:
-                        #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
-                        file_name = name_array[0] + "_" + name_array[2]
-                    else:
-                        file_type = name_array[-1].split(".")[1]
-                        file_name = name_array[0] + "." + file_type
-
-                    #if the file_name is not in the resultList it will be ignored
-                    if file_name not in yaml['mohid']['models'][model]['resultList']:
-                        continue
-
-                    file_destination = results_storage + file_name
-                    static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
-            #defaults to backup all results files
-            else:
-                for file in hdf5_files:
-                    if os.path.split(file)[1].startswith("MPI"):
-                        continue
-                    
-                    file_name = os.path.split(file)
-                    name_array = file_name.split("_")
-                    if name_array > 2:
-                        #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
-                        file_name = name_array[0] + "_" + name_array[2]
-                    else:
-                        file_type = name_array[-1].split(".")[1]
-                        file_name = name_array[0] + "." + file_type
-                    file_destination = results_storage + file_name
-                    static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
-
-                    copy(file, file_destination)
-
-        time_series_files = glob.glob(results_path + "Run1/*.*")
-        if len(time_series_files) > 0:
-            if not os.path.isdir(time_series_storage):
-                os.makedirs(time_series_storage)
-            for file in time_series_files:
-                file_destination = time_series_storage + os.path.split(file)[1]
-                copy(file, file_destination)
 
 
 '''
 Main cycle for the ART run. It has all the functions that are needed for a project.
 '''
 def process_models(yaml):
-    for key in yaml.keys():
-        if key != "ARTCONFIG" and key != "POSTPROCESSING" and key != "PREPROCESSING" and key != "MOHID":
-            for model in yaml[key]['METEO']['MODELS'].keys():
-                create_folder_structure(yaml, yaml[key]['METEO']['MODELS'][model])
-                get_meteo_file(yaml, yaml[key]['METEO']['MODELS'][model])
-                gather_boundary_conditions(yaml, yaml[key]['METEO']['MODELS'][model])
-                change_model_dat(yaml, yaml[key]['METEO']['MODELS'][model])
-                gather_restart_files(yaml, yaml[key]['METEO']['MODELS'][model])
+    for model in yaml.keys():
+        if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
+            create_folder_structure(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+            gather_boundary_conditions(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+            change_model_dat(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+            gather_restart_files(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+
+            for meteo_model in yaml[key]['METEO']['MODELS'].keys():
+                get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+            
             if 'DISCHARGES' in yaml[key].keys():
                 for discharge in yaml[key].keys():
                     if 'ENABLE' in yaml[key]['DISCHARGES'][discharge].keys()\
                     and yaml[key]['DISCHARGES'][discharge]['ENABLE']:
-                gather_discharges_files(yaml, yaml[key])
+                        gather_discharges_files(yaml, yaml[key])
     run_mohid(yaml)
     backup_simulation(yaml)
 
