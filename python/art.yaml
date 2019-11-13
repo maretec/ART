@@ -1,0 +1,58 @@
+artconfig:
+  mainPath: "/home/maretec/MARPOCS_LasPalmas/"
+  operationalMode: 0
+  daysPerRun: 1
+  refDayToStart: -6
+  numberOfRuns: 2
+  module: "Mohid"
+  runPreProcessing: false
+  runSimulation: true
+  runPostProcessing: false
+  startDate: "2019 06 10 0 0 0"
+  endDate: "2019 06 11 0 0 0"
+preProcessing:  
+  WRF:
+    run: 0
+    datDateChange: 1
+    configFilePath: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5Action.dat"
+    exePath: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5.exe"
+    outputToFile: 0
+    outputFilePath: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/Logs/output.log"
+mohid:
+  maxTime: 40000
+  exePath: "/home/maretec/MARPOCS_LasPalmas/LasPalmas_level1/exe/MohidWater_mpi.exe"
+  mpi:
+    enable: 1
+    totalProcessors: 5
+model1:
+  name: "LasPalmas_level1"
+  path: "LasPalmas_level1/"
+  gridFile: "GeneralData/Bathymetry/JanelaCanarias_LasPalmas.dat"
+  runId: 1
+  dt: 30
+  storagePath: "/ekman2raid/old_backup/Backup/LasPalmas_500m/"
+  hasSolutionFromFile: 1
+  obc:
+    enable: 1
+    simulatedDays: 1
+    workPath: "/samba/lusitania/d/BackUp/Canarias_2km/Level2/Results_HDF/"
+    files: ['Hydrodynamic_w2', 'WaterProperties_w2']
+model2:
+  name: "LasPalmas_Level2"
+  path: "LasPalmas_level1/LasPalmas_level2/"
+  gridFile: "GeneralData/Bathymetry/LasPalmas_500m_v02.dat"
+  runId: 1
+  dt: 10
+  storagePath: "/ekman2raid/old_backup/Backup/LasPalmas_500m/Level2/"
+  hasHydrodynamics: 1
+#   meteo:
+#     enable: 1
+#     models:
+#       meteo1:
+#         name: "Gfs_0p25"
+#         simulatedDays: 1
+#         fileNameFromModel: 1
+#         workPath: "/samba/lusitania/d/BackUp/LasPalmas_500m/GFS2Me/0p25/Interpolate/Level2/"
+#         fileType: "hdf5"  
+
+
