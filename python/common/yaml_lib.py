@@ -17,26 +17,27 @@ def validate_yaml_section(yaml_file, section_name, mandatory_list):
 
 
 def validate_yaml_file(yaml_dict):
-    validate_yaml_section(yaml_dict, 'artconfig', ['mainPath', 'startDate', 'endDate', 'runPreProcessing', 'runMohid',
-                                                   'runPostProcessing'])
-    if yaml_dict['artconfig']['runMohid']:
+    validate_yaml_section(yaml_dict, 'ARTCONFIG', ['MAIN_PATH', 'START_DATE', 'END_DATE', 'RUN_PREPROCESSING', 'MODULE',\
+                                                   'RUN_POSTPROCESSING'])
+    if yaml_dict['ARTCONFIG']['MODULE'] == 'Mohid':
         validate_yaml_section(yaml_dict, 'Mohid', [])
-        if 'mpi' in yaml_dict['Mohid']:
-            validate_yaml_section(yaml_dict['Mohid'], 'mpi', [])
-        for model in yaml_dict['Mohid']['Models']:
-            validate_yaml_section(yaml_dict['Mohid']['Models'], model, [])
+        if 'MPI' in yaml_dict['MOHID']:
+            validate_yaml_section(yaml_dict['MOHID'], 'MPI', [])
+        for model in yaml_dict.keys():
+            if model != 'MOHID' and model != 'PREPROCESSING' and model != 'POSTPROCESSING' and model != 'ARTCONFIG':
+                validate_yaml_section(yaml_dict[model], model, [])
 
 
 def validate_date(yaml):
     static.logger.debug("Validating Dates")
     try:
-        start_date = datetime.datetime.strptime(yaml['artconfig']['startDate'], static.DATE_FORMAT)
-        end_date = datetime.datetime.strptime(yaml['artconfig']['endDate'], static.DATE_FORMAT)
-        total_days = yaml['artconfig']['daysPerRun'] * yaml['artconfig']['numberOfRuns']
+        start_date = datetime.datetime.strptime(yaml['ARTCONFIG']['START_DATE'], static.DATE_FORMAT)
+        end_date = datetime.datetime.strptime(yaml['ARTCONFIG']['END_DATE'], static.DATE_FORMAT)
+        total_days = yaml['ARTCONFIG']['DAYS_PER_RUN'] * yaml['ARTCONFIG']['NUMBER_OF_RUNS']
 
         if start_date + datetime.timedelta(days=total_days) > end_date:
-            raise ValueError("artconfig: The number of daysPerRun (" + str(yaml['artconfig']['daysPerRun']) +
-                             ") in conjunction with the numberOfRuns (" + str(yaml['artconfig']['numberOfRuns']) +
+            raise ValueError("artconfig: The number of daysPerRun (" + str(yaml['ARTCONFIG']['DAYS_PER_RUN']) +
+                             ") in conjunction with the numberOfRuns (" + str(yaml['ARTCONFIG']['NUMBER_OF_RUNS']) +
                              ") plus the startDate of this run (" + str(start_date) +
                              ") would lead to a final date of simulation beyond the user-specified endDate + "
                              "(" + str(end_date) + ").")
@@ -51,5 +52,3 @@ def validate_date(yaml):
 
 def read_attribute(cfg, attribute):
     return cfg[attribute]
-
-
