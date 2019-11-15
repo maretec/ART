@@ -475,19 +475,21 @@ def process_models(yaml):
     for model in yaml.keys():
         print(model)
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
-            create_folder_structure(yaml, yaml[model]['METEO']['MODELS'])
-            gather_boundary_conditions(yaml, yaml[model]['METEO']['MODELS'])
-            change_model_dat(yaml, yaml[model]['METEO']['MODELS'])
-            gather_restart_files(yaml, yaml[model]['METEO']['MODELS'])
+            if 'METEO' in yaml[model].keys():
+                create_folder_structure(yaml, yaml[model]['METEO'])
+                gather_boundary_conditions(yaml, yaml[model]['METEO'])
+                change_model_dat(yaml, yaml[model]['METEO'])
+                gather_restart_files(yaml, yaml[model]['METEO'])
 
-            for meteo_model in yaml[key]['METEO']['MODELS'].keys():
-                get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+                for meteo_model in yaml[key]['METEO']['MODELS'].keys():
+                    get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
             
             if 'DISCHARGES' in yaml[key].keys():
                 for discharge in yaml[key].keys():
                     if 'ENABLE' in yaml[key]['DISCHARGES'][discharge].keys()\
                     and yaml[key]['DISCHARGES'][discharge]['ENABLE']:
                         gather_discharges_files(yaml, yaml[key])
+    
     run_mohid(yaml)
     backup_simulation(yaml)
 
