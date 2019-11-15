@@ -482,8 +482,8 @@ def process_models(yaml):
 
                 if 'METEO' in yaml[model].keys():
                     for meteo_model in yaml[model]['METEO']['MODELS'].keys():
-                        if 'ENABLE' in yaml[model]['METEO'][meteo_model].keys()\
-                        and yaml[model]['METEO'][meteo_model]['ENABLE']:
+                        if 'ENABLE' in yaml[model]['METEO']['MODELS'][meteo_model].keys()\
+                        and yaml[model]['METEO'][meteo_model]['MODELS']['ENABLE']:
                             get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
                 
             if 'DISCHARGES' in yaml[model].keys():
