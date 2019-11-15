@@ -287,9 +287,9 @@ def get_meteo_file(yaml, model):
             else:
                 continue
 
-    static.logger.info("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
-    raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
-                            "errors.")
+    #static.logger.info("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
+    #raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
+                            #"errors.")
 
 
 '''
@@ -482,12 +482,14 @@ def process_models(yaml):
 
                 if 'METEO' in yaml[model].keys():
                     for meteo_model in yaml[model]['METEO']['MODELS'].keys():
-                        get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+                        if 'ENABLE' in yaml[model]['METEO'][meteo_model].keys()\
+                        and yaml[model]['METEO'][meteo_model]['ENABLE']:
+                            get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
                 
             if 'DISCHARGES' in yaml[model].keys():
                 for discharge in yaml[model].keys():
                     if 'ENABLE' in yaml[model]['DISCHARGES'][discharge].keys()\
-                    and yaml[key]['DISCHARGES'][discharge]['ENABLE']:
+                    and yaml[model]['DISCHARGES'][discharge]['ENABLE']:
                         gather_discharges_files(yaml, yaml[model])
     
     run_mohid(yaml)
