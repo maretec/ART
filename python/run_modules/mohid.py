@@ -12,7 +12,7 @@ import common.send_email as send_email
 
 
 def create_folder_structure(yaml, model):
-    model_path = yaml['ARTCONFIG']['mainPath'] + model["path"]
+    model_path = yaml['ARTCONFIG']['MAIN_PATH'] + model["PATH"]
     if not os.path.isdir(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/"):
         os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/Bathymetry")
         os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/BoundaryConditions")
@@ -474,10 +474,10 @@ Main cycle for the ART run. It has all the functions that are needed for a proje
 def process_models(yaml):
     for model in yaml.keys():
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
-            create_folder_structure(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
-            gather_boundary_conditions(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
-            change_model_dat(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
-            gather_restart_files(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+            create_folder_structure(yaml, yaml[model]['METEO']['MODELS'])
+            gather_boundary_conditions(yaml, yaml[model]['METEO']['MODELS'])
+            change_model_dat(yaml, yaml[model]['METEO']['MODELS'])
+            gather_restart_files(yaml, yaml[model]['METEO']['MODELS'])
 
             for meteo_model in yaml[key]['METEO']['MODELS'].keys():
                 get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
