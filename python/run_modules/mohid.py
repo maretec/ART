@@ -296,7 +296,7 @@ def get_meteo_file(yaml, model):
 Gets restart files from previous run. These files need to be put in /res folder of the project you're trying to run.
 '''
 def gather_restart_files(yaml, model):
-    static.logger.info("Gathering the restart files for model: " + model['name'])
+    static.logger.info("Gathering the restart files for model: " + model['NAME'])
 
     date_format = "%Y-%m-%d"
     if 'dateFormat' in yaml['MOHID'].keys():
