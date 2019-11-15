@@ -37,15 +37,15 @@ model2:
   DT: 10
   STORAGE_PATH: "/ekman2raid/old_backup/Backup/LasPalmas_500m/Level2/"
   hasHydrodynamics: 1
-  meteo:
-    enable: 1
-    models:
+  METEO:
+    ENABLE: 1
+    MODELS:
       meteo1:
-        name: "Gfs_0p25"
-        simulatedDays: 1
-        fileNameFromModel: 1
-        workPath: "/samba/lusitania/d/BackUp/LasPalmas_500m/GFS2Me/0p25/Interpolate/Level2/"
-        fileType: "hdf5"  
+        NAME: "Gfs_0p25"
+        SIMULATED_DAYS: 1
+        FILENAME_FROM_MODEL: 1
+        WORKPATH: "/samba/lusitania/d/BackUp/LasPalmas_500m/GFS2Me/0p25/Interpolate/Level2/"
+        FILETYPE: "hdf5"  
 PREPROCESSING:  
   WRF:
     RUN: 0
