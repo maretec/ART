@@ -473,7 +473,6 @@ Main cycle for the ART run. It has all the functions that are needed for a proje
 '''
 def process_models(yaml):
     for model in yaml.keys():
-        print(model)
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
             if 'METEO' in yaml[model].keys():
                 create_folder_structure(yaml, yaml[model])
@@ -482,7 +481,7 @@ def process_models(yaml):
                 gather_restart_files(yaml, yaml[model])
 
                 if 'METEO' in yaml[model].keys():
-                    for meteo_model in yaml[key]['METEO']['MODELS'].keys():
+                    for meteo_model in yaml[model]['METEO']['MODELS'].keys():
                         get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
                 
             if 'DISCHARGES' in yaml[model].keys():
