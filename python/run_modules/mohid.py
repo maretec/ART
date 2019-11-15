@@ -12,7 +12,7 @@ import common.send_email as send_email
 
 
 def create_folder_structure(yaml, model):
-    model_path = yaml['ARTCONFIG']['MAIN_PATH'] + model["PATH"]
+    model_path = yaml['ARTCONFIG']['MAIN_PATH'] + model['PATH']
     if not os.path.isdir(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/"):
         os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/Bathymetry")
         os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/BoundaryConditions")
@@ -476,14 +476,15 @@ def process_models(yaml):
         print(model)
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
             if 'METEO' in yaml[model].keys():
-                create_folder_structure(yaml, yaml[model]['METEO'])
-                gather_boundary_conditions(yaml, yaml[model]['METEO'])
-                change_model_dat(yaml, yaml[model]['METEO'])
-                gather_restart_files(yaml, yaml[model]['METEO'])
+                create_folder_structure(yaml, yaml[model])
+                gather_boundary_conditions(yaml, yaml[model])
+                change_model_dat(yaml, yaml[model])
+                gather_restart_files(yaml, yaml[model])
 
-                for meteo_model in yaml[key]['METEO']['MODELS'].keys():
-                    get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
-            
+                if 'METEO' in yaml[model].keys():
+                    for meteo_model in yaml[key]['METEO']['MODELS'].keys():
+                        get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+                
             if 'DISCHARGES' in yaml[model].keys():
                 for discharge in yaml[model].keys():
                     if 'ENABLE' in yaml[model]['DISCHARGES'][discharge].keys()\
