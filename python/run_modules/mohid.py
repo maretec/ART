@@ -484,11 +484,11 @@ def process_models(yaml):
                 for meteo_model in yaml[key]['METEO']['MODELS'].keys():
                     get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
             
-            if 'DISCHARGES' in yaml[key].keys():
-                for discharge in yaml[key].keys():
-                    if 'ENABLE' in yaml[key]['DISCHARGES'][discharge].keys()\
+            if 'DISCHARGES' in yaml[model].keys():
+                for discharge in yaml[model].keys():
+                    if 'ENABLE' in yaml[model]['DISCHARGES'][discharge].keys()\
                     and yaml[key]['DISCHARGES'][discharge]['ENABLE']:
-                        gather_discharges_files(yaml, yaml[key])
+                        gather_discharges_files(yaml, yaml[model])
     
     run_mohid(yaml)
     backup_simulation(yaml)
