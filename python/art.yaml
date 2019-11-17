@@ -50,7 +50,7 @@ PREPROCESSING:
   WRF:
     RUN: 0
     DAT_DATE_CHANGE: 1
-    CONFIG_FILE_PATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5Action.dat"
+    CONFIG_FILEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5Action.dat"
     EXEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5.exe"
     OUTPUT_TO_FILE: 0
     OUTPUT_FILEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/Logs/output.log"
