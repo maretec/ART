@@ -11,31 +11,31 @@ def dat_date_change(filePath):
   file_modifier.modify_line(filePath, "END", file_modifier.date_to_mohid_date(cfg.current_final_date))
 
 def execute(yaml):
-  for block in yaml['preProcessing']:
-    block_keys = yaml['preProcessing'][block].keys()
-    block_dict = yaml['preProcessing'][block]
-    if block_dict['run']:
-      if 'datDateChange' in  block_keys and block_dict['datDateChange']:
-        dat_date_change(block_dict['configFilePath'])
+  for block in yaml['PREPROCESSING']:
+    block_keys = yaml['PREPROCESSING'][block].keys()
+    block_dict = yaml['PREPROCESSING'][block]
+    if 'RUN' in block_keys and block_dict['RUN']:
+      if 'DAT_DATE_CHANGE' in  block_keys and block_dict['DAT_DATE_CHANGE']:
+        dat_date_change(block_dict['CONFIG_FILEPATH'])
       if 'flags' in block_keys:
-        flags_array = block_dict['flags'].split(" ")
-        print(block_dict['flags'])
-        run_array = [block_dict['exePath']] + flags_array
-        if 'outputToFile' in block_keys and block_dict['outputToFile']:
-          with open(block_dict['outputFilePath'], 'w') as log:
-            subprocess.run(run_array, stdout=log, cwd=os.path.dirname(block_dict['exePath']))
+        flags_array = block_dict['FLAGS'].split(" ")
+        print(block_dict['FLAGS'])
+        run_array = [block_dict['EXE_PATH']] + flags_array
+        if 'OUTPUT_TO_FILE' in block_keys and block_dict['OUPUT_TO_FILE']:
+          with open(block_dict['OUTPUT_FILEPATH'], 'w') as log:
+            subprocess.run(run_array, stdout=log, cwd=os.path.dirname(block_dict['EXE_PATH']))
             log.close()
         else:
-          static.logger.info("Executing Pre Processing module: " +  block_dict['exePath'])
-          subprocess.run(run_array, cwd=os.path.dirname(block_dict['flags']))
+          static.logger.info("Executing Pre Processing module: " +  block_dict['EXE_PATH'])
+          subprocess.run(run_array, cwd=os.path.dirname(block_dict['FLAGS']))
       else:
-        if 'outputToFile' in block_keys and block_dict['outputToFile']:
-         with open(block_dict['outputFilePath'], 'w') as log:
-            static.logger.info("Executing Pre Processing module: " +  block_dict['exePath'])
-            subprocess.run(block_dict['exePath'], stdout=log, cwd=os.path.dirname(block_dict['exePath']))
+        if 'OUTPUT_TO_FILE' in block_keys and block_dict['OUTPUT_TO_FILE']:
+         with open(block_dict['OUTPUT_FILEPATH'], 'w') as log:
+            static.logger.info("Executing Pre Processing module: " +  block_dict['EXE_PATH'])
+            subprocess.run(block_dict['EXE_PATH'], stdout=log, cwd=os.path.dirname(block_dict['EXE_PATH']))
             log.close()
         else:
-          static.logger.info("Executing Pre Processing module: " +  block_dict['exePath'])
-          subprocess.run(block_dict['exePath'], cwd=os.path.dirname(block_dict['exePath']))
+          static.logger.info("Executing Pre Processing module: " +  block_dict['EXE_PATH'])
+          subprocess.run(block_dict['EXE_PATH'], cwd=os.path.dirname(block_dict['EXE_PATH']))
 
   return  
