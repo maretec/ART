@@ -172,7 +172,9 @@ def gather_boundary_conditions(yaml, model):
                     obc_initial_date_str = obc_initial_date.strftime(date_format)
                     obc_final_date_str = obc_final_date.strftime(date_format)
 
+
                     workpath = model['OBC'][obc_model]['WORKPATH']
+
 
                     '''
                     if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
@@ -200,6 +202,7 @@ def gather_boundary_conditions(yaml, model):
                                     file_destination = dest_folder + obc_file + "." + file_type
                                     copy(file_source, file_destination)
                                     static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+
             else:
                 '''
                 SUB_FOLDERS within the WORKPATH for the OBC files. They can be subdivided with year, month and year.
@@ -218,12 +221,14 @@ def gather_boundary_conditions(yaml, model):
                         filename = create_file_name_with_date(obc_file, obc_initial_date, obc_final_date)
                         file_source = workpath +  filename + "." + file_type
                         if os.path.isfile(file_source):
+
                             dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
+
                             if not os.path.isdir(dest_folder):
                                 os.makedirs(dest_folder)
-                                file_destination = dest_folder + filename + "." + file_type
-                                copy(file_source, file_destination)
-                                static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                            file_destination = dest_folder + filename + "." + file_type
+                            copy(file_source, file_destination)
+                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
 
 
 def get_meteo_file(yaml, model):
@@ -465,6 +470,7 @@ def backup_simulation(yaml):
                     os.makedirs(time_series_storage)
                 for file in time_series_files:
                     file_destination = time_series_storage + os.path.split(file)[1]
+
                     copy(file, file_destination)
 
 
