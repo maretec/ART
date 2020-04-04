@@ -17,7 +17,7 @@ def execute(yaml):
     if 'RUN' in block_keys and block_dict['RUN']:
       if 'DAT_DATE_CHANGE' in  block_keys and block_dict['DAT_DATE_CHANGE']:
         dat_date_change(block_dict['CONFIG_FILEPATH'])
-      if 'flags' in block_keys:
+      if 'FLAGS' in block_keys:
         flags_array = block_dict['FLAGS'].split(" ")
         print(block_dict['FLAGS'])
         run_array = [block_dict['EXE_PATH']] + flags_array

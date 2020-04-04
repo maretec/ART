@@ -29,9 +29,9 @@ def execute(yaml):
       #if the command/executable needs arguments/flags the argument for subprocess.run needs to be a list with every
       #argument separeted. example ['ls', 'l']. 
       
-      if 'flags' in block_keys:
+      if 'FLAGS' in block_keys:
         #flags are given in a single string, we must create a list with each argument/flag separated
-        flags_array = block_dict['flags'].split(" ") 
+        flags_array = block_dict['FLAGS'].split(" ") 
         run_array = [block_dict['exePath']] + flags_array
 
         if 'outputToFile' in block_keys and block_dict['outputToFile']:
