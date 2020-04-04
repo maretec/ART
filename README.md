@@ -22,7 +22,7 @@ To compile:
 ```
 pyinstaller --onefile python/art.py
 ```
-The compiled exe will be on the dist folder.
+The compiled exe will be on the ```dist``` folder.
 
 # YAML
 
