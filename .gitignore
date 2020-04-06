@@ -17,3 +17,14 @@ venv/
 
 dist/
 __pycache__/
+build/art/xref-art.html
+build/art/warn-art.txt
+build/art/PYZ-00.toc
+build/art/PYZ-00.pyz
+build/art/PKG-00.toc
+build/art/PKG-00.pkg
+build/art/EXE-00.toc
+build/art/base_library.zip
+build/art/art.exe.manifest
+build/art/Analysis-00.toc
+art.spec
