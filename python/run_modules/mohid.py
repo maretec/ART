@@ -152,7 +152,7 @@ def gather_boundary_conditions(yaml, model):
                 static.logger.info("Gathering Boundary Condition for " + model['NAME'])
                 obc_keys = model['OBC'][obc_model].keys()
 
-                simulations_available = yaml['ARTCONFIG']['DAYS_PER_RNU'] - model['OBC'][obc_model]['SIMULATED_DAYS']
+                simulations_available = yaml['ARTCONFIG']['DAYS_PER_RUN'] - model['OBC'][obc_model]['SIMULATED_DAYS']
                 folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
 
                 date_format = "%Y-%m-%d"
@@ -196,7 +196,7 @@ def gather_boundary_conditions(yaml, model):
                             file_source = folder_source + obc_file + "." + file_type
 
                             if os.path.isfile(file_source):
-                                dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
+                                dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
                                 if not os.path.isdir(dest_folder):
                                     os.makedirs(dest_folder)
                                     file_destination = dest_folder + obc_file + "." + file_type
@@ -542,7 +542,7 @@ def execute(yaml):
                 post_processing.execute(yaml)
                 static.logger.info("Executing Post Processing")
             cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
-                days=yaml['ARTCONFIG']['DAYS_PER_RNU'])
+                days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
             cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
 
     return None
