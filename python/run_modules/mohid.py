@@ -34,7 +34,7 @@ def verify_run(filename, messages):
 
     with open(filename, 'r') as f:
         lines = f.read().splitlines()
-        for i in range (-1, -21, -1):
+        for i in range (-1, -50, -1):
             for message in messages:
                 if message in lines[i]:
                     return True
@@ -172,9 +172,7 @@ def gather_boundary_conditions(yaml, model):
                     obc_initial_date_str = obc_initial_date.strftime(date_format)
                     obc_final_date_str = obc_final_date.strftime(date_format)
 
-
                     workpath = model['OBC'][obc_model]['WORKPATH']
-
 
                     '''
                     if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
@@ -191,44 +189,52 @@ def gather_boundary_conditions(yaml, model):
                         static.logger.info("OBC Final Date: " + obc_final_date_str)
                     
                         folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
-
+                        
                         for obc_file in model['OBC'][obc_model]['FILES']:
                             file_source = folder_source + obc_file + "." + file_type
+                            
 
                             if os.path.isfile(file_source):
                                 dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
                                 if not os.path.isdir(dest_folder):
                                     os.makedirs(dest_folder)
+                                else:
                                     file_destination = dest_folder + obc_file + "." + file_type
                                     copy(file_source, file_destination)
                                     static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                    else:
+                        '''
+                        SUB_FOLDERS within the WORKPATH for the OBC files. They can be subdivided with year, month and year.
+                        '''
+                        if 'SUBFOLDERS' in obc_keys and model['OBC'][obc_model]['SUBFOLDERS'] != 0:
+                            if model['OBC'][obc_model]['SUBFOLDERS'] == 1:
+                                workpath = workpath + str(obc_initial_date.year) + "/"
+                            
+                            elif model['OBC'][obc_model]['SUBFOLDERS'] == 2:
+                                workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
 
-            else:
-                '''
-                SUB_FOLDERS within the WORKPATH for the OBC files. They can be subdivided with year, month and year.
-                '''
-                if 'SUB_FOLDERS' in obc_keys and model['obc']['subFolders'] != 0:
-                    if model['OBC'][obc_model]['SUB_FOLDERS'] == 1:
-                        workpath = workpath + str(obc_initial_date.year) + "/"
-                    
-                    elif model['OBC'][obc_model]['SUB_FOLDERS'] == 2:
-                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
-
-                    elif model['OBC'][obc_model]['SUB_FOLDERS'] == 3:
-                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
-                            str(obc_initial_date.days) + "/"
-                    for obc_file in model['OBC'][obc_model]['FILES']:
-                        filename = create_file_name_with_date(obc_file, obc_initial_date, obc_final_date)
-                        file_source = workpath +  filename + "." + file_type
-                        if os.path.isfile(file_source):
-
-                            dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] 
-
-                            if not os.path.isdir(dest_folder):
-                                os.makedirs(dest_folder)
-                            file_destination = dest_folder + filename + "." + file_type
-                            copy(file_source, file_destination)
-                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                            elif model['OBC'][obc_model]['SUBFOLDERS'] == 3:
+                                workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
+                                    str(obc_initial_date.days) + "/"
+                            elif model['OBC'][obc_model]['SUBFOLDERS'] == 4:
+                                print("entrei bem")
+                                workpath = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/" 
+                            for file in model['OBC'][obc_model]['FILES']:
+                                if model['OBC'][obc_model]['SUBFOLDERS'] == 4:
+                                    file_source = workpath + file + "." + file_type
+                                    print(file_source)
+                                else:
+                                    filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
+                                    file_source = workpath +  filename + "." + file_type
+                                
+                                if os.path.isfile(file_source):
+                                    dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
+                                    if not os.path.isdir(dest_folder):
+                                        os.makedirs(dest_folder)
+                                    else:
+                                        file_destination = dest_folder + file + "." + file_type
+                                        copy(file_source, file_destination)
+                                        static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
 
 
 def get_meteo_file(yaml, model):
@@ -343,7 +349,7 @@ def gather_restart_files(yaml, model):
 
 
 def gather_discharges_files(yaml, model):
-    static.logger.info("Gathering Discharges Files for model " + model['name'])
+    static.logger.info("Gathering Discharges Files for model " + model['NAME'])
 
     for discharge in model['DISCHARGES']:
         static.logger.info("Gathering Discharge Files for discharge block" + discharge)
@@ -430,21 +436,23 @@ def backup_simulation(yaml):
                     for file in hdf5_files:
                         if os.path.split(file)[1].startswith("MPI"):
                             continue
-                        file_name = os.path.split(file)
+                        file_name = os.path.split(file)[1]
                         name_array = file_name.split("_")
-                        if name_array > 2:
+                        if len(name_array) > 2:
                             #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
-                            file_name = name_array[0] + "_" + name_array[2]
+                            file_name_copy = name_array[0] + "_" + name_array[2]
                         else:
                             file_type = name_array[-1].split(".")[1]
-                            file_name = name_array[0] + "." + file_type
+                            file_name_copy = name_array[0] + "." + file_type
 
                         #if the file_name is not in the RESULTS_LIST it will be ignored
                         if file_name not in yaml[model]['RESULTS_LIST']:
                             continue
+                            
 
-                        file_destination = results_storage + file_name
+                        file_destination = results_storage + file_name_copy
                         static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+                        copy(file, file_destination)
                 #defaults to backup all results files
                 else:
                     for file in hdf5_files:
@@ -470,7 +478,6 @@ def backup_simulation(yaml):
                     os.makedirs(time_series_storage)
                 for file in time_series_files:
                     file_destination = time_series_storage + os.path.split(file)[1]
-
                     copy(file, file_destination)
 
 
@@ -480,20 +487,25 @@ Main cycle for the ART run. It has all the functions that are needed for a proje
 def process_models(yaml):
     for model in yaml.keys():
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
-            if 'METEO' in yaml[model].keys():
-                create_folder_structure(yaml, yaml[model])
-                gather_boundary_conditions(yaml, yaml[model])
-                change_model_dat(yaml, yaml[model])
-                gather_restart_files(yaml, yaml[model])
+            #if 'METEO' in yaml[model].keys():
+            create_folder_structure(yaml, yaml[model])
+            change_model_dat(yaml, yaml[model])
+            gather_boundary_conditions(yaml, yaml[model])
+            gather_restart_files(yaml, yaml[model])
+              
+#              create_folder_structure(yaml, yaml[model])
+#              gather_boundary_conditions(yaml, yaml[model])
+#              change_model_dat(yaml, yaml[model])
+#              gather_restart_files(yaml, yaml[model])
 
-                if 'METEO' in yaml[model].keys():
-                    for meteo_model in yaml[model]['METEO']['MODELS'].keys():
-                        if 'ENABLE' in yaml[model]['METEO']['MODELS'][meteo_model].keys()\
-                        and yaml[model]['METEO'][meteo_model]['MODELS']['ENABLE']:
-                            get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+            if 'METEO' in yaml[model].keys():
+                for meteo_model in yaml[model]['METEO']['MODELS'].keys():
+                    if 'ENABLE' in yaml[model]['METEO']['MODELS'][meteo_model].keys()\
+                    and yaml[model]['METEO'][meteo_model]['MODELS']['ENABLE']:
+                        get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
                 
             if 'DISCHARGES' in yaml[model].keys():
-                for discharge in yaml[model].keys():
+                for discharge in yaml[model]['DISCHARGES'].keys():
                     if 'ENABLE' in yaml[model]['DISCHARGES'][discharge].keys()\
                     and yaml[model]['DISCHARGES'][discharge]['ENABLE']:
                         gather_discharges_files(yaml, yaml[model])
