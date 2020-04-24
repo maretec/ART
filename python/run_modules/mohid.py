@@ -12,11 +12,11 @@ import common.send_email as send_email
 
 
 def create_folder_structure(yaml, model):
-    model_path = yaml['artconfig']['mainPath'] + model["path"]
-    if not os.path.isdir(yaml['artconfig']['mainPath'] + "GeneralData/"):
-        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/Bathymetry")
-        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions")
-        os.makedirs(yaml['artconfig']['mainPath'] + "GeneralData/TimeSeries")
+    model_path = yaml['ARTCONFIG']['MAIN_PATH'] + model['PATH']
+    if not os.path.isdir(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/"):
+        os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/Bathymetry")
+        os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/BoundaryConditions")
+        os.makedirs(yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/TimeSeries")
     if not os.path.isdir(model_path + "res/"):
         os.makedirs(model_path + "res/Run1/")
     if not os.path.isdir(model_path + "data/"):
@@ -34,7 +34,7 @@ def verify_run(filename, messages):
 
     with open(filename, 'r') as f:
         lines = f.read().splitlines()
-        for i in range (-1, -21, -1):
+        for i in range (-1, -50, -1):
             for message in messages:
                 if message in lines[i]:
                     return True
@@ -44,11 +44,11 @@ def verify_run(filename, messages):
 def run_mohid(yaml):
     output_file_name = "MOHID_RUN_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
     output_file = open(output_file_name, "w+")
-    if 'mpi' in yaml['mohid'].keys() and yaml['mohid']['mpi']['enable']:
+    if 'MPI' in yaml['MOHID'].keys() and yaml['MOHID']['MPI']['ENABLE']:
         static.logger.info("Starting MOHID MPI")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run(["mpiexec", "-np", str(yaml['mohid']['mpi']['totalProcessors']), "-f", "/opt/hosts",
-                        yaml['mohid']['exePath']], cwd=os.path.dirname(yaml['mohid']['exePath']), 
+        subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']), "-f", "/opt/hosts",
+                        yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
                         stdout=output_file)
         output_file.close()
 
@@ -63,7 +63,7 @@ def run_mohid(yaml):
         #DDC is ran when an MPI run is done to join all the results into a single one.
         ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
         mohid_ddc_output_log = open(ddc_output_filename, "w+")
-        subprocess.run("./MohidDDC.exe", cwd=os.path.dirname(yaml['mohid']['exePath']), stdout=mohid_ddc_output_log)
+        subprocess.run(["./MohidDDC.exe", "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), stdout=mohid_ddc_output_log)
         mohid_ddc_output_log.close()
         if not verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
             static.logger.info("MohidDDC NOT SUCCESSFUL")
@@ -73,7 +73,7 @@ def run_mohid(yaml):
     else:
         static.logger.info("Starting MOHID run")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run(yaml['mohid']['exePath'], cwd=os.path.dirname(yaml['mohid']['exePath']), 
+        subprocess.run([yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
         stdout=output_file)
         output_file.close()
     
@@ -92,9 +92,9 @@ in the yaml config file.
 It receives the yaml object and the 'model' dictionary which is in 'mohid' dictionary.
 '''
 def change_model_dat(yaml, model):
-    static.logger.info("Creating new model file for model: " + model['name'])
+    static.logger.info("Creating new model file for model: " + model['NAME'])
     keys = model.keys()
-    path = yaml['artconfig']['mainPath'] + model['path'] + "data/"
+    path = yaml['ARTCONFIG']['MAIN_PATH'] + model['PATH'] + "data/"
     if not os.path.isdir(path):
         static.logger.info("Path for model folder does not exist.")
         static.logger.info("Check path parameters in the yaml file. Exiting ART.")
@@ -109,11 +109,11 @@ def change_model_dat(yaml, model):
     common.file_modifier.modify_line(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     static.logger.info("Changed END of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-    common.file_modifier.modify_line(file, "DT", str(model['dt']))
+    common.file_modifier.modify_line(file, "DT", str(model['DT']))
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
             common.file_modifier.modify_line(file, key, model['mohid.dat'][key])
-    static.logger.info("Model " + model["name"] + " .dat file was created.")
+    static.logger.info("Model " + model['NAME'] + " .dat file was created.")
     file.close()
     return
 
@@ -139,109 +139,122 @@ def create_file_name_with_date(filename, initial_date, final_date):
     return filename
 
 '''
-Gathers boundary conditions for each model in the mohid block if the 'obc' dictionary has the parameter 'enable' and if
+Gathers boundary conditions for each model in the model block if the 'obc' dictionary has the parameter 'enable' and if
 it is a different value from 0. The user can define the file type and the date format. It copies the files the user 
 defined in the list 'files' in the yaml file.
 '''
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
-    if 'obc' in model_keys and 'enable' in model['obc'].keys() and model['obc']['enable']:
-        static.logger.info("OBC flag enabled")
-        static.logger.info("Gathering Boundary Condition for " + model['name'])
-        obc_keys = model['obc'].keys()
+    if 'OBC' in model_keys:
+        for obc_model in model['OBC']:
+            if 'ENABLE' in model['OBC'][obc_model].keys() and model['OBC'][obc_model]['ENABLE']:
+                static.logger.info("OBC flag enabled")
+                static.logger.info("Gathering Boundary Condition for " + model['NAME'])
+                obc_keys = model['OBC'][obc_model].keys()
 
-        simulations_available = yaml['artconfig']['daysPerRun'] - model['obc']['simulatedDays']
-        folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
+                simulations_available = yaml['ARTCONFIG']['DAYS_PER_RUN'] - model['OBC'][obc_model]['SIMULATED_DAYS']
+                folder_label = "GeneralData/BoundaryConditions/Hydrodynamics/"
 
-        date_format = "%Y-%m-%d"
-        if 'dateFormat' in obc_keys:
-            date_format = model['obc']['dateFormat']
+                date_format = "%Y-%m-%d"
+                if 'DATE_FORMAT' in obc_keys:
+                    date_format = model['OBC'][obc_model]['DATE_FORMAT']
 
-        file_type = "hdf5"
-        if 'fileType' in obc_keys:
-            file_type = model['obc']['fileType']
-            
-        static.logger.debug("Boundary Conditions File Type: " + file_type)
-
-        for n in range(0, simulations_available - 1, -1):
-            obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
-            obc_final_date = cfg.current_final_date + datetime.timedelta(days=n)
-
-            obc_initial_date_str = obc_initial_date.strftime(date_format)
-            obc_final_date_str = obc_final_date.strftime(date_format)
-
-            workpath = model['obc']['workpath']
-
-            '''
-            if 'hasSolutionFromFile' it needs to get the OBC files from a "parent" model, and needs to follow the structure
-            we use to backup our results. U
-            '''
-            if 'hasSolutionFromFile' in model_keys and model['hasSolutionFromFile']:
-                obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
-                obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
-
-                obc_initial_date_str = obc_initial_date.strftime(date_format)
-                obc_final_date_str = obc_final_date.strftime(date_format)
-
-                static.logger.info("OBC Initial Date: " + obc_initial_date_str)
-                static.logger.info("OBC Final Date: " + obc_final_date_str)
-            
-                folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
-
-                for file in model['obc']['files']:
-                    file_source = folder_source + file + "." + file_type
-
-                    if os.path.isfile(file_source):
-                        dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
-                        if not os.path.isdir(dest_folder):
-                            os.makedirs(dest_folder)
-                            file_destination = dest_folder + file + "." + file_type
-                            copy(file_source, file_destination)
-                            static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
-            else:
-                '''
-                subFolders within the workpath for the OBC files. They can be subdivided with year, month and year.
-                '''
-                if 'subFolders' in obc_keys and model['obc']['subFolders'] != 0:
-                    if model['obc']['subFolders'] == 1:
-                        workpath = workpath + str(obc_initial_date.year) + "/"
+                file_type = "hdf5"
+                if 'FILE_TYPE' in obc_keys:
+                    file_type = model['OBC'][obc_model]['FILE_TYPE']
                     
-                    elif model['obc']['subFolders'] == 2:
-                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
+                static.logger.debug("Boundary Conditions File Type: " + file_type)
 
-                    elif model['obc']['subFolders'] == 3:
-                        workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
-                            str(obc_initial_date.days) + "/"
-                    for file in model['obc']['files']:
-                        filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
-                        file_source = workpath +  filename + "." + file_type
-                        if os.path.isfile(file_source):
-                            dest_folder = yaml['artconfig']['mainPath'] + folder_label + model['name'] 
-                            if not os.path.isdir(dest_folder):
-                                os.makedirs(dest_folder)
-                                file_destination = dest_folder + filename + "." + file_type
-                                copy(file_source, file_destination)
-                                static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                for n in range(0, simulations_available - 1, -1):
+                    obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+                    obc_final_date = cfg.current_final_date + datetime.timedelta(days=n)
+
+                    obc_initial_date_str = obc_initial_date.strftime(date_format)
+                    obc_final_date_str = obc_final_date.strftime(date_format)
+
+                    workpath = model['OBC'][obc_model]['WORKPATH']
+
+                    '''
+                    if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
+                    we use to backup our results.
+                    '''
+                    if 'HAS_SOLUTION_FROM_FILE' in model_keys and model['HAS_SOLUTION_FROM_FILE']:
+                        obc_initial_date = cfg.current_initial_date + datetime.timedelta(days=n)
+                        obc_final_date = cfg.current_final_date + datetime.timedelta(days=simulations_available)
+
+                        obc_initial_date_str = obc_initial_date.strftime(date_format)
+                        obc_final_date_str = obc_final_date.strftime(date_format)
+
+                        static.logger.info("OBC Initial Date: " + obc_initial_date_str)
+                        static.logger.info("OBC Final Date: " + obc_final_date_str)
+                    
+                        folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
+                        
+                        for obc_file in model['OBC'][obc_model]['FILES']:
+                            file_source = folder_source + obc_file + "." + file_type
+                            
+
+                            if os.path.isfile(file_source):
+                                dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
+                                if not os.path.isdir(dest_folder):
+                                    os.makedirs(dest_folder)
+                                else:
+                                    file_destination = dest_folder + obc_file + "." + file_type
+                                    copy(file_source, file_destination)
+                                    static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+                    else:
+                        '''
+                        SUB_FOLDERS within the WORKPATH for the OBC files. They can be subdivided with year, month and year.
+                        '''
+                        if 'SUBFOLDERS' in obc_keys and model['OBC'][obc_model]['SUBFOLDERS'] != 0:
+                            if model['OBC'][obc_model]['SUBFOLDERS'] == 1:
+                                workpath = workpath + str(obc_initial_date.year) + "/"
+                            
+                            elif model['OBC'][obc_model]['SUBFOLDERS'] == 2:
+                                workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
+
+                            elif model['OBC'][obc_model]['SUBFOLDERS'] == 3:
+                                workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
+                                    str(obc_initial_date.days) + "/"
+                            elif model['OBC'][obc_model]['SUBFOLDERS'] == 4:
+                                print("entrei bem")
+                                workpath = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/" 
+                            for file in model['OBC'][obc_model]['FILES']:
+                                if model['OBC'][obc_model]['SUBFOLDERS'] == 4:
+                                    file_source = workpath + file + "." + file_type
+                                    print(file_source)
+                                else:
+                                    filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
+                                    file_source = workpath +  filename + "." + file_type
+                                
+                                if os.path.isfile(file_source):
+                                    dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
+                                    if not os.path.isdir(dest_folder):
+                                        os.makedirs(dest_folder)
+                                    else:
+                                        file_destination = dest_folder + file + "." + file_type
+                                        copy(file_source, file_destination)
+                                        static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
 
 
 def get_meteo_file(yaml, model):
     model_keys = model.keys()
-    if 'meteo' in model_keys and model['meteo']['enable']:
+    if 'METEO' in model_keys and model['METEO']['ENABLE']:
         static.logger.info("Gathering Meteo Files")
                
-        meteo_models_keys = model['meteo']['models'].keys()
+        meteo_models_keys = model['METEO']['MODELS'].keys()
 
         for meteo_model in meteo_models_keys:
-            meteo_keys = model['meteo']['models'][meteo_model].keys()
+            meteo_keys = model['METEO']['MODELS'][meteo_model].keys()
 
             date_format = "%Y-%m-%d"
-            if 'dateFormat' in meteo_keys:
-                date_format = model['meteo'][meteo_model]['dateFormat']
+            if 'DATE_FORMAT' in meteo_keys:
+                date_format = model['METEO'][meteo_model]['DATE_FORMAT']
 
             meteo_initial_date = cfg.current_initial_date.strftime(date_format)
-            if 'simulatedDays' in meteo_keys:
-                meteo_final_date = cfg.current_initial_date + datetime.timedelta(days=model['meteo']['models']
-                    [meteo_model]['simulatedDays'])
+            if 'SIMULATED_DAYS' in meteo_keys:
+                meteo_final_date = cfg.current_initial_date + datetime.timedelta(days=model['METEO']['MODELS']
+                    [meteo_model]['SIMULATED_DAYS'])
                 meteo_final_date = meteo_final_date.strftime(date_format)
             else:
                 meteo_final_date = cfg.current_final_date.strftime(date_format)
@@ -250,33 +263,33 @@ def get_meteo_file(yaml, model):
             static.logger.info("Meteo Final Date: " + meteo_final_date)
 
             file_type = "hdf5"
-            if 'fileType' in meteo_keys:
-                file_type = model['meteo']['models'][meteo_model]['fileType']
+            if 'FILE_TYPE' in meteo_keys:
+                file_type = model['METEO']['MODELS'][meteo_model]['FILE_TYPE']
 
-            if 'fileNameFromModel' in meteo_keys and model['meteo']['models'][meteo_model]['fileNameFromModel']:
+            if 'FILENAME_FROM_MODEL' in meteo_keys and model['METEO']['MODELS'][meteo_model]['FILENAME_FROM_MODEL']:
                 static.logger.info("Meteo: fileNameFromModel flag enabled")
 
-                meteo_sufix = model['meteo']['models'][meteo_model]['name']
+                meteo_sufix = model['METEO']['MODELS'][meteo_model]['NAME']
                 static.logger.info("Meteo sufix: " + meteo_sufix)
-                meteo_file_source = model['meteo']['models'][meteo_model]['workPath'] + \
-                    model['meteo']['models'][meteo_model]['name'] + "_" + model['name'] + "_" + meteo_initial_date +\
+                meteo_file_source = model['METEO']['MODELS'][meteo_model]['WORKPATH'] + \
+                    model['METEO']['MODELS'][meteo_model]['NAME'] + "_" + model['NAME'] + "_" + meteo_initial_date +\
                     "_" + meteo_final_date + "." + file_type
                 static.logger.info("Meteo Source File: " + meteo_file_source)
             else:
-                meteo_file_source = model['meteo']['models'][meteo_model][
-                                        'workPath'] + "meteo" + "_" + meteo_initial_date \
+                meteo_file_source = model['METEO']['MODELS'][meteo_model]['WORKPATH'] + \
+                    "meteo" + "_" + meteo_initial_date \
                                     + "_" + meteo_final_date + "." + file_type
                 static.logger.info("Meteo Source File: " + meteo_file_source)
 
             if os.path.isfile(meteo_file_source):
-                meteo_file_dest_folder = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Atmosphere/" \
-                    + model['name'] + "/" + model['meteo']['models'][meteo_model]['name'] + "/"
+                meteo_file_dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + "GeneralData/BoundaryConditions/Atmosphere/" \
+                    + model['NAME'] + "/" + model['METEO']['MODELS'][meteo_model]['NAME'] + "/"
 
                 if not os.path.isdir(meteo_file_dest_folder):
                     os.makedirs(meteo_file_dest_folder)
 
-                meteo_file_dest = meteo_file_dest_folder + model['meteo']['models'][meteo_model]['name'] + "_" + \
-                    model['name'] + "." + file_type
+                meteo_file_dest = meteo_file_dest_folder + model['METEO']['MODELS'][meteo_model]['NAME'] + "_" + \
+                    model['NAME'] + "." + file_type
                 static.logger.info("Meteo Destination File: " + meteo_file_dest)
 
                 copy(meteo_file_source, meteo_file_dest)
@@ -285,27 +298,27 @@ def get_meteo_file(yaml, model):
             else:
                 continue
 
-        static.logger.info("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
-        raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
-                                "errors.")
+    #static.logger.info("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
+    #raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
+                            #"errors.")
 
 
 '''
 Gets restart files from previous run. These files need to be put in /res folder of the project you're trying to run.
 '''
 def gather_restart_files(yaml, model):
-    static.logger.info("Gathering the restart files for model: " + model['name'])
+    static.logger.info("Gathering the restart files for model: " + model['NAME'])
 
     date_format = "%Y-%m-%d"
-    if 'dateFormat' in yaml['mohid'].keys():
-        date_format = yaml['mohid']['dateFormat']
+    if 'dateFormat' in yaml['MOHID'].keys():
+        date_format = yaml['MOHID']['DATE_FORMAT']
 
     previous_init_date = cfg.current_initial_date - datetime.timedelta(days=1)
-    previous_final_date = previous_init_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+    previous_final_date = previous_init_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
     static.logger.info("Restart Files Initial Day: " + previous_init_date.strftime(date_format))
     static.logger.info("Restart Files Final Day: " + previous_final_date.strftime(date_format))
 
-    path_fin_files = model['storagePath'] + "Restart/" + previous_init_date.strftime(date_format) + "_" + \
+    path_fin_files = model['STORAGE_PATH'] + "Restart/" + previous_init_date.strftime(date_format) + "_" + \
         previous_final_date.strftime(date_format) + "/"
 
     static.logger.info("Source Restart Files: " + path_fin_files)
@@ -316,7 +329,7 @@ def gather_restart_files(yaml, model):
 
     model_keys = model.keys()
 
-    restart_files_dest = yaml['artconfig']['mainPath'] + model['path'] + "res/"
+    restart_files_dest = yaml['ARTCONFIG']['MAIN_PATH'] + model['PATH'] + "res/"
     if not os.path.isdir(restart_files_dest):
         os.makedirs(restart_files_dest)
 
@@ -336,32 +349,35 @@ def gather_restart_files(yaml, model):
 
 
 def gather_discharges_files(yaml, model):
-    static.logger.info("Gathering Discharges Files for model " + model['name'])
+    static.logger.info("Gathering Discharges Files for model " + model['NAME'])
 
-    date_format = "%Y-%m-%d"
-    if 'dateFormat' in model['discharges'].keys():
-        date_format = model['discharges']['dateFormat']
+    for discharge in model['DISCHARGES']:
+        static.logger.info("Gathering Discharge Files for discharge block" + discharge)
+        date_format = "%Y-%m-%d"
+        if 'dateFormat' in model['DISCHARGES'][discharge].keys():
+            date_format = model['DISCHARGES'][discharge]['DATE_FORMAT']
 
-    path_discharges_files = model['discharges']['path'] + cfg.current_initial_date.strftime(date_format) + "_" + \
-        cfg.current_final_date.strftime(date_format) + "/"
-    
-    static.logger.info("Source Discharges Files " + path_discharges_files)
+        path_discharges_files = model['DISCHARGES'][discharge]['PATH'] + \
+            cfg.current_initial_date.strftime(date_format) + "_" + \
+            cfg.current_final_date.strftime(date_format) + "/"
+        
+        static.logger.info("Source Discharges Files " + path_discharges_files)
 
 
-    file_destination = yaml['artconfig']['mainPath'] + "GeneralData/BoundaryConditions/Discharges/" + model[
-        'name'] + "/"
-    
-    static.logger.info("Discharges Files Destination " +  file_destination)
+        file_destination = yaml['ARTCONFIG']['MAIN_PATH'] + \
+            "GeneralData/BoundaryConditions/Discharges/" + model['NAME'] + "/"
+        
+        static.logger.info("Discharges Files Destination " +  file_destination)
 
-    files = glob.glob(path_discharges_files + "*.*")
+        files = glob.glob(path_discharges_files + "*.*")
 
-    if not os.path.isdir(file_destination):
-        os.makedirs(file_destination)
+        if not os.path.isdir(file_destination):
+            os.makedirs(file_destination)
 
-    for file in files:
-        file_destination = file_destination + os.path.split(file)[1]
-        static.logger.info("Discharges: Copying " + file + " to " + file_destination)
-        copy(file, file_destination)
+        for file in files:
+            file_destination = file_destination + os.path.split(file)[1]
+            static.logger.info("Discharges: Copying " + file + " to " + file_destination)
+            copy(file, file_destination)
 
 
 '''
@@ -371,155 +387,174 @@ that the user defined. And the same goes for the Restart, TimeSeries and Dischar
 '''
 def backup_simulation(yaml):
     date_format = "%Y-%m-%d"
-    if 'dateFormat' in yaml['mohid'].keys():
-        date_format = yaml['mohid']['dateFormat']
+    if 'DATE_FORMAT' in yaml['MOHID'].keys():
+        date_format = yaml['MOHID']['DATE_FORMAT']
 
     initial_date = cfg.current_initial_date.strftime(date_format)
-    tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['artconfig']['daysPerRun'])
+    tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['ARTCONFIG']['DAYS_PER_RUN'])
     final_date = tmp_date.strftime(date_format)
 
     static.logger.info("Simulation Results Initial Date: " + initial_date)
     static.logger.info("Simulation Results Final Date: " + final_date)
 
-    for model in yaml['mohid']['models']:
+    for model in yaml.keys():
+        if model != "MOHID" and model != "ARTCONFIG" and model != "POSTPROCESSING"\
+            and model != "PREPROCESSING":
 
-        model_keys = yaml['mohid']['models'][model].keys()
-        mohid_keys = yaml['mohid']
-        results_path = yaml['artconfig']['mainPath'] + yaml['mohid']['models'][model]['path'] + "res/"
+            model_keys = yaml[model].keys()
+            mohid_keys = yaml['MOHID']
+            results_path = yaml['ARTCONFIG']['MAIN_PATH'] + yaml[model]['PATH'] + "res/"
 
-        generic_path = yaml['mohid']['models'][model]['storagePath']
-        date_path = initial_date + "_" + final_date + "/"
-        restart_storage = generic_path + "Restart/" + date_path
-        results_storage = generic_path + "Results_HDF/" + date_path
-        time_series_storage = generic_path + "Results_TimeSeries/" + date_path
-        discharges_storage = generic_path + "Discharges/" + date_path
+            generic_path = yaml[model]['STORAGE_PATH']
+            date_path = initial_date + "_" + final_date + "/"
+            restart_storage = generic_path + "Restart/" + date_path
+            results_storage = generic_path + "Results_HDF/" + date_path
+            time_series_storage = generic_path + "Results_TimeSeries/" + date_path
+            discharges_storage = generic_path + "Discharges/" + date_path
 
-        if 'hasSolutionFromFile' not in model_keys or not yaml['mohid']['models'][model]['hasSolutionFromFile']:
-            fin_files = glob.glob(results_path + "*_1.fin")
-            fin5_files = glob.glob(results_path + "*_1.fin5")
-            fin_files = fin5_files + fin_files
-            if len(fin_files) > 0:
-                if not os.path.isdir(restart_storage):
-                    os.makedirs(restart_storage)
-                for file in fin_files:
-                    if os.path.split(file)[1].startswith("MPI"):
-                        continue
-                    file_destination = restart_storage + os.path.split(file)[1]
-                    static.logger.info("Backup Simulation Fin_files: Copying " + file + " to " + file_destination)
-                    copy(file, file_destination)
-
-        hdf5_files = glob.glob(results_path + "*.hdf5")
-        if len(hdf5_files) > 0:
-            if not os.path.isdir(results_storage):
-                os.makedirs(results_storage)
-           
-           #only backup specific result files
-            if 'resultList' in model_keys:
-                for file in hdf5_files:
-                    if os.path.split(file)[1].startswith("MPI"):
-                        continue
-                    file_name = os.path.split(file)[1]
-                    name_array = file_name.split("_")
-                    if len(name_array) > 2:
-                        #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
-                        file_name = name_array[0] + "_" + name_array[2]
-                    else:
-                        file_type = name_array[-1].split(".")[1]
-                        file_name = name_array[0] + "." + file_type
-
-                    #if the file_name is not in the resultList it will be ignored
-                    if file_name in yaml['mohid']['models'][model]['resultList']:
-                        file_destination = results_storage + file_name
-                        static.logger.info("Backup Simulation HDF Files: Copying " + file_name + " to " + file_destination)
+            if 'HAS_SOLUTION_FROM_FILE' not in model_keys or not yaml[model]['HAS_SOLUTION_FROM_FILE']:
+                fin_files = glob.glob(results_path + "*_1.fin")
+                fin5_files = glob.glob(results_path + "*_1.fin5")
+                fin_files = fin5_files + fin_files
+                if len(fin_files) > 0:
+                    if not os.path.isdir(restart_storage):
+                        os.makedirs(restart_storage)
+                    for file in fin_files:
+                        if os.path.split(file)[1].startswith("MPI"):
+                            continue
+                        file_destination = restart_storage + os.path.split(file)[1]
+                        static.logger.info("Backup Simulation Fin_files: Copying " + file + " to " + file_destination)
                         copy(file, file_destination)
 
-            #defaults to backup all results files
-            else:
-                for file in hdf5_files:
-                    if os.path.split(file)[1].startswith("MPI"):
-                        continue
-                    
-                    file_name = os.path.split(file)[1]
-                    name_array = file_name.split("_")
-                    if len(name_array) > 2:
-                        #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
-                        file_name = name_array[0] + "_" + name_array[2]
-                    else:
-                        file_type = name_array[-1].split(".")[1]
-                        file_name = name_array[0] + "." + file_type
-                    file_destination = results_storage + file_name
-                    static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+            hdf5_files = glob.glob(results_path + "*.hdf5")
+            if len(hdf5_files) > 0:
+                if not os.path.isdir(results_storage):
+                    os.makedirs(results_storage)
+            
+            #only backup specific result files
+                if 'RESULTS_LIST' in model_keys:
+                    for file in hdf5_files:
+                        if os.path.split(file)[1].startswith("MPI"):
+                            continue
+                        file_name = os.path.split(file)[1]
+                        name_array = file_name.split("_")
+                        if len(name_array) > 2:
+                            #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
+                            file_name_copy = name_array[0] + "_" + name_array[2]
+                        else:
+                            file_type = name_array[-1].split(".")[1]
+                            file_name_copy = name_array[0] + "." + file_type
 
+                        #if the file_name is not in the RESULTS_LIST it will be ignored
+                        if file_name not in yaml[model]['RESULTS_LIST']:
+                            continue
+                            
+
+                        file_destination = results_storage + file_name_copy
+                        static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+                        copy(file, file_destination)
+                #defaults to backup all results files
+                else:
+                    for file in hdf5_files:
+                        if os.path.split(file)[1].startswith("MPI"):
+                            continue
+                        
+                        file_name = os.path.split(file)
+                        name_array = file_name.split("_")
+                        if name_array > 2:
+                            #Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
+                            file_name = name_array[0] + "_" + name_array[2]
+                        else:
+                            file_type = name_array[-1].split(".")[1]
+                            file_name = name_array[0] + "." + file_type
+                        file_destination = results_storage + file_name
+                        static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+
+                        copy(file, file_destination)
+
+            time_series_files = glob.glob(results_path + "Run1/*.*")
+            if len(time_series_files) > 0:
+                if not os.path.isdir(time_series_storage):
+                    os.makedirs(time_series_storage)
+                for file in time_series_files:
+                    file_destination = time_series_storage + os.path.split(file)[1]
                     copy(file, file_destination)
 
-        time_series_files = glob.glob(results_path + "Run1/*.*")
-        if len(time_series_files) > 0:
-            if not os.path.isdir(time_series_storage):
-                os.makedirs(time_series_storage)
-            for file in time_series_files:
-                file_destination = time_series_storage + os.path.split(file)[1]
-                copy(file, file_destination)
-
 
 '''
-Main cycle for the ART run. It has all the functions that are need for a project.
+Main cycle for the ART run. It has all the functions that are needed for a project.
 '''
 def process_models(yaml):
-    for model in yaml['mohid']['models']:
-        create_folder_structure(yaml, yaml['mohid']['models'][model])
-        get_meteo_file(yaml, yaml['mohid']['models'][model])
-        gather_boundary_conditions(yaml, yaml['mohid']['models'][model])
-        change_model_dat(yaml, yaml['mohid']['models'][model])
-        gather_restart_files(yaml, yaml['mohid']['models'][model])
-        if 'discharges' in yaml['mohid']['models'][model].keys() and 'enable' in \
-                yaml['mohid']['models'][model]['discharges'].keys() and \
-                yaml['mohid']['models'][model]['discharges']['enable']:
-            gather_discharges_files(yaml, yaml['mohid']['models'][model])
-    #run_mohid(yaml)
+    for model in yaml.keys():
+        if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
+            #if 'METEO' in yaml[model].keys():
+            create_folder_structure(yaml, yaml[model])
+            change_model_dat(yaml, yaml[model])
+            gather_boundary_conditions(yaml, yaml[model])
+            gather_restart_files(yaml, yaml[model])
+              
+#              create_folder_structure(yaml, yaml[model])
+#              gather_boundary_conditions(yaml, yaml[model])
+#              change_model_dat(yaml, yaml[model])
+#              gather_restart_files(yaml, yaml[model])
+
+            if 'METEO' in yaml[model].keys():
+                for meteo_model in yaml[model]['METEO']['MODELS'].keys():
+                    if 'ENABLE' in yaml[model]['METEO']['MODELS'][meteo_model].keys()\
+                    and yaml[model]['METEO'][meteo_model]['MODELS']['ENABLE']:
+                        get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
+                
+            if 'DISCHARGES' in yaml[model].keys():
+                for discharge in yaml[model]['DISCHARGES'].keys():
+                    if 'ENABLE' in yaml[model]['DISCHARGES'][discharge].keys()\
+                    and yaml[model]['DISCHARGES'][discharge]['ENABLE']:
+                        gather_discharges_files(yaml, yaml[model])
+    
+    run_mohid(yaml)
     backup_simulation(yaml)
 
 
 def execute(yaml):
-    artconfig_keys = yaml['artconfig'].keys()
+    artconfig_keys = yaml['ARTCONFIG'].keys()
     static.logger.info("Run MOHID enabled")
     #operational mode is used relative to the current day of the machine
-    if yaml['artconfig']['operationalMode']:
+    if yaml['ARTCONFIG']['OPERATIONAL_MODE']:
         today = datetime.datetime.today()
         #Time needs to start on hour 00:00:00 otherwise will start the models at the wrong time
         today = today.replace(minute=00, hour=00, second=00)
-        cfg.global_initial_date = today + datetime.timedelta(days=yaml['artconfig']['refDayToStart'])
+        cfg.global_initial_date = today + datetime.timedelta(days=yaml['ARTCONFIG']['REF_DAYS_TO_START'])
         for i in range(1, cfg.number_of_runs + 1):
             cfg.current_initial_date = cfg.global_initial_date + datetime.timedelta(days=i - 1)
-            cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+            cfg.current_final_date = cfg.current_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST ( " + str(i) + " of " + str(cfg.number_of_runs) + " )")
             static.logger.info("========================================")
-            if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+            if 'RUN_PREPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_PREPROCESSING']:
                 static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
-            if yaml['artconfig']['runSimulation']:
+            if yaml['ARTCONFIG']['RUN_SIMULATION']:
                 process_models(yaml)
-            if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
+            if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
     else:
         cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
-        cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+        cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST (" + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
                                cfg.current_final_date.strftime("%Y-%m-%d") + ")")
             static.logger.info("========================================")
-            if 'runPreProcessing' in artconfig_keys and yaml['artconfig']['runPreProcessing']:
+            if 'RUN_PREPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_PREPROCESSING']:
                 static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
-            if yaml['artconfig']['runSimulation']:
+            if yaml['ARTCONFIG']['RUN_SIMULATION']:
                 process_models(yaml)
-            if 'runPostProcessing' in artconfig_keys and yaml['artconfig']['runPostProcessing']:
+            if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 post_processing.execute(yaml)
                 static.logger.info("Executing Post Processing")
             cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
-                days=yaml['artconfig']['daysPerRun'])
-            cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['artconfig']['daysPerRun'])
+                days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+            cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
 
     return None

@@ -2,6 +2,28 @@
 
 [Roadmap](https://www.notion.so/ad599eeba2794af4b7fd8d736d37ff5a)
 
+# Install executable creator 
+
+Install Pyinstaller
+    
+    ```pip install pyinstaller```
+    Note: Some python builds are case sensitive and in those cases might be necessary to write: 
+    ```pip install PyInstaller```
+
+# Compile executable:
+Go to the root of the project.
+Every single dependency needs to be installed. To do that do:
+
+```
+pip install -r python/requirements.txt
+```
+
+To compile:
+```
+pyinstaller --onefile python/art.py
+```
+The compiled exe will be on the ```dist``` folder.
+
 # YAML
 
 ---

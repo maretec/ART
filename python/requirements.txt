@@ -1,0 +1,8 @@
+altgraph==0.17
+common==0.1.2
+future==0.18.2
+pefile==2019.4.18
+pyaml==20.3.1
+PyInstaller==3.6
+pywin32-ctypes==0.2.0
+PyYAML==5.3.1
