@@ -47,7 +47,10 @@ def run_mohid(yaml):
     if 'MPI' in yaml['MOHID'].keys() and yaml['MOHID']['MPI']['ENABLE']:
         static.logger.info("Starting MOHID MPI")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']), "-f", "/opt/hosts",
+        # subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']), "-f", "/opt/hosts",
+                        # yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
+                        # stdout=output_file)
+        subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']),
                         yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
                         stdout=output_file)
         output_file.close()
@@ -63,7 +66,8 @@ def run_mohid(yaml):
         #DDC is ran when an MPI run is done to join all the results into a single one.
         ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
         mohid_ddc_output_log = open(ddc_output_filename, "w+")
-        subprocess.run(["./MohidDDC.exe", "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), stdout=mohid_ddc_output_log)
+        # subprocess.run(["./MohidDDC.exe", "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), stdout=mohid_ddc_output_log)
+        subprocess.run(["MohidDDC.exe", yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), stdout=mohid_ddc_output_log)
         mohid_ddc_output_log.close()
         if not verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
             static.logger.info("MohidDDC NOT SUCCESSFUL")
@@ -172,7 +176,7 @@ def gather_boundary_conditions(yaml, model):
                     obc_initial_date_str = obc_initial_date.strftime(date_format)
                     obc_final_date_str = obc_final_date.strftime(date_format)
 
-                    workpath = model['OBC'][obc_model]['WORKPATH']
+                    workpath = model['OBC'][obc_model]['WORK_PATH']
 
                     '''
                     if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
