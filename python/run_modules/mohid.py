@@ -9,7 +9,7 @@ import glob
 import run_modules.pre_processing as pre_processing
 import run_modules.post_processing as post_processing
 import common.send_email as send_email
-
+import time
 
 def create_folder_structure(yaml, model):
     model_path = yaml['ARTCONFIG']['MAIN_PATH'] + model['PATH']
@@ -29,7 +29,7 @@ def create_folder_structure(yaml, model):
 Checks MOHID log to verify that the run was successful
 '''
 def verify_run(filename, messages):
-    success_messages = ['Program Mohid Water successfully terminated', 'Program Mohid Water successfully terminated',  
+    success_messages = ['Program Mohid Water successfully terminated', 'Program Mohid Water successfully terminated',
     'Program MohidDDC successfully terminated']
 
     with open(filename, 'r') as f:
@@ -48,15 +48,15 @@ def run_mohid(yaml):
         static.logger.info("Starting MOHID MPI")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
         # subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']), "-f", "/opt/hosts",
-                        # yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
+                        # yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
                         # stdout=output_file)
         subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']),
-                        yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
+                        yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
                         stdout=output_file)
         output_file.close()
 
         #Mohid alwyas writes these strings in the last lines of the logs. We use it to verify that run was successful
-        if not verify_run(output_file_name, ['Program Mohid Water successfully terminated', 
+        if not verify_run(output_file_name, ['Program Mohid Water successfully terminated',
             'Program Mohid Land successfully terminated']):
             static.logger.info("MOHID RUN NOT SUCCESSFUL")
             raise ValueError("MOHID RUN NOT SUCCESSFUL")
@@ -77,11 +77,11 @@ def run_mohid(yaml):
     else:
         static.logger.info("Starting MOHID run")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run([yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), 
+        subprocess.run([yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
         stdout=output_file)
         output_file.close()
-    
-        if not verify_run(output_file_name, ['Program Mohid Water successfully terminated', 
+
+        if not verify_run(output_file_name, ['Program Mohid Water successfully terminated',
             'Program Mohid Land successfully terminated']):
             static.logger.info("MOHID RUN NOT SUCCESSFUL")
             raise ValueError("MOHID RUN NOT SUCCESSFUL")
@@ -166,7 +166,7 @@ def gather_boundary_conditions(yaml, model):
                 file_type = "hdf5"
                 if 'FILE_TYPE' in obc_keys:
                     file_type = model['OBC'][obc_model]['FILE_TYPE']
-                    
+
                 static.logger.debug("Boundary Conditions File Type: " + file_type)
 
                 for n in range(0, simulations_available - 1, -1):
@@ -191,12 +191,12 @@ def gather_boundary_conditions(yaml, model):
 
                         static.logger.info("OBC Initial Date: " + obc_initial_date_str)
                         static.logger.info("OBC Final Date: " + obc_final_date_str)
-                    
+
                         folder_source = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
-                        
+
                         for obc_file in model['OBC'][obc_model]['FILES']:
                             file_source = folder_source + obc_file + "." + file_type
-                            
+
 
                             if os.path.isfile(file_source):
                                 dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
@@ -213,7 +213,7 @@ def gather_boundary_conditions(yaml, model):
                         if 'SUBFOLDERS' in obc_keys and model['OBC'][obc_model]['SUBFOLDERS'] != 0:
                             if model['OBC'][obc_model]['SUBFOLDERS'] == 1:
                                 workpath = workpath + str(obc_initial_date.year) + "/"
-                            
+
                             elif model['OBC'][obc_model]['SUBFOLDERS'] == 2:
                                 workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month)
 
@@ -222,7 +222,7 @@ def gather_boundary_conditions(yaml, model):
                                     str(obc_initial_date.days) + "/"
                             elif model['OBC'][obc_model]['SUBFOLDERS'] == 4:
                                 print("entrei bem")
-                                workpath = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/" 
+                                workpath = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
                             for file in model['OBC'][obc_model]['FILES']:
                                 if model['OBC'][obc_model]['SUBFOLDERS'] == 4:
                                     file_source = workpath + file + "." + file_type
@@ -230,7 +230,7 @@ def gather_boundary_conditions(yaml, model):
                                 else:
                                     filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
                                     file_source = workpath +  filename + "." + file_type
-                                
+
                                 if os.path.isfile(file_source):
                                     dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
                                     if not os.path.isdir(dest_folder):
@@ -245,7 +245,7 @@ def get_meteo_file(yaml, model):
     model_keys = model.keys()
     if 'METEO' in model_keys and model['METEO']['ENABLE']:
         static.logger.info("Gathering Meteo Files")
-               
+
         meteo_models_keys = model['METEO']['MODELS'].keys()
 
         for meteo_model in meteo_models_keys:
@@ -364,13 +364,13 @@ def gather_discharges_files(yaml, model):
         path_discharges_files = model['DISCHARGES'][discharge]['PATH'] + \
             cfg.current_initial_date.strftime(date_format) + "_" + \
             cfg.current_final_date.strftime(date_format) + "/"
-        
+
         static.logger.info("Source Discharges Files " + path_discharges_files)
 
 
         file_destination = yaml['ARTCONFIG']['MAIN_PATH'] + \
             "GeneralData/BoundaryConditions/Discharges/" + model['NAME'] + "/"
-        
+
         static.logger.info("Discharges Files Destination " +  file_destination)
 
         files = glob.glob(path_discharges_files + "*.*")
@@ -382,6 +382,60 @@ def gather_discharges_files(yaml, model):
             file_destination = file_destination + os.path.split(file)[1]
             static.logger.info("Discharges: Copying " + file + " to " + file_destination)
             copy(file, file_destination)
+
+
+def check_triggers(yaml):
+    """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
+    configuration. Checks for dependencies within the models. The execution is never interrupted by this function,
+    any errors found are reported in the logger.
+    """
+    if yaml['ENABLE'] == 1:
+        if static.FOLDERS_TO_WATCH in yaml:
+            folders = yaml[static.FOLDERS_TO_WATCH]
+        else:
+            folders = None
+            static.logger.info("No folders to watch on triggers.", static.FOLDERS_TO_WATCH, " is empty.")
+
+        if static.TRIGGER_MAX_WAIT in yaml:
+            timer = yaml[static.TRIGGER_MAX_WAIT] * 3600
+        else:
+            timer = static.DEFAULT_MAX_WAIT*3600
+            static.logger.info("No waiting time on triggers.", static.TRIGGER_MAX_WAIT, "is empty. Assigning default "
+                                                                                        "max wait time of 6 hours.")
+
+        if static.TRIGGER_POLLING_RATE in yaml:
+            rate = yaml[static.TRIGGER_POLLING_RATE]
+        else:
+            rate = static.DEFAULT_POLLING_RATE
+            static.logger.info("No polling rate on triggers.", static.TRIGGER_POLLING_RATE, "is empty. Assigning "
+                                                                                            "default polling rate of "
+                                                                                            "120 seconds.")
+        if folders:
+            for file in folders:
+                while not os.path.exists(file):
+                    time.sleep(rate)
+                    timer = timer - rate
+                    if timer < 0:
+                        static.logger.info("Reached max waiting time while trying to find file ", file, ". Resuming \
+                         execution without the file...")
+                        return
+
+                finished = False
+                while not finished:
+                    f = open(file, 'r')
+                    for line in f.readlines():
+                        if line.startswith("STATUS"):
+                            if "FINISHED" in line:
+                                finished = True
+                                static.logger.info("File ", file, " found with status FINISHED.")
+                    f.close()
+                    if not finished:
+                        time.sleep(rate * 2)  # rate is doubled to prevent file error with several opens and closes
+                        timer = timer - rate * 2
+                        if timer < 0:
+                            static.logger.info("Reached max waiting time while waiting for file ", file, " to change \
+                             status to finished. Resuming execution without the correct status on this file...")
+                            return
 
 
 '''
@@ -434,7 +488,7 @@ def backup_simulation(yaml):
             if len(hdf5_files) > 0:
                 if not os.path.isdir(results_storage):
                     os.makedirs(results_storage)
-            
+
             #only backup specific result files
                 if 'RESULTS_LIST' in model_keys:
                     for file in hdf5_files:
@@ -452,7 +506,7 @@ def backup_simulation(yaml):
                         #if the file_name is not in the RESULTS_LIST it will be ignored
                         if file_name not in yaml[model]['RESULTS_LIST']:
                             continue
-                            
+
 
                         file_destination = results_storage + file_name_copy
                         static.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
@@ -462,7 +516,7 @@ def backup_simulation(yaml):
                     for file in hdf5_files:
                         if os.path.split(file)[1].startswith("MPI"):
                             continue
-                        
+
                         file_name = os.path.split(file)
                         name_array = file_name.split("_")
                         if name_array > 2:
@@ -496,7 +550,7 @@ def process_models(yaml):
             change_model_dat(yaml, yaml[model])
             gather_boundary_conditions(yaml, yaml[model])
             gather_restart_files(yaml, yaml[model])
-              
+
 #              create_folder_structure(yaml, yaml[model])
 #              gather_boundary_conditions(yaml, yaml[model])
 #              change_model_dat(yaml, yaml[model])
@@ -507,13 +561,14 @@ def process_models(yaml):
                     if 'ENABLE' in yaml[model]['METEO']['MODELS'][meteo_model].keys()\
                     and yaml[model]['METEO'][meteo_model]['MODELS']['ENABLE']:
                         get_meteo_file(yaml, yaml[model]['METEO']['MODELS'][meteo_model])
-                
+
             if 'DISCHARGES' in yaml[model].keys():
                 for discharge in yaml[model]['DISCHARGES'].keys():
                     if 'ENABLE' in yaml[model]['DISCHARGES'][discharge].keys()\
                     and yaml[model]['DISCHARGES'][discharge]['ENABLE']:
                         gather_discharges_files(yaml, yaml[model])
-    
+
+    check_triggers(yaml['TRIGGER'])
     run_mohid(yaml)
     backup_simulation(yaml)
 
