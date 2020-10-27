@@ -385,7 +385,7 @@ def gather_discharges_files(yaml, model):
 
 
 '''
-Backups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
+Back ups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
 (those that start with "MPI_"). Copies all the consolidated .hdf5 files to the Results_HDF/ folder in the backup path
 that the user defined. And the same goes for the Restart, TimeSeries and Discharges files.
 '''
@@ -517,7 +517,6 @@ def process_models(yaml):
     run_mohid(yaml)
     backup_simulation(yaml)
 
-
 def execute(yaml):
     artconfig_keys = yaml['ARTCONFIG'].keys()
     static.logger.info("Run MOHID enabled")
@@ -542,8 +541,12 @@ def execute(yaml):
                 static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
     else:
-        cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
-        cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+        if (yaml['ARTCONFIG']['MONTH_MODE']):
+            cfg.current_initial_date = cfg.global_initial_date.replace(day=1, minute=00, hour=00, second=00)
+            cfg.current_final_date = cfg.global_inital_date.replace(day=1,month=cfg.global_initial_date.month + 1, minute=00, hour=00, second=00)
+        else:
+            cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
+            cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST (" + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
@@ -557,8 +560,12 @@ def execute(yaml):
             if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 post_processing.execute(yaml)
                 static.logger.info("Executing Post Processing")
-            cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
-                days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
-            cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+            if (yaml['ARTCONFIG']['MONTH_MODE']):
+                cfg.current_initial_date = cfg.current_final_date
+                cfg.current_final_date = cfg.current_intial_date.replace(day=1,month=cfg.current_intial_date.month + 1, minute=00, hour=00, second=00)
+            else:
+                cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
+                    days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+                cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
 
     return None
