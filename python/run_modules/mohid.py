@@ -542,7 +542,7 @@ def execute(yaml):
                 post_processing.execute(yaml)
     else:
         if (yaml['ARTCONFIG']['MONTH_MODE']):
-            cfg.current_initial_date = cfg.global_initial_date.replace(day=1, minute=00, hour=00, second=00)
+            cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
             cfg.current_final_date = cfg.global_inital_date.replace(day=1,month=cfg.global_initial_date.month + 1, minute=00, hour=00, second=00)
         else:
             cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
