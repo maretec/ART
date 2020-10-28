@@ -562,7 +562,7 @@ def execute(yaml):
                 static.logger.info("Executing Post Processing")
             if (yaml['ARTCONFIG']['MONTH_MODE']):
                 cfg.current_initial_date = cfg.current_final_date
-                cfg.current_final_date = cfg.current_intial_date.replace(day=1,month=cfg.current_intial_date.month + 1, minute=00, hour=00, second=00)
+                cfg.current_final_date = cfg.current_initial_date.replace(day=1,month=cfg.current_intial_date.month + 1, minute=00, hour=00, second=00)
             else:
                 cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
                     days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
