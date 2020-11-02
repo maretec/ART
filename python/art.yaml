@@ -54,4 +54,12 @@ PREPROCESSING:
     EXEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5.exe"
     OUTPUT_TO_FILE: 0
     OUTPUT_FILEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/Logs/output.log"
-
+TRIGGER:
+  ENABLE: 1
+  FOLDERS_TO_WATCH:
+    - path_to_file_1
+    - path_to_file_2
+    - path_to_file_N
+  TRIGGER_MAX_WAIT: 6
+  TRIGGER_POLLING_RATE: 120
+  MODEL_TO_CHECK_BACKUP:
