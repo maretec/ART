@@ -221,7 +221,6 @@ def gather_boundary_conditions(yaml, model):
                                 workpath = workpath + str(obc_initial_date.year) + "/" + str(obc_initial_date.month) + "/" + \
                                     str(obc_initial_date.days) + "/"
                             elif model['OBC'][obc_model]['SUBFOLDERS'] == 4:
-                                print("entrei bem")
                                 workpath = workpath + obc_initial_date_str + "_" + obc_final_date_str + "/"
                             for file in model['OBC'][obc_model]['FILES']:
                                 if model['OBC'][obc_model]['SUBFOLDERS'] == 4:
@@ -437,6 +436,83 @@ def check_triggers(yaml):
                              status to finished. Resuming execution without the correct status on this file...")
                             return
 
+def write_trigger(yaml, main_path):
+    """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
+    configuration. Checks for dependencies within the models. The execution is never interrupted by this function,
+    any errors found are reported in the logger.
+    """
+    if yaml['ENABLE'] == 1:
+        if static.WRITE_TRIGGER in yaml:
+            output_trigger = yaml[static.WRITE_TRIGGER]
+            dest_folder = main_path + "Log" + "/"
+        else:
+            output_trigger = False
+            static.logger.info("Output trigger not set.", static.WRITE_TRIGGER, " is empty.")
+
+        if output_trigger:
+            initial_date = cfg.current_initial_date.strftime(date_format)
+            tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['ARTCONFIG']['DAYS_PER_RUN'])
+            final_date = tmp_date.strftime(date_format)
+            filename = dest_folder + initial_date + "_" + final_date + ".dat"
+
+            now = datetime.now()
+            system_time = now.strftime("%Y-%m-%d %H:%M")
+
+            file = open(filename, 'w')
+            file.write('\n')
+            file.write('FILE AUTOMATICALLY GENERATED TO BE USED AS TRIGGER')
+            file.write('\n')
+            file.write('DO NOT EDIT, CHANGE, MOVE, DELETE THIS FILE!')
+            file.write('\n')
+            file.write('\n')
+            file.write('MOHID is running for the following period:')
+            file.write('START                         : ' + common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+            file.write('END                           : ' + common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+            file.write('\n')
+            file.write('STATUS                        : RUNNING')
+            file.write('\n')
+            file.write('SYSTEM TIME                   : ' + system_time)
+            file.close()
+#----------------------------------------------------------------------------------------------------------------
+
+def update_trigger(yaml, main_path):
+    """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
+    configuration. Sets the status to "Finished". The execution is never interrupted by this function,
+    any errors found are reported in the logger.
+    """
+    if yaml['ENABLE'] == 1:
+        if static.WRITE_TRIGGER in yaml:
+            output_trigger = yaml[static.WRITE_TRIGGER]
+            dest_folder = main_path + "Log" + "/"
+        else:
+            output_trigger = False
+            static.logger.info("Output trigger not set.", static.WRITE_TRIGGER, " is empty.")
+
+        if output_trigger:
+            initial_date = cfg.current_initial_date.strftime(date_format)
+            tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['ARTCONFIG']['DAYS_PER_RUN'])
+            final_date = tmp_date.strftime(date_format)
+            filename = dest_folder + initial_date + "_" + final_date + ".dat"
+
+            now = datetime.now()
+            system_time = now.strftime("%Y-%m-%d %H:%M")
+
+            file = open(filename, 'w')
+            file.write('\n')
+            file.write('FILE AUTOMATICALLY GENERATED TO BE USED AS TRIGGER')
+            file.write('\n')
+            file.write('DO NOT EDIT, CHANGE, MOVE, DELETE THIS FILE!')
+            file.write('\n')
+            file.write('\n')
+            file.write('MOHID forecast and backup finished for the following period:')
+            file.write('START                         : ' + common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+            file.write('END                           : ' + common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+            file.write('\n')
+            file.write('STATUS                        : FINISHED')
+            file.write('\n')
+            file.write('SYSTEM TIME                   : ' + system_time)
+            file.close()
+#-----------------------------------------------------------------------------------------------------------------
 
 '''
 Backups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
@@ -543,6 +619,7 @@ def backup_simulation(yaml):
 Main cycle for the ART run. It has all the functions that are needed for a project.
 '''
 def process_models(yaml):
+    check_triggers(yaml['TRIGGER'])
     for model in yaml.keys():
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
             #if 'METEO' in yaml[model].keys():
@@ -568,9 +645,11 @@ def process_models(yaml):
                     and yaml[model]['DISCHARGES'][discharge]['ENABLE']:
                         gather_discharges_files(yaml, yaml[model])
 
-    check_triggers(yaml['TRIGGER'])
+    #check_triggers(yaml['TRIGGER'])
+    write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'])
     run_mohid(yaml)
     backup_simulation(yaml)
+    update_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'])
 
 
 def execute(yaml):
