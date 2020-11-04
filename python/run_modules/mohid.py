@@ -34,7 +34,7 @@ def verify_run(filename, messages):
 
     with open(filename, 'r') as f:
         lines = f.read().splitlines()
-        for i in range (-1, -50, -1):
+        for i in range (-1, -100, -1):
             for message in messages:
                 if message in lines[i]:
                     return True
@@ -436,10 +436,9 @@ def check_triggers(yaml):
                              status to finished. Resuming execution without the correct status on this file...")
                             return
 
-def write_trigger(yaml, main_path):
-    """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
-    configuration. Checks for dependencies within the models. The execution is never interrupted by this function,
-    any errors found are reported in the logger.
+def write_trigger(yaml, main_path, stage):
+    """ Receives a yaml config file with only the trigger subtree and writes the trigger file 
+        .The execution is never interrupted by this function,any errors found are reported in the logger.
     """
     if yaml['ENABLE'] == 1:
         if static.WRITE_TRIGGER in yaml:
@@ -465,54 +464,25 @@ def write_trigger(yaml, main_path):
             file.write('DO NOT EDIT, CHANGE, MOVE, DELETE THIS FILE!')
             file.write('\n')
             file.write('\n')
-            file.write('MOHID is running for the following period:')
+
+            if stage == "Running":
+                file.write('MOHID is running for the following period:')
+            elif stage == "Finished":
+                file.write('MOHID forecast and backup finished for the following period:')
+
             file.write('START                         : ' + common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
             file.write('END                           : ' + common.file_modifier.date_to_mohid_date(cfg.current_final_date))
             file.write('\n')
-            file.write('STATUS                        : RUNNING')
+
+            if stage == "Running":
+                file.write('STATUS                        : RUNNING')
+            elif stage == "Finished":
+                file.write('STATUS                        : FINISHED')
+
             file.write('\n')
             file.write('SYSTEM TIME                   : ' + system_time)
             file.close()
 #----------------------------------------------------------------------------------------------------------------
-
-def update_trigger(yaml, main_path):
-    """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
-    configuration. Sets the status to "Finished". The execution is never interrupted by this function,
-    any errors found are reported in the logger.
-    """
-    if yaml['ENABLE'] == 1:
-        if static.WRITE_TRIGGER in yaml:
-            output_trigger = yaml[static.WRITE_TRIGGER]
-            dest_folder = main_path + "Log" + "/"
-        else:
-            output_trigger = False
-            static.logger.info("Output trigger not set.", static.WRITE_TRIGGER, " is empty.")
-
-        if output_trigger:
-            initial_date = cfg.current_initial_date.strftime(date_format)
-            tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['ARTCONFIG']['DAYS_PER_RUN'])
-            final_date = tmp_date.strftime(date_format)
-            filename = dest_folder + initial_date + "_" + final_date + ".dat"
-
-            now = datetime.now()
-            system_time = now.strftime("%Y-%m-%d %H:%M")
-
-            file = open(filename, 'w')
-            file.write('\n')
-            file.write('FILE AUTOMATICALLY GENERATED TO BE USED AS TRIGGER')
-            file.write('\n')
-            file.write('DO NOT EDIT, CHANGE, MOVE, DELETE THIS FILE!')
-            file.write('\n')
-            file.write('\n')
-            file.write('MOHID forecast and backup finished for the following period:')
-            file.write('START                         : ' + common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-            file.write('END                           : ' + common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-            file.write('\n')
-            file.write('STATUS                        : FINISHED')
-            file.write('\n')
-            file.write('SYSTEM TIME                   : ' + system_time)
-            file.close()
-#-----------------------------------------------------------------------------------------------------------------
 
 '''
 Backups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
@@ -618,8 +588,9 @@ def backup_simulation(yaml):
 '''
 Main cycle for the ART run. It has all the functions that are needed for a project.
 '''
-def process_models(yaml):
-    check_triggers(yaml['TRIGGER'])
+def process_models(yaml, days_run):
+    if days_run == 0:
+        check_triggers(yaml['TRIGGER'])
     for model in yaml.keys():
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
             #if 'METEO' in yaml[model].keys():
@@ -645,11 +616,10 @@ def process_models(yaml):
                     and yaml[model]['DISCHARGES'][discharge]['ENABLE']:
                         gather_discharges_files(yaml, yaml[model])
 
-    #check_triggers(yaml['TRIGGER'])
-    write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'])
+    write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'], stage = "Running")
     run_mohid(yaml)
     backup_simulation(yaml)
-    update_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'])
+    write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'], stage = "Finished")
 
 
 def execute(yaml):
@@ -657,6 +627,7 @@ def execute(yaml):
     static.logger.info("Run MOHID enabled")
     #operational mode is used relative to the current day of the machine
     if yaml['ARTCONFIG']['OPERATIONAL_MODE']:
+        days_run = 0
         today = datetime.datetime.today()
         #Time needs to start on hour 00:00:00 otherwise will start the models at the wrong time
         today = today.replace(minute=00, hour=00, second=00)
@@ -671,13 +642,14 @@ def execute(yaml):
                 static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
             if yaml['ARTCONFIG']['RUN_SIMULATION']:
-                process_models(yaml)
+                process_models(yaml,days_run)
             if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
     else:
         cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
         cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+        days_run = 0
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST (" + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
@@ -687,12 +659,21 @@ def execute(yaml):
                 static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
             if yaml['ARTCONFIG']['RUN_SIMULATION']:
-                process_models(yaml)
+                process_models(yaml, days_run)
             if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 post_processing.execute(yaml)
                 static.logger.info("Executing Post Processing")
-            cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
-                days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
-            cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+            if 'RUN_TWICE' in yaml['ARTCONFIG'].keys() and yaml['ARTCONFIG']['RUN_TWICE'] == True :
+                #Only run next day after repeating current day. Usefull for upscaling
+                days_run += 1
+                if days_run == 2:
+                    cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
+                        days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+                    cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+                    days_run = 0
+            else:
+                cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
+                    days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+                cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
 
     return None
