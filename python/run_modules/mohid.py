@@ -543,7 +543,7 @@ def execute(yaml):
     else:
         if (yaml['ARTCONFIG']['MONTH_MODE']):
             cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
-            if cfg.currrent_intial_date.month == 12:
+            if cfg.currrent_initial_date.month == 12:
                 cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=1, minute=00, hour=00, second=00)
             else:
                 cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=cfg.global_initial_date.month + 1, year=cfg.global_initial_date.year+1, minute=00, hour=00, second=00)
@@ -565,7 +565,7 @@ def execute(yaml):
                 static.logger.info("Executing Post Processing")
             if (yaml['ARTCONFIG']['MONTH_MODE']):
                 cfg.current_initial_date = cfg.current_final_date
-                if cfg.currrent_intial_date.month == 12:
+                if cfg.currrent_initial_date.month == 12:
                     cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=1, minute=00, hour=00, second=00)
                 else:
                     cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=cfg.global_initial_date.month + 1, year=cfg.global_initial_date.year+1, minute=00, hour=00, second=00)
