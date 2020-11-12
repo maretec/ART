@@ -546,7 +546,7 @@ def execute(yaml):
             if cfg.currrent_intial_date.month == 12:
                 cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=1, minute=00, hour=00, second=00)
             else:
-                cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=cfg.global_initial_date.month + 1, year=cfg.global_intial_date.year+1, minute=00, hour=00, second=00)
+                cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=cfg.global_initial_date.month + 1, year=cfg.global_initial_date.year+1, minute=00, hour=00, second=00)
         else:
             cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
             cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
@@ -568,7 +568,7 @@ def execute(yaml):
                 if cfg.currrent_intial_date.month == 12:
                     cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=1, minute=00, hour=00, second=00)
                 else:
-                    cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=cfg.global_initial_date.month + 1, year=cfg.global_intial_date.year+1, minute=00, hour=00, second=00)
+                    cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=cfg.global_initial_date.month + 1, year=cfg.global_initial_date.year+1, minute=00, hour=00, second=00)
             else:
                 cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
                     days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
