@@ -3,6 +3,7 @@ import run_modules.mohid as mohid
 import run_modules.ww3 as ww3
 import run_modules.wrf as wrf
 
+import common.logger as logger
 import common.constants as static
 import common.config as cfg
 import datetime
@@ -42,6 +43,11 @@ def main():
 
 def running_mode(yaml):
     if yaml['ARTCONFIG']['OPERATIONAL_MODE']:
+        if 'logFolder' in yaml['artconfig'].keys():
+            static.logger = logger.ArtLogger("ART", Path(yaml['artconfig']['logFolder'] / "art_log.txt"))
+        else:
+            static.logger = logger.ArtLogger("ART", "art_log.txt")
+
         static.logger.debug("Running in Operational Mode")
         today = datetime.datetime.today()
         cfg.global_initial_date = today + datetime.timedelta(days=yaml['ARTCONFIG']['REF_DAYS_TO_START'])
