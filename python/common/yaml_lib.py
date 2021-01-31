@@ -1,10 +1,12 @@
 import yaml
 import datetime
 import common.constants as static
-
+from pathlib import Path
 
 def open_yaml_file(path):
-    with open(path, 'r') as yml_file:
+    file_path = Path(path)
+
+    with open(file_path, 'r') as yml_file:
         return yaml.safe_load(yml_file)
 
 

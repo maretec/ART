@@ -1,5 +1,6 @@
 import fileinput
 import sys
+from pathlib import Path
 
 '''
 Given a file pointer, it will write a new parameter and value in the following format:
@@ -32,7 +33,10 @@ def modify_line(file, parameter, new_value):
 
 
 def nomfinch_creator(workPath, parameters, values):
-    file = open(workPath + "/exe/nomfinch.dat", 'w+')
+    work_path = Path(workPath) 
+    file_path = workPath / "/exe/nomfinch.dat"
+    
+    file = open(file_path, 'w+')
     parameters = ["IN_BATIM", "ROOT", "ROOT_SRT", "SURF_DAT", "SURF_HDF", "DOMAIN", "IN_DAD3D", "OUT_DESF", "OUT_FIN",
                   "BOT_DAT", "BOT_HDF", "BOT_FIN", "AIRW_DAT", "AIRW_HDF", "AIRWFIN", "IN_MODEL", "IN_TIDES", "IN_TURB",
                   "TURBS_HDF", "DISPQUAL", "EUL_HDF", "EUL_FIN"]
