@@ -52,6 +52,7 @@ All paths to folders should end on a dash.                                      
 - `outputFilePath` - specifies the file path for which ART will output. If non existent and `outputFile` is set to `1` it will default to the path where ART is running.
 - `sendEmail` - if set to 1 it will enable sending emails upon the completion of MOHID runs. If 0 it disables that option.
 - `email` - list of strings that specify the address(es) of the person the email is sent to. If `sendEmail` is set to 1, it has to exist, and it has to be non-empty.
+- `logFolder` - path for location to ART log folder. If not defined it defaults to the folder of the art executable.
 
 ### mohid
 
