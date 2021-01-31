@@ -58,9 +58,11 @@ All paths to folders should end on a dash.                                      
 - `maxTime` - maximum time allowed for MOHID to run, if non existent it will default to `40000`.
 - `exePath` - MANDATORY - specifies the path to where the MOHID execution file is.
 
-    `outputToFile` - if set to `1` it will redirect the output of MOHID to a file specified by `outputFilePath` parameter. If `0` or non existent it will only output to the console where it is running.
+- `outputToFile` - if set to `1` it will redirect the output of MOHID to a file specified by `outputFilePath` parameter. If `0` or non existent it will only output to the console where it is running.
 
-    `outputFilePath` - specifies the file path for which MOHID will output. If non existent and `outputFile` is set to `1` it will default to the path where MOHID is running.
+- `outputFilePath` - specifies the file path for which MOHID will output. If non existent and `outputFile` is set to `1` it will default to the path where MOHID is running.
+
+- `workingDirectoty` -  specifies the working directory of MOHID (usually it should point to the /exe folder of the model definition) if this value is not defined it will default to the value of `exePath`
 
     ### mpi
 

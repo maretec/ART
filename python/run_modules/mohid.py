@@ -44,6 +44,12 @@ def verify_run(filename, messages):
 def run_mohid(yaml):
     output_file_name = "MOHID_RUN_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
     output_file = open(output_file_name, "w+")
+    
+    if 'workingDirectory' in yaml.keys():
+        working_directory = yaml['MOHID']['workingDirectory']
+    else:
+        working_directory = yaml['MOHID']['EXE_PATH']
+
     if 'MPI' in yaml['MOHID'].keys() and yaml['MOHID']['MPI']['ENABLE']:
         static.logger.info("Starting MOHID MPI")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
@@ -51,7 +57,7 @@ def run_mohid(yaml):
                         # yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
                         # stdout=output_file)
         subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']),
-                        yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
+                        yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(working_directory),
                         stdout=output_file)
         output_file.close()
 
@@ -67,7 +73,7 @@ def run_mohid(yaml):
         ddc_output_filename = "DDC_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
         mohid_ddc_output_log = open(ddc_output_filename, "w+")
         # subprocess.run(["./MohidDDC.exe", "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), stdout=mohid_ddc_output_log)
-        subprocess.run(["MohidDDC.exe", yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']), stdout=mohid_ddc_output_log)
+        subprocess.run(["MohidDDC.exe", yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(working_directory), stdout=mohid_ddc_output_log)
         mohid_ddc_output_log.close()
         if not verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
             static.logger.info("MohidDDC NOT SUCCESSFUL")
@@ -77,7 +83,7 @@ def run_mohid(yaml):
     else:
         static.logger.info("Starting MOHID run")
         #cwd is the working directory where the command will execute. stdout is the output file of the command
-        subprocess.run([yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
+        subprocess.run([yaml['MOHID']['EXE_PATH'], "&"], cwd=os.path.dirname(working_directory),
         stdout=output_file)
         output_file.close()
 
