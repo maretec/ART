@@ -1,0 +1,103 @@
+ARTCONFIG:
+    MAIN_PATH: "/home/maretec/LisOcean_2D/"
+    OPERATIONAL_MODE: 1
+    DAYS_PER_RUN: 1
+    REF_DAYS_TO_START: -1
+    NUMBER_OF_RUNS: 3
+    MODULE: "Mohid"
+    RUN_PREPROCESSING: true
+    RUN_SIMULATION: true
+    RUN_POSTPROCESSING: false
+    START_DATE: "2020 09 03 0 0 0"
+    END_DATE: "2020 09 09 0 0 0"
+    OUTPUT_TO_FILE: 0
+    OUTPUT_FILEPATH: "./art_output.txt"
+  MOHID:
+    MAX_TIME: 40000
+    EXE_PATH: "/home/maretec/LisOcean_2D/LisOcean/exe/MohidWater_mpi.exe"
+    OUTPUT_TO_FILE: 0
+    OUTPUT_FILEPATH: "./mohid_output.txt"
+    MPI:
+      ENABLE: 1
+      TOTAL_PROCESSORS: 3
+  model1:
+    NAME: "LisOcean"
+    PATH: "LisOcean/"
+    DT: 15
+    STORAGE_PATH: "/ekman2raid/BackUp/Lisocean_2D/"
+    RESULTS_LIST: [Hydrodynamic_1.hdf5, "Hydrodynamic_1_Surface.hdf5", "Hydrodynamic_1_w1.hdf5", "WaterProperties_1.hdf5", "WaterProperties_1_Surface.hdf5"]
+    DISCHARGES:
+      discharge1:
+        ENABLE: 1
+        PATH: "/samba/tagus/BackUp/3DTagusWQ/Discharges/"
+    OBC:
+      OBC1:
+        ENABLE: 0
+        SIMULATED_DAYS: 1
+        HAS_SOLUTION_FROM_FILE: 0
+        FILES: ['Portugal_%Yi%Mi%di']
+        FILE_TYPE: "hdf5"
+        WORK_PATH: "/samba/mwdata/Storage01/CMEMS_IBI/Portugal_Daily/Extract/"
+  PREPROCESSING:
+    CopyInputFiles:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/AROM/CopyInputFiles/
+      DAT_DATE_CHANGE: 1
+      CONFIG_FILEPATH: /home/maretec/LisOcean_2D/Work/AROM/CopyInputFiles/GetInputFile.dat
+      EXE_PATH: "/usr/local/bin/python3.7"
+      FLAGS: "/home/maretec/LisOcean_2D/Work/AROM/CopyInputFiles/GetInputFile.py"
+    Glue:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/AROM/Glue/
+      DAT_DATE_CHANGE: 0
+      EXE_PATH: "/home/maretec/LisOcean_2D/Work/AROM/Glue/ConvertToHDF5.exe"
+    Interpolate:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/AROM/Interpolate/
+      DAT_DATE_CHANGE: 1
+      CONFIG_FILEPATH: "/home/maretec/LisOcean_2D/Work/AROM/Interpolate/ConvertToHDF5Action.dat"
+      EXE_PATH: "/home/maretec/LisOcean_2D/Work/AROM/Interpolate/ConvertToHDF5.exe"
+    SendOutputFile:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/AROM/SendOutputFile/
+      DAT_DATE_CHANGE: 1
+      CONFIG_FILEPATH: "/home/maretec/LisOcean_2D/Work/AROM/SendOutputFile/SendOutputFile.dat"
+      EXE_PATH: "/usr/local/bin/python3.7"
+      FLAGS: "/home/maretec/LisOcean_2D/Work/AROM/SendOutputFile/SendOutputFile.py"
+  POSTPROCESSING:
+    copy_input_file:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/OpenDap/CopyInputFiles/
+      DAT_DATE_CHANGE: 1
+      CONFIG_FILEPATH: "/home/maretec/LisOcean_2D/Work/OpenDap/CopyInputFiles/GetInputFile.dat"
+      EXE_PATH: "python3.7"
+      FLAGS: "/home/maretec/LisOcean_2D/Work/OpenDap/CopyInputFiles/GetInputFile.py"
+    extractor_hydrodynamic:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/OpenDap/Extractor_Hydrodynamic/
+      DAT_DATE_CHANGE: 1
+      CONFIG_FILEPATH: "/home/maretec/LisOcean_2D/Work/OpenDap/Extractor_Hydrodynamic/HDFExtractorInput.dat"
+      EXE_PATH: /home/maretec/LisOcean_2D/Work/OpenDap/Extractor_Hydrodynamic/HDF5Extractor.exe
+    extractor_water_properties:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/OpenDap/Extractor_WaterProperties/
+      DAT_DATE_CHANGE: 1
+      CONFIG_FILEPATH: "/home/maretec/LisOcean_2D/Work/OpenDap/Extractor_WaterProperties/HDFExtractorInput.dat"
+      EXE_PATH:  /home/maretec/LisOcean_2D/Work/OpenDap/Extractor_WaterProperties/HDF5Extractor.exe
+    convert_to_hdf5:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/OpenDap/GlueHDF/
+      DAT_DATE_CHANGE: 0
+      EXE_PATH: /home/maretec/LisOcean_2D/Work/OpenDap/GlueHDF/ConvertToHDF5.exe
+    convert_to_netcdf:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/OpenDap/Convert2Netcdf/
+      DAT_DATE_CHANGE: 0
+      EXE_PATH: /home/maretec/LisOcean_2D/Work/OpenDap/Convert2Netcdf/Convert2netcdf.exe
+    sendToThredds:
+      RUN: 1
+      WORKING_DIRECTORY: /home/maretec/LisOcean_2D/Work/OpenDap/SendToThredds/
+      DAT_DATE_CHANGE: 0
+      EXE_PATH: "python3.7"
+      FLAGS: "/home/maretec/LisOcean_2D/Work/OpenDap/SendToThredds/SendToThredds.py"
+  

@@ -10,6 +10,7 @@ ARTCONFIG:
   RUN_POSTPROCESSING: false
   START_DATE: "2019 06 10 0 0 0"
   END_DATE: "2019 06 11 0 0 0"
+  MONTH_MODE: 1
 MOHID:
   MAX_TIME: 40000
   EXE_PATH: "/home/maretec/MARPOCS_LasPalmas/LasPalmas_level1/exe/MohidWater_mpi.exe"

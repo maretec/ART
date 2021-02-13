@@ -2,6 +2,10 @@
 
 [Roadmap](https://www.notion.so/ad599eeba2794af4b7fd8d736d37ff5a)
 
+#WIP BUILDING
+Go to buildscripts and run .bat (Windows-based) or .sh (Unix-based). Requires a python 3 version.
+
+
 # Install executable creator 
 
 Install Pyinstaller

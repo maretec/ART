@@ -112,11 +112,10 @@ def change_model_dat(yaml, model):
 
     file_path = path + "Model_1.dat"
     file = open(file_path, 'w+')
-    common.file_modifier.modify_line(file, "START",
-                                      common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+    common.file_modifier.modify_start_dat_date(file, common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     static.logger.info("Changed START of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    common.file_modifier.modify_line(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+    common.file_modifier.modify_end_dat_date(file, "END", common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     static.logger.info("Changed END of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.modify_line(file, "DT", str(model['DT']))
@@ -526,7 +525,7 @@ def write_trigger(yaml, main_path, days_per_run, stage):
 #----------------------------------------------------------------------------------------------------------------
 
 '''
-Backups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
+Back ups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
 (those that start with "MPI_"). Copies all the consolidated .hdf5 files to the Results_HDF/ folder in the backup path
 that the user defined. And the same goes for the Restart, TimeSeries and Discharges files.
 '''
@@ -661,7 +660,6 @@ def process_models(yaml, days_run):
     backup_simulation(yaml)
     write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'], yaml['ARTCONFIG']['DAYS_PER_RUN'], stage = "Finished")
 
-
 def execute(yaml):
     artconfig_keys = yaml['ARTCONFIG'].keys()
     static.logger.info("Run MOHID enabled")
@@ -687,9 +685,15 @@ def execute(yaml):
                 static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
     else:
-        cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
-        cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
-        days_run = 0
+        if (yaml['ARTCONFIG']['MONTH_MODE']):
+            cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
+            if cfg.current_initial_date.month == 12:
+                cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=1,year=cfg.global_initial_date.year+1, minute=00, hour=00, second=00)
+            else:
+                cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=cfg.global_initial_date.month + 1, minute=00, hour=00, second=00)
+        else:
+            cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
+            cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST (" + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
@@ -703,6 +707,12 @@ def execute(yaml):
             if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 post_processing.execute(yaml)
                 static.logger.info("Executing Post Processing")
+            if (yaml['ARTCONFIG']['MONTH_MODE']):
+                cfg.current_initial_date = cfg.current_final_date
+                if cfg.current_initial_date.month == 12:
+                    cfg.current_final_date = cfg.current_initial_date.replace(day=1,month=1,year=cfg.current_initial_date.year+1, minute=00, hour=00, second=00)
+                else:
+                    cfg.current_final_date = cfg.current_initial_date.replace(day=1,month=cfg.current_initial_date.month + 1, minute=00, hour=00, second=00)
             if 'RUN_TWICE' in yaml['ARTCONFIG'].keys() and yaml['ARTCONFIG']['RUN_TWICE'] == True :
                 #Only run next day after repeating current day. Usefull for upscaling
                 days_run += 1
