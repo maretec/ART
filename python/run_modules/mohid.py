@@ -34,7 +34,7 @@ def verify_run(filename, messages):
 
     with open(filename, 'r') as f:
         lines = f.read().splitlines()
-        for i in range (-1, -50, -1):
+        for i in range (-1, -100, -1):
             for message in messages:
                 if message in lines[i]:
                     return True
@@ -113,6 +113,12 @@ def change_model_dat(yaml, model):
     static.logger.info("Changed END of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.modify_line(file, "DT", str(model['DT']))
+    if 'OPENMP' in yaml['MOHID'].keys() and yaml['MOHID']['OPENMP']['ENABLE']:
+        if 'TOTAL_PROCESSORS' in yaml['MOHID']['OPENMP']:
+            num_omp_processors = yaml['MOHID']['OPENMP']['TOTAL_PROCESSORS']
+        else:
+            static.logger.info("NUM_PROCESSORS not defined. model will use max threads available")
+        common.file_modifier.modify_line(file, "OPENMP_NUM_THREADS", str(num_omp_processors))
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
             common.file_modifier.modify_line(file, key, model['mohid.dat'][key])
@@ -130,14 +136,14 @@ def create_file_name_with_date(filename, initial_date, final_date):
     if '%Yi' in filename:
         filename = filename.replace("%Yi", str(initial_date.year))
     if '%mi' in filename:
-        filename = filename.replace("%Mi", str(initial_date.month))
+        filename = filename.replace("%mi", str(initial_date.month))
     if '%di' in filename:
        filename = filename.replace("%di", str(initial_date.day))
     if '%Yf' in filename:
         filename = filename.replace("%Yf", str(final_date.year))
-    if '%mi' in filename:
-        filename = filename.replace("%Mf", str(final_date.month))
-    if '%di' in filename:
+    if '%mf' in filename:
+        filename = filename.replace("%mf", str(final_date.month))
+    if '%df' in filename:
         filename = filename.replace("%df", str(final_date.day))
     return filename
 
@@ -165,6 +171,13 @@ def gather_boundary_conditions(yaml, model):
                 file_type = "hdf5"
                 if 'FILE_TYPE' in obc_keys:
                     file_type = model['OBC'][obc_model]['FILE_TYPE']
+                
+                
+                OBC_folder = model['NAME']
+                if 'NAME' in obc_keys:
+                    OBC_folder = model['OBC'][obc_model]['NAME']
+                    user_dest_filename = model['OBC'][obc_model]['NAME']
+
 
                 static.logger.debug("Boundary Conditions File Type: " + file_type)
 
@@ -198,19 +211,22 @@ def gather_boundary_conditions(yaml, model):
 
 
                             if os.path.isfile(file_source):
-                                dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
+                                dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + OBC_folder + "/"
                                 if not os.path.isdir(dest_folder):
                                     os.makedirs(dest_folder)
                                 else:
                                     file_destination = dest_folder + obc_file + "." + file_type
                                     copy(file_source, file_destination)
                                     static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
+
                     else:
                         '''
                         SUB_FOLDERS within the WORKPATH for the OBC files. They can be subdivided with year, month and year.
                         '''
-                        if 'SUBFOLDERS' in obc_keys and model['OBC'][obc_model]['SUBFOLDERS'] != 0:
-                            if model['OBC'][obc_model]['SUBFOLDERS'] == 1:
+                        if 'SUBFOLDERS' in obc_keys:
+                            if model['OBC'][obc_model]['SUBFOLDERS'] == 0:
+                                workpath = workpath
+                            elif model['OBC'][obc_model]['SUBFOLDERS'] == 1:
                                 workpath = workpath + str(obc_initial_date.year) + "/"
 
                             elif model['OBC'][obc_model]['SUBFOLDERS'] == 2:
@@ -224,20 +240,24 @@ def gather_boundary_conditions(yaml, model):
                             for file in model['OBC'][obc_model]['FILES']:
                                 if model['OBC'][obc_model]['SUBFOLDERS'] == 4:
                                     file_source = workpath + file + "." + file_type
-                                    print(file_source)
+                                    filename = file
                                 else:
                                     filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
                                     file_source = workpath +  filename + "." + file_type
 
+                                if model['OBC'][obc_model]['SUBFOLDERS'] == 0:
+                                    filename = user_dest_filename
+
                                 if os.path.isfile(file_source):
-                                    dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + model['NAME'] + "/"
+                                    dest_folder = yaml['ARTCONFIG']['MAIN_PATH'] + folder_label + OBC_folder + "/"
                                     if not os.path.isdir(dest_folder):
                                         os.makedirs(dest_folder)
                                     else:
-                                        file_destination = dest_folder + file + "." + file_type
+                                        file_destination = dest_folder + filename + "." + file_type
                                         copy(file_source, file_destination)
                                         static.logger.info("Copying OBC from " + file_source + " to " + file_destination)
-
+                                else:
+                                    static.logger.info("File " + file_source + " does not exist ")
 
 def get_meteo_file(yaml, model):
     model_keys = model.keys()
@@ -382,63 +402,76 @@ def gather_discharges_files(yaml, model):
             copy(file, file_destination)
 
 
-def check_triggers(yaml):
+def check_triggers(yaml, days_run, days_per_run):
     """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
     configuration. Checks for dependencies within the models. The execution is never interrupted by this function,
     any errors found are reported in the logger.
     """
-    if yaml['ENABLE'] == 1:
-        if static.FOLDERS_TO_WATCH in yaml:
-            folders = yaml[static.FOLDERS_TO_WATCH]
+    if yaml['ENABLE'] == 1 :
+        if static.CHECK_ALL in yaml:
+            check = yaml[static.CHECK_ALL]
         else:
-            folders = None
-            static.logger.info("No folders to watch on triggers.", static.FOLDERS_TO_WATCH, " is empty.")
+            check = True
 
-        if static.TRIGGER_MAX_WAIT in yaml:
-            timer = yaml[static.TRIGGER_MAX_WAIT] * 3600
-        else:
-            timer = static.DEFAULT_MAX_WAIT*3600
-            static.logger.info("No waiting time on triggers.", static.TRIGGER_MAX_WAIT, "is empty. Assigning default "
-                                                                                        "max wait time of 6 hours.")
+        if (days_run == 0 or check) :
 
-        if static.TRIGGER_POLLING_RATE in yaml:
-            rate = yaml[static.TRIGGER_POLLING_RATE]
-        else:
-            rate = static.DEFAULT_POLLING_RATE
-            static.logger.info("No polling rate on triggers.", static.TRIGGER_POLLING_RATE, "is empty. Assigning "
-                                                                                            "default polling rate of "
-                                                                                            "120 seconds.")
-        if folders:
-            for file in folders:
-                while not os.path.exists(file):
-                    time.sleep(rate)
-                    timer = timer - rate
-                    if timer < 0:
-                        static.logger.info("Reached max waiting time while trying to find file ", file, ". Resuming \
-                         execution without the file...")
-                        return
+            if static.FOLDERS_TO_WATCH in yaml:
+                folders = yaml[static.FOLDERS_TO_WATCH]
+            else:
+                folders = None
+                static.logger.info("No folders to watch on triggers. " + static.FOLDERS_TO_WATCH + " is empty.")
 
-                finished = False
-                while not finished:
-                    f = open(file, 'r')
-                    for line in f.readlines():
-                        if line.startswith("STATUS"):
-                            if "FINISHED" in line:
-                                finished = True
-                                static.logger.info("File ", file, " found with status FINISHED.")
-                    f.close()
-                    if not finished:
-                        time.sleep(rate * 2)  # rate is doubled to prevent file error with several opens and closes
-                        timer = timer - rate * 2
+            if static.TRIGGER_MAX_WAIT in yaml:
+                timer = yaml[static.TRIGGER_MAX_WAIT] * 3600
+            else:
+                timer = static.DEFAULT_MAX_WAIT*3600
+                static.logger.info("No waiting time on triggers. " + static.TRIGGER_MAX_WAIT + "is empty. Assigning default "
+                                                                                            "max wait time of 6 hours.")
+
+            if static.TRIGGER_POLLING_RATE in yaml:
+                rate = yaml[static.TRIGGER_POLLING_RATE]
+            else:
+                rate = static.DEFAULT_POLLING_RATE
+                static.logger.info("No polling rate on triggers. " + static.TRIGGER_POLLING_RATE + " is empty. Assigning "
+                                                                                                "default polling rate of "
+                                                                                                "120 seconds.")
+            date_format = "%Y-%m-%d"
+            initial_date = cfg.current_initial_date.strftime(date_format)
+            tmp_date = cfg.current_initial_date + datetime.timedelta(days_per_run)
+            final_date = tmp_date.strftime(date_format)
+            if folders:
+                for folder in folders:
+                    file = folder + initial_date + "_" + final_date + ".dat"
+                    while not os.path.exists(file):
+                        static.logger.info("waiting for Trigger file to be created in watch folder")
+                        time.sleep(rate)
+                        timer = timer - rate
                         if timer < 0:
-                            static.logger.info("Reached max waiting time while waiting for file ", file, " to change \
-                             status to finished. Resuming execution without the correct status on this file...")
+                            static.logger.info("Reached max waiting time while trying to find file " + file + ". Resuming \
+                             execution without the file...")
                             return
 
-def write_trigger(yaml, main_path):
-    """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
-    configuration. Checks for dependencies within the models. The execution is never interrupted by this function,
-    any errors found are reported in the logger.
+                    finished = False
+                    static.logger.info("Checking Trigger file status - will advance when becomes Finished")
+                    while not finished:
+                        f = open(file, 'r')
+                        for line in f.readlines():
+                            if line.startswith("STATUS"):
+                                if "FINISHED" in line:
+                                    finished = True
+                                    static.logger.info("File " + file + " found with status FINISHED.")
+                        f.close()
+                        if not finished:
+                            time.sleep(rate * 2)  # rate is doubled to prevent file error with several opens and closes
+                            timer = timer - rate * 2
+                            if timer < 0:
+                                static.logger.info("Reached max waiting time while waiting for file " + file + " to change \
+                                 status to finished. Resuming execution without the correct status on this file...")
+                                return
+
+def write_trigger(yaml, main_path, days_per_run, stage):
+    """ Receives a yaml config file with only the trigger subtree and writes the trigger file 
+        .The execution is never interrupted by this function,any errors found are reported in the logger.
     """
     if yaml['ENABLE'] == 1:
         if static.WRITE_TRIGGER in yaml:
@@ -446,15 +479,16 @@ def write_trigger(yaml, main_path):
             dest_folder = main_path + "Log" + "/"
         else:
             output_trigger = False
-            static.logger.info("Output trigger not set.", static.WRITE_TRIGGER, " is empty.")
+            static.logger.info("Output trigger not set." + static.WRITE_TRIGGER + " is empty.")
 
         if output_trigger:
+            date_format = "%Y-%m-%d"
             initial_date = cfg.current_initial_date.strftime(date_format)
-            tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['ARTCONFIG']['DAYS_PER_RUN'])
+            tmp_date = cfg.current_initial_date + datetime.timedelta(days_per_run)
             final_date = tmp_date.strftime(date_format)
             filename = dest_folder + initial_date + "_" + final_date + ".dat"
 
-            now = datetime.now()
+            now = datetime.datetime.now()
             system_time = now.strftime("%Y-%m-%d %H:%M")
 
             file = open(filename, 'w')
@@ -464,54 +498,25 @@ def write_trigger(yaml, main_path):
             file.write('DO NOT EDIT, CHANGE, MOVE, DELETE THIS FILE!')
             file.write('\n')
             file.write('\n')
-            file.write('MOHID is running for the following period:')
+
+            if stage == "Running":
+                file.write('MOHID is running for the following period:')
+            elif stage == "Finished":
+                file.write('MOHID forecast and backup finished for the following period:')
+
             file.write('START                         : ' + common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
             file.write('END                           : ' + common.file_modifier.date_to_mohid_date(cfg.current_final_date))
             file.write('\n')
-            file.write('STATUS                        : RUNNING')
+
+            if stage == "Running":
+                file.write('STATUS                        : RUNNING')
+            elif stage == "Finished":
+                file.write('STATUS                        : FINISHED')
+
             file.write('\n')
             file.write('SYSTEM TIME                   : ' + system_time)
             file.close()
 #----------------------------------------------------------------------------------------------------------------
-
-def update_trigger(yaml, main_path):
-    """ Receives a yaml config file with only the trigger subtree and checks the trigger entries for correct
-    configuration. Sets the status to "Finished". The execution is never interrupted by this function,
-    any errors found are reported in the logger.
-    """
-    if yaml['ENABLE'] == 1:
-        if static.WRITE_TRIGGER in yaml:
-            output_trigger = yaml[static.WRITE_TRIGGER]
-            dest_folder = main_path + "Log" + "/"
-        else:
-            output_trigger = False
-            static.logger.info("Output trigger not set.", static.WRITE_TRIGGER, " is empty.")
-
-        if output_trigger:
-            initial_date = cfg.current_initial_date.strftime(date_format)
-            tmp_date = cfg.current_initial_date + datetime.timedelta(yaml['ARTCONFIG']['DAYS_PER_RUN'])
-            final_date = tmp_date.strftime(date_format)
-            filename = dest_folder + initial_date + "_" + final_date + ".dat"
-
-            now = datetime.now()
-            system_time = now.strftime("%Y-%m-%d %H:%M")
-
-            file = open(filename, 'w')
-            file.write('\n')
-            file.write('FILE AUTOMATICALLY GENERATED TO BE USED AS TRIGGER')
-            file.write('\n')
-            file.write('DO NOT EDIT, CHANGE, MOVE, DELETE THIS FILE!')
-            file.write('\n')
-            file.write('\n')
-            file.write('MOHID forecast and backup finished for the following period:')
-            file.write('START                         : ' + common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-            file.write('END                           : ' + common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-            file.write('\n')
-            file.write('STATUS                        : FINISHED')
-            file.write('\n')
-            file.write('SYSTEM TIME                   : ' + system_time)
-            file.close()
-#-----------------------------------------------------------------------------------------------------------------
 
 '''
 Back ups all the results located in the res/ folder of the project. It ignores all the results before consolidation 
@@ -532,7 +537,7 @@ def backup_simulation(yaml):
 
     for model in yaml.keys():
         if model != "MOHID" and model != "ARTCONFIG" and model != "POSTPROCESSING"\
-            and model != "PREPROCESSING":
+            and model != "PREPROCESSING" and model != "TRIGGER":
 
             model_keys = yaml[model].keys()
             mohid_keys = yaml['MOHID']
@@ -617,10 +622,10 @@ def backup_simulation(yaml):
 '''
 Main cycle for the ART run. It has all the functions that are needed for a project.
 '''
-def process_models(yaml):
-    check_triggers(yaml['TRIGGER'])
+def process_models(yaml, days_run):
+    check_triggers(yaml['TRIGGER'], days_run, yaml['ARTCONFIG']['DAYS_PER_RUN'])
     for model in yaml.keys():
-        if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID":
+        if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID" and model != "TRIGGER":
             #if 'METEO' in yaml[model].keys():
             create_folder_structure(yaml, yaml[model])
             change_model_dat(yaml, yaml[model])
@@ -644,17 +649,17 @@ def process_models(yaml):
                     and yaml[model]['DISCHARGES'][discharge]['ENABLE']:
                         gather_discharges_files(yaml, yaml[model])
 
-    #check_triggers(yaml['TRIGGER'])
-    write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'])
+    write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'], yaml['ARTCONFIG']['DAYS_PER_RUN'], stage = "Running")
     run_mohid(yaml)
     backup_simulation(yaml)
-    update_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'])
+    write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'], yaml['ARTCONFIG']['DAYS_PER_RUN'], stage = "Finished")
 
 def execute(yaml):
     artconfig_keys = yaml['ARTCONFIG'].keys()
     static.logger.info("Run MOHID enabled")
     #operational mode is used relative to the current day of the machine
     if yaml['ARTCONFIG']['OPERATIONAL_MODE']:
+        days_run = 0
         today = datetime.datetime.today()
         #Time needs to start on hour 00:00:00 otherwise will start the models at the wrong time
         today = today.replace(minute=00, hour=00, second=00)
@@ -669,7 +674,7 @@ def execute(yaml):
                 static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
             if yaml['ARTCONFIG']['RUN_SIMULATION']:
-                process_models(yaml)
+                process_models(yaml,days_run)
             if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
@@ -683,6 +688,7 @@ def execute(yaml):
         else:
             cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
             cfg.current_final_date = cfg.global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+            days_run = 0
         while cfg.current_final_date <= cfg.global_final_date.replace(minute=00, hour=00, second=00):
             static.logger.info("========================================")
             static.logger.info("STARTING FORECAST (" + cfg.current_initial_date.strftime("%Y-%m-%d") + " to " +
@@ -692,10 +698,19 @@ def execute(yaml):
                 static.logger.info("Executing Pre Processing")
                 pre_processing.execute(yaml)
             if yaml['ARTCONFIG']['RUN_SIMULATION']:
-                process_models(yaml)
+                process_models(yaml, days_run)
             if 'RUN_POSTPROCESSING' in artconfig_keys and yaml['ARTCONFIG']['RUN_POSTPROCESSING']:
                 post_processing.execute(yaml)
                 static.logger.info("Executing Post Processing")
+            if 'RUN_TWICE' in yaml['ARTCONFIG'].keys() and yaml['ARTCONFIG']['RUN_TWICE'] == True :
+                #Only run next day after repeating current day. Usefull for upscaling
+                days_run += 1
+                if days_run == 1:
+                    cfg.current_initial_date = cfg.current_initial_date + datetime.timedelta(
+                        days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+                    cfg.current_final_date = cfg.current_final_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
+                elif days_run == 2:
+                    days_run = 0
             if (yaml['ARTCONFIG']['MONTH_MODE']):
                 cfg.current_initial_date = cfg.current_final_date
                 if cfg.current_initial_date.month == 12:
