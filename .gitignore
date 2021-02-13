@@ -1,12 +1,13 @@
-.vscode/
-.DS_STORE/
-.setttings/
+.vscode/*
+.DS_STORE/*
+.settings/*
 
 
-\.idea/
+\.idea/*
 
 python/log\.txt
 
+tests/*
 *.pyc
 
 venv/bin/
