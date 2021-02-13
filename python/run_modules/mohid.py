@@ -679,7 +679,8 @@ def execute(yaml):
                 static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
     else:
-        if (yaml['ARTCONFIG']['MONTH_MODE']):
+        if 'MONTH_MODE' in artconfig_keys and yaml['ARTCONFIG']['MONTH_MODE']:
+            static.logger.info("Month mode activated. Time skips will be of 1 month each.")
             cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
             if cfg.current_initial_date.month == 12:
                 cfg.current_final_date = cfg.global_initial_date.replace(day=1,month=1,year=cfg.global_initial_date.year+1, minute=00, hour=00, second=00)
