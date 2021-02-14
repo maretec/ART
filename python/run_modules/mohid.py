@@ -120,9 +120,8 @@ def change_model_dat(yaml, model):
     file = open(file_path, 'w+')
     common.file_modifier.modify_start_dat_date(file, common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     static.logger.info("Changed START of " + str(file_path) + " to " +
-                       common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    common.file_modifier.modify_end_dat_date(file, "END",
-                                             common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+                        common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+    common.file_modifier.modify_end_dat_date(file, common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     static.logger.info("Changed END of " + str(file_path) + " to " +
                        common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     common.file_modifier.modify_line(file, "DT", str(model['DT']))
@@ -726,7 +725,8 @@ def execute(yaml):
                 static.logger.info("Executing Post Processing")
                 post_processing.execute(yaml)
     else:
-        if (yaml['ARTCONFIG']['MONTH_MODE']):
+        if 'MONTH_MODE' in artconfig_keys and yaml['ARTCONFIG']['MONTH_MODE']:
+            static.logger.info("Month mode activated. Time skips will be of 1 month each.")
             cfg.current_initial_date = cfg.global_initial_date.replace(minute=00, hour=00, second=00)
             if cfg.current_initial_date.month == 12:
                 cfg.current_final_date = cfg.global_initial_date.replace(day=1, month=1,

@@ -45,8 +45,7 @@ def modify_end_dat_date(file, new_value):
             line = '{0:30}{1}'.format("END", ": " + new_value + "\n")
         sys.stdout.write(line)
     if not changed:
-        f = open(file, "a")
-        line_creator(f, "END", new_value)
+        line_creator(file, "END", new_value)
 
 
 def modify_start_dat_date(file, new_value):
@@ -57,8 +56,7 @@ def modify_start_dat_date(file, new_value):
             line = '{0:30}{1}'.format("START", ": " + new_value + "\n")
         sys.stdout.write(line)
     if not changed:
-        f = open(file, "a")
-        line_creator(f, "START", new_value)
+        line_creator(file, "START", new_value)
 
 
 def nomfinch_creator(work_path, parameters, values):
