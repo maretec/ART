@@ -1,15 +1,15 @@
-import common.constants as static
-import datetime
-import common.file_modifier
-import os.path
-import common.config as cfg
+from pathlib import Path
 from shutil import copy
-import subprocess
+import common.config as cfg
+import common.constants as static
+import common.file_modifier
+import datetime
 import glob
+import os.path
 import run_modules.pre_processing as pre_processing
 import run_modules.post_processing as post_processing
+import subprocess
 import time
-from pathlib import Path
 
 
 def create_folder_structure(yaml, model):
@@ -389,8 +389,8 @@ def gather_restart_files(yaml, model):
         os.makedirs(restart_files_dest)
 
     # glob creates a list with all files that match the regex expression
-    fin_files = glob.glob(path_fin_files + "*.fin")
-    fin5_files = glob.glob(path_fin_files + "*.fin5")
+    fin_files = glob.glob(path_fin_files.__str__() + "*.fin")
+    fin5_files = glob.glob(path_fin_files.__str__() + "*.fin5")
     for file in fin_files:
         # the nomfich.dat file for mohid is not changed and when a restart file is generated it ends with _1.fin
         # and because of that an input restart file needs to finish with _0.fin. So we simply change it when we copy it.
