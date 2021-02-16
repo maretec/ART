@@ -8,7 +8,6 @@ import subprocess
 import glob
 import run_modules.pre_processing as pre_processing
 import run_modules.post_processing as post_processing
-import common.send_email as send_email
 import time
 from pathlib import Path
 
@@ -110,32 +109,30 @@ def change_model_dat(yaml, model):
     static.logger.info("Creating new model file for model: " + model['NAME'])
     keys = model.keys()
     main_path = Path(yaml['ARTCONFIG']['MAIN_PATH'])
-    path =  main_path / model['PATH'] / "data/"
+    path = main_path / model['PATH'] / "data/"
     if not os.path.isdir(path):
         static.logger.info("Path for model folder does not exist.")
         static.logger.info("Check path parameters in the yaml file. Exiting ART.")
         exit(1)
 
     file_path = path / "Model_1.dat"
-    file = open(file_path, 'w+')
-    common.file_modifier.modify_start_dat_date(file, common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
+    common.file_modifier.modify_start_dat_date(file_path, common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
     static.logger.info("Changed START of " + str(file_path) + " to " +
                         common.file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    common.file_modifier.modify_end_dat_date(file, common.file_modifier.date_to_mohid_date(cfg.current_final_date))
+    common.file_modifier.modify_end_dat_date(file_path, common.file_modifier.date_to_mohid_date(cfg.current_final_date))
     static.logger.info("Changed END of " + str(file_path) + " to " +
                        common.file_modifier.date_to_mohid_date(cfg.current_final_date))
-    common.file_modifier.modify_line(file, "DT", str(model['DT']))
+    common.file_modifier.modify_line(file_path, "DT", str(model['DT']))
     if 'OPENMP' in yaml['MOHID'].keys() and yaml['MOHID']['OPENMP']['ENABLE']:
         if 'TOTAL_PROCESSORS' in yaml['MOHID']['OPENMP']:
             num_omp_processors = yaml['MOHID']['OPENMP']['TOTAL_PROCESSORS']
         else:
             static.logger.info("NUM_PROCESSORS not defined. model will use max threads available")
-        common.file_modifier.modify_line(file, "OPENMP_NUM_THREADS", str(num_omp_processors))
+        common.file_modifier.modify_line(file_path, "OPENMP_NUM_THREADS", str(num_omp_processors))
     if 'mohid.dat' in keys:
         for key in model['mohid.dat'].keys():
-            common.file_modifier.modify_line(file, key, model['mohid.dat'][key])
+            common.file_modifier.modify_line(file_path, key, model['mohid.dat'][key])
     static.logger.info("Model " + model['NAME'] + " .dat file was created.")
-    file.close()
     return
 
 
@@ -678,7 +675,6 @@ def process_models(yaml, days_run):
     check_triggers(yaml['TRIGGER'], days_run, yaml['ARTCONFIG']['DAYS_PER_RUN'])
     for model in yaml.keys():
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID" and model != "TRIGGER":
-            # if 'METEO' in yaml[model].keys():
             create_folder_structure(yaml, yaml[model])
             change_model_dat(yaml, yaml[model])
             gather_boundary_conditions(yaml, yaml[model])
