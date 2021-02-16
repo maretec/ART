@@ -57,7 +57,7 @@ def run_mohid(yaml):
         if 'EXE' in yaml['MOHID']['MPI']:
             exe_path = Path(yaml['MOHID']['EXE'])
         else:
-            static.logger.info("Executable information for MPI missing. Defaulting to main EXE: " + exe_path0 )
+            static.logger.info("Executable information for MPI missing. Defaulting to main EXE: " + exe_path.__str__())
 
         subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']),
                         exe_path, "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
@@ -110,7 +110,7 @@ def change_model_dat(yaml, model):
     static.logger.info("Creating new model file for model: " + model['NAME'])
     keys = model.keys()
     main_path = Path(yaml['ARTCONFIG']['MAIN_PATH'])
-    path =  main_path / model['PATH'] + "data/"
+    path =  main_path / model['PATH'] / "data/"
     if not os.path.isdir(path):
         static.logger.info("Path for model folder does not exist.")
         static.logger.info("Check path parameters in the yaml file. Exiting ART.")
@@ -171,7 +171,7 @@ defined in the list 'files' in the yaml file.
 
 def gather_boundary_conditions(yaml, model):
     model_keys = model.keys()
-    main_path = Path(yaml['artconfig']['mainPath'])
+    main_path = Path(yaml['ARTCONFIG']['MAIN_PATH'])
     if 'OBC' in model_keys:
         for obc_model in model['OBC']:
             if 'ENABLE' in model['OBC'][obc_model].keys() and model['OBC'][obc_model]['ENABLE']:
@@ -204,8 +204,11 @@ def gather_boundary_conditions(yaml, model):
                     obc_initial_date_str = obc_initial_date.strftime(date_format)
                     obc_final_date_str = obc_final_date.strftime(date_format)
 
-                    workpath = Path(model['OBC'][obc_model]['WORK_PATH'])
-
+                    if 'WORK_PATH' in model['OBC'][obc_model].keys():
+                        work_path = Path(model['OBC'][obc_model]['WORK_PATH'])
+                    else:
+                        static.logger.error("WORK_PATH NOT DEFINED INSIDE THE OBC MODEL: " + obc_model)
+                        raise ValueError("WORK_PATH keyword must be defined inside OBC model: " + obc_model)
                     '''
                     if 'HAS_SOLUTION_FROM_FILE' it needs to get the OBC files from a "parent" model, and needs to follow the structure
                     we use to backup our results.
@@ -221,7 +224,7 @@ def gather_boundary_conditions(yaml, model):
                         static.logger.info("OBC Final Date: " + obc_final_date_str)
 
                         obc_string = obc_initial_date_str + "_" + obc_final_date_str + "/"
-                        folder_source = workpath / obc_string
+                        folder_source = work_path / obc_string
 
                         for obc_file in model['OBC'][obc_model]['FILES']:
                             obc_files_string = obc_file + "." + file_type
@@ -252,17 +255,17 @@ def gather_boundary_conditions(yaml, model):
                             elif model['OBC'][obc_model]['SUBFOLDERS'] == 4:
                                 path_string = obc_initial_date_str + "_" + obc_final_date_str + "/"
 
-                            workpath = workpath / path_string
+                            work_path = work_path / path_string
 
                             for file in model['OBC'][obc_model]['FILES']:
                                 if model['OBC'][obc_model]['SUBFOLDERS'] == 4:
                                     file_string = file + "." + file_type
-                                    file_source = workpath / file_string
+                                    file_source = work_path / file_string
                                     filename = file
                                 else:
                                     filename = create_file_name_with_date(file, obc_initial_date, obc_final_date)
                                     file_string = filename + "." + file_type
-                                    file_source = workpath / file_string
+                                    file_source = work_path / file_string
 
                                 if model['OBC'][obc_model]['SUBFOLDERS'] == 0:
                                     filename = user_dest_filename
@@ -359,7 +362,7 @@ Gets restart files from previous run. These files need to be put in /res folder 
 
 def gather_restart_files(yaml, model):
     static.logger.info("Gathering the restart files for model: " + model['NAME'])
-    main_path = Path(yaml['artconfig']['mainPath'])
+    main_path = Path(yaml['ARTCONFIG']['MAIN_PATH'])
 
     date_format = "%Y-%m-%d"
     if 'dateFormat' in yaml['MOHID'].keys():
@@ -373,12 +376,12 @@ def gather_restart_files(yaml, model):
     base_fin_path = Path(model['STORAGE_PATH'])
     date_fin_path = "Restart/" + previous_init_date.strftime(date_format) + "_" + \
                     previous_final_date.strftime(date_format) + "/"
-    path_fin_files =  base_fin_path / date_fin_path
+    path_fin_files = base_fin_path / date_fin_path
 
-    static.logger.info("Source Restart Files: " + path_fin_files)
+    static.logger.info("Source Restart Files: " + path_fin_files.__str__())
 
     if not os.path.isdir(path_fin_files):
-        static.logger.info("Restart folder " + path_fin_files + "does not exist.")
+        static.logger.info("Restart folder " + path_fin_files.__str__() + "does not exist.")
         return
 
     model_keys = model.keys()
@@ -482,7 +485,7 @@ def check_triggers(yaml, days_run, days_per_run):
                 for folder in folders:
                     file = folder + initial_date + "_" + final_date + ".dat"
                     while not os.path.exists(file):
-                        static.logger.info("waiting for Trigger file to be created in watch folder")
+                        static.logger.info("Waiting for Trigger file to be created in watch folder")
                         time.sleep(rate)
                         timer = timer - rate
                         if timer < 0:

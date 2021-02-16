@@ -71,5 +71,3 @@ def nomfinch_creator(work_path, parameters, values):
         line_creator(file, parameter, "1")
     file.close()
     return
-
-
