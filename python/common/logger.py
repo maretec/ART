@@ -8,7 +8,7 @@ class ArtLogger:
                             filemode='a',
                             format='%(asctime)s ->  %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S',
-                            level=logging.INFO)
+                            level=logging.DEBUG)
         self.logger = logging.getLogger(name)
 
     def debug(self, message):
