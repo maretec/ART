@@ -1,6 +1,7 @@
 import fileinput
 import sys
 import re
+from pathlib import Path
 
 '''
 Given a file pointer, it will write a new parameter and value in the following format:
@@ -44,8 +45,7 @@ def modify_end_dat_date(file, new_value):
             line = '{0:30}{1}'.format("END", ": " + new_value + "\n")
         sys.stdout.write(line)
     if not changed:
-        f = open(file, "a")
-        line_creator(f, "END", new_value)
+        line_creator(file, "END", new_value)
 
 
 def modify_start_dat_date(file, new_value):
@@ -56,12 +56,14 @@ def modify_start_dat_date(file, new_value):
             line = '{0:30}{1}'.format("START", ": " + new_value + "\n")
         sys.stdout.write(line)
     if not changed:
-        f = open(file, "a")
-        line_creator(f, "START", new_value)
+        line_creator(file, "START", new_value)
 
 
 def nomfinch_creator(work_path, parameters, values):
-    file = open(work_path + "/exe/nomfinch.dat", 'w+')
+    work_path = Path(work_path)
+    file_path = work_path / "/exe/nomfinch.dat"
+
+    file = open(file_path, 'w+')
     parameters = ["IN_BATIM", "ROOT", "ROOT_SRT", "SURF_DAT", "SURF_HDF", "DOMAIN", "IN_DAD3D", "OUT_DESF", "OUT_FIN",
                   "BOT_DAT", "BOT_HDF", "BOT_FIN", "AIRW_DAT", "AIRW_HDF", "AIRWFIN", "IN_MODEL", "IN_TIDES", "IN_TURB",
                   "TURBS_HDF", "DISPQUAL", "EUL_HDF", "EUL_FIN"]
@@ -69,5 +71,3 @@ def nomfinch_creator(work_path, parameters, values):
         line_creator(file, parameter, "1")
     file.close()
     return
-
-
