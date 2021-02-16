@@ -22,13 +22,13 @@ def modify_line(file, parameter, new_value):
     for i in range(0, len(lines)):
         if re.search("^" + parameter, lines[i]):
             changed = True
-            lines[i] = '{0:30}{1}'.format(parameter, ": " + new_value + "\n")
+            lines[i] = '{0:30}{1}'.format(parameter, ": " + new_value)
     if changed:
         static.logger.info("Modifying " + file.__str__() + " START value to " + new_value)
     else:
         static.logger.info("Missing " + parameter + " value in " + file.__str__())
         static.logger.info("Adding " + parameter + " VALUE to " + file.__str__() + " : " + new_value)
-        lines.append('{0:30}{1}'.format(parameter, ": " + new_value + "\n"))
+        lines.append('{0:30}{1}'.format(parameter, ": " + new_value))
     text = "\n".join(lines)
     file.write_text(text)
 
@@ -40,13 +40,13 @@ def modify_end_dat_date(file, new_value):
     for i in range(0, len(lines)):
         if re.search("^END", lines[i]):
             changed = True
-            lines[i] = '{0:30}{1}'.format("END", ": " + new_value + "\n")
+            lines[i] = '{0:30}{1}'.format("END", ": " + new_value)
     if changed:
         static.logger.info("Modifying " + file.__str__() + " END value to " + new_value)
     else:
         static.logger.info("Missing END value in " + file.__str__())
         static.logger.info("Adding END VALUE to " + file.__str__() + " : " + new_value)
-        lines.append('{0:30}{1}'.format("END", ": " + new_value + "\n"))
+        lines.append('{0:30}{1}'.format("END", ": " + new_value))
     text = "\n".join(lines)
     file.write_text(text)
 
@@ -58,12 +58,12 @@ def modify_start_dat_date(file, new_value):
     for i in range(0, len(lines)):
         if re.search("^START", lines[i]):
             changed = True
-            lines[i] = '{0:30}{1}'.format("START", ": " + new_value + "\n")
+            lines[i] = '{0:30}{1}'.format("START", ": " + new_value)
     if changed:
         static.logger.info("Modifying " + file.__str__() + " START value to " + new_value)
     else:
         static.logger.info("Missing START value in " + file.__str__())
         static.logger.info("Adding START VALUE to " + file.__str__() + " : " + new_value)
-        lines.append('{0:30}{1}'.format("START", ": " + new_value + "\n"))
+        lines.append('{0:30}{1}'.format("START", ": " + new_value))
     text = "\n".join(lines)
     file.write_text(text)
