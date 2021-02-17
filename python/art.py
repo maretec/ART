@@ -9,24 +9,36 @@ import datetime
 import os.path
 import sys
 
+from pathlib import Path
+import common.logger as logger
+
 
 def validate_path(path):
     return os.path.exists(path)
 
 
 def main():
-
-
     yaml = yaml_lib.open_yaml_file(sys.argv[1])
 
-    #yaml_lib.validate_yaml_file(yaml)
-    #yaml_lib.validate_date(yaml)
+    # yaml_lib.validate_yaml_file(yaml)
+    # yaml_lib.validate_date(yaml)
     validate_path(yaml['ARTCONFIG']['MAIN_PATH'])
+
+    now = datetime.datetime.now()
+    now_str = now.strftime("%y-%m-%d_%H%M%S")
+    file_path = "ART_" + now_str + ".log"
+    folder_path = Path(yaml['ARTCONFIG']['MAIN_PATH'] + "/Logs")
+    log_path = folder_path / file_path
+
+    if not folder_path.is_dir():
+        os.makedirs(folder_path)
+
+    static.logger = logger.ArtLogger("ART", log_path)
 
     artconfig_keys = yaml['ARTCONFIG'].keys()
 
     running_mode(yaml)
-            
+
     module = yaml['ARTCONFIG']['MODULE']
     if module == "mohid" or module == "Mohid":
         mohid.execute(yaml)
@@ -36,7 +48,7 @@ def main():
         wrf.execute(yaml)
     else:
         raise ValueError("No valid simulation module given.")
-        
+
     print("------------- ART RUN FINISHED -------------")
 
 
@@ -46,7 +58,7 @@ def running_mode(yaml):
         today = datetime.datetime.today()
         cfg.global_initial_date = today + datetime.timedelta(days=yaml['ARTCONFIG']['REF_DAYS_TO_START'])
         cfg.global_final_date = (today + datetime.timedelta(days=yaml['ARTCONFIG']['NUMBER_OF_RUNS'])
-                                    + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'] - 1))
+                                 + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'] - 1))
         cfg.number_of_runs = yaml['ARTCONFIG']['NUMBER_OF_RUNS']
         initial_date = cfg.global_initial_date
         final_date = initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
@@ -57,7 +69,7 @@ def running_mode(yaml):
         try:
             static.logger.debug("Running in Normal Mode")
             cfg.global_initial_date = datetime.datetime.strptime(yaml['ARTCONFIG']['START_DATE'],
-                                                                    static.DATE_FORMAT)
+                                                                 static.DATE_FORMAT)
             cfg.global_final_date = datetime.datetime.strptime(yaml['ARTCONFIG']['END_DATE'], static.DATE_FORMAT)
 
             difference = cfg.global_final_date - cfg.global_initial_date

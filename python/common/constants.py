@@ -4,10 +4,7 @@ from datetime import datetime
 DATE_FORMAT = '%Y %m %d %H %M %S'
 DATE_FOLDER_FORMAT = '%Y-%m-%d'
 
-now = datetime.now()
-now_str = now.strftime("%y-%m-%d_%H%M%S")
-
-logger = logger.ArtLogger("ART", "ART_" + now_str + ".log")
+logger = None
 WRITE_TRIGGER = "WRITE_TRIGGER"
 FOLDERS_TO_WATCH = "FOLDERS_TO_WATCH"
 TRIGGER_MAX_WAIT = "TRIGGER_MAX_WAIT"
