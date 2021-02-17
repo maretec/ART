@@ -1,4 +1,5 @@
 import common.logger as logger
+from datetime import datetime
 
 DATE_FORMAT = '%Y %m %d %H %M %S'
 DATE_FOLDER_FORMAT = '%Y-%m-%d'
