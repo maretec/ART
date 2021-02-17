@@ -6,7 +6,7 @@ class ArtLogger:
         self.logFile = logFile
         logging.basicConfig(filename=self.logFile,
                             filemode='a',
-                            format='%(asctime)s\t| %(name)s | %(levelname)s | %(message)s',
+                            format='%(asctime)s ->  %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S',
                             level=logging.DEBUG)
         self.logger = logging.getLogger(name)
