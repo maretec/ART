@@ -45,8 +45,10 @@ def verify_run(filename, messages):
     return False
 
 
-def run_mohid(yaml):
-    output_file_name = Path("MOHID_RUN_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log")
+def run_mohid(yaml, main_model_path):
+    model_path = Path(main_model_path)
+    file_name = "MOHID_RUN_" + cfg.current_initial_date.strftime("%Y-%m-%d") + ".log"
+    output_file_name = model_path / file_name
     output_file = open(output_file_name, "w+")
     exe_path = Path(yaml['MOHID']['EXE_PATH'])
 
@@ -673,8 +675,11 @@ Main cycle for the ART run. It has all the functions that are needed for a proje
 
 def process_models(yaml, days_run):
     check_triggers(yaml['TRIGGER'], days_run, yaml['ARTCONFIG']['DAYS_PER_RUN'])
+    first_model = None
     for model in yaml.keys():
         if model != "ARTCONFIG" and model != "POSTPROCESSING" and model != "PREPROCESSING" and model != "MOHID" and model != "TRIGGER":
+            if first_model is None:
+                first_model = model
             create_folder_structure(yaml, yaml[model])
             change_model_dat(yaml, yaml[model])
             gather_boundary_conditions(yaml, yaml[model])
@@ -693,7 +698,8 @@ def process_models(yaml, days_run):
                         gather_discharges_files(yaml, yaml[model])
 
     write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'], yaml['ARTCONFIG']['DAYS_PER_RUN'], stage="Running")
-    run_mohid(yaml)
+    main_model_path = Path(yaml['ARTCONFIG']['MAIN_PATH'] + yaml['ARTCONFIG'][first_model]['PATH'])
+    run_mohid(yaml, main_model_path)
     backup_simulation(yaml)
     write_trigger(yaml['TRIGGER'], yaml['ARTCONFIG']['MAIN_PATH'], yaml['ARTCONFIG']['DAYS_PER_RUN'], stage="Finished")
 
