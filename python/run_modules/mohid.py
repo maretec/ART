@@ -54,12 +54,13 @@ def run_mohid(yaml):
         static.logger.info("Starting MOHID MPI")
         # cwd is the working directory where the command will execute. stdout is the output file of the command
         if 'EXE' in yaml['MOHID']['MPI']:
-            exe_path = Path(yaml['MOHID']['EXE'])
+            exe_path = Path(yaml['MOHID']['MPI']['EXE_PATH'])
         else:
-            static.logger.info("Executable information for MPI missing. Defaulting to main EXE: " + exe_path.__str__())
+            static.logger.info("Missing MOHID MPI executbale aborting run!")
+            exit(-1)
 
         subprocess.run(["mpiexec", "-np", str(yaml['MOHID']['MPI']['TOTAL_PROCESSORS']),
-                        exe_path, "&"], cwd=os.path.dirname(yaml['MOHID']['EXE_PATH']),
+                        exe_path, "&"], cwd=os.path.dirname(yaml['MOHID']['MPI']['EXE_PATH']),
                        stdout=output_file)
         output_file.close()
 
