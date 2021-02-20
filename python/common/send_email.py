@@ -1,16 +1,29 @@
-import smtplib
+import yagmail
+import socket
 
-def send_email(smtpserver, to_addr_list, message, cc_addr_list, from_addr, password, subject):
-    #To Addresses and CCs have to come in the form of lists (e.g. ['email1@email.com', 'email2@gmail.com'])
-    user = from_addr.split("@")[0]
-    msg = "\r\n".join(["From: " + from_addr, "To: " + ','.join(to_addr_list), "Cc: " + ','.join(cc_addr_list), "Subject: " + subject, message])
-    try:
-        server = smtplib.SMTP(smtpserver)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(user, password)
-        server.sendmail(from_addr, ','.join(to_addr_list), msg)
-        server.close()
-    except:
-        raise ValueError("Failed to send message")
+ok_body = "RUN WAS SUCCESSFUL"
+not_ok_body = "RUN WAS NOT SUCCESSFUL"
+
+
+class MailClient:
+    def __init__(self, email, password, receivers):
+        self.email = email
+        self.password = password
+        self.receivers = receivers
+        self.yag = yagmail.SMTP(self.email, self.password)
+
+    def send_ok_email(self, log_file):
+        self.yag.send(
+            to=self.receivers,
+            subject="ART: RUN on " + socket.gethostname() + " SUCCESSFUL",
+            contents=ok_body,
+            attachments=log_file
+        )
+
+    def send_not_ok_email(self, log_file):
+        self.yag.send(
+            to=self.receivers,
+            subject="ART: RUN on " + socket.gethostname() + " NOT SUCCESSFUL",
+            contents=not_ok_body,
+            attachments=log_file
+        )
