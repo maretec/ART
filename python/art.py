@@ -1,10 +1,10 @@
-import common.yaml_lib as yaml_lib
-import run_modules.mohid as mohid
-import run_modules.ww3 as ww3
-import run_modules.wrf as wrf
-
-import common.constants as static
-import common.config as cfg
+import python.common.yaml.yaml_lib as yaml_lib
+import python.mohid.mohid_water as mohid_water
+import python.mohid.mohid_land as mohid_land
+import python.swan.swan as swan
+import python.ww3.ww3 as ww3
+import python.mohid.util.constants as self
+import python.common.MailClient as mail
 import datetime
 import os.path
 import sys
@@ -13,80 +13,85 @@ from pathlib import Path
 import common.logger as logger
 
 
+def open_and_validate_yaml(yaml):
+    yaml_file = yaml_lib.open_yaml_file(sys.argv[1])
+    # yaml_lib.validate_yaml_file(yaml)
+    # yaml_lib.validate_date(yaml)
+    #validate_path(yaml_file['ART'][''])
+
+    return yaml_file
+
+
+def get_log_file(yaml):
+    now = datetime.datetime.now()
+    now_str = now.strftime("%y-%m-%d_%H%M%S")
+    file_path = "ART_" + now_str + ".log"
+    folder_path = Path(yaml['ART']['PROJECT_PATH'] + "/Logs")
+
+    if not folder_path.is_dir():
+        os.makedirs(folder_path)
+
+    return folder_path / file_path
+
+
+class ART:
+    def __init__(self, yaml):
+        self.yaml = yaml
+        self.log_path = get_log_file(yaml)
+        self.mail = self.initialize_mail(yaml)
+        if self.mail is not None:
+            self.mail.attachment = self.log_path
+        self.logger = logger.ArtLogger("ART", self.log_path)
+
+    def initialize_mail(self, yaml):
+        if 'EMAIL_NOTIFICATION' in yaml['ART'].keys() and yaml['ART']['EMAIL_NOTIFICATION']['ENABLE']:
+            self.logger.info("Email Notification enabled.")
+            self.logger.info("Sending notifications to: " + yaml['ART']['RECEIVERS'])
+            return mail.MailClient(yaml['ART']['USER'], yaml['ART']['PASSWORD'], yaml['ART']['RECEIVERS'])
+
+    def execute_module(self):
+        try:
+            if 'MODULE' in self.yaml['ART'].keys():
+                modules = self.yaml['ART']['MODULE']
+                if 'MOHID_WATER' in modules and modules['MOHID_WATER']:
+                    self.logger.info("Starting MOHID Water module")
+                    mohid = mohid_water.MohidWater(self)
+                    mohid.execute()
+                if 'MOHID_LAND' in modules and modules['MOHID_LAND']:
+                    self.logger.info("Starting MOHID Land module")
+                    mohid_land.execute(self)
+                if 'SWAN' in modules and modules['SWAN']:
+                    self.logger.info("Starting Swan module")
+                    swan.execute(self)
+                if 'WW3' in modules and modules['WW3']:
+                    self.logger.info("Starting Wavewatch III module")
+                    ww3.execute(self)
+            else:
+                self.logger.info("Module Keyword not found. Skipping Simulation...")
+        except ValueError as e:
+            self.error_routine(e)
+
+    def error_routine(self, error: ValueError):
+        self.logger.error(error.__str__())
+        self.mail.send_not_ok_email(error.__str__())
+        exit(-1)
+
+    def exit_routine(self):
+        print("------------- ART RUN FINISHED -------------")
+        self.logger.info("------------- ART RUN FINISHED -------------")
+        return
+
+
 def validate_path(path):
     return os.path.exists(path)
 
 
 def main():
-    yaml = yaml_lib.open_yaml_file(sys.argv[1])
+    yaml = open_and_validate_yaml(sys.argv[1])
 
-    # yaml_lib.validate_yaml_file(yaml)
-    # yaml_lib.validate_date(yaml)
-    validate_path(yaml['ARTCONFIG']['MAIN_PATH'])
-
-    now = datetime.datetime.now()
-    now_str = now.strftime("%y-%m-%d_%H%M%S")
-    file_path = "ART_" + now_str + ".log"
-    folder_path = Path(yaml['ARTCONFIG']['MAIN_PATH'] + "/Logs")
-    log_path = folder_path / file_path
-
-    if not folder_path.is_dir():
-        os.makedirs(folder_path)
-
-    static.logger = logger.ArtLogger("ART", log_path)
-
-    artconfig_keys = yaml['ARTCONFIG'].keys()
-
-    running_mode(yaml)
-
-    module = yaml['ARTCONFIG']['MODULE']
-    if module == "mohid" or module == "Mohid":
-        mohid.execute(yaml)
-    elif module == "WW3":
-        ww3.execute(yaml)
-    elif module == "WRF":
-        wrf.execute(yaml)
-    else:
-        raise ValueError("No valid simulation module given.")
-
-    print("------------- ART RUN FINISHED -------------")
-
-
-def running_mode(yaml):
-    if yaml['ARTCONFIG']['OPERATIONAL_MODE']:
-        static.logger.debug("Running in Operational Mode")
-        today = datetime.datetime.today()
-        cfg.global_initial_date = today + datetime.timedelta(days=yaml['ARTCONFIG']['REF_DAYS_TO_START'])
-        cfg.global_final_date = (today + datetime.timedelta(days=yaml['ARTCONFIG']['NUMBER_OF_RUNS'])
-                                 + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'] - 1))
-        cfg.number_of_runs = yaml['ARTCONFIG']['NUMBER_OF_RUNS']
-        initial_date = cfg.global_initial_date
-        final_date = initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
-        static.logger.debug("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
-        static.logger.debug("Final Date: " + final_date.strftime(static.DATE_FORMAT))
-        static.logger.debug("Number of runs : " + str(cfg.number_of_runs))
-    elif not (yaml['ARTCONFIG']['OPERATIONAL_MODE']):
-        try:
-            static.logger.debug("Running in Normal Mode")
-            cfg.global_initial_date = datetime.datetime.strptime(yaml['ARTCONFIG']['START_DATE'],
-                                                                 static.DATE_FORMAT)
-            cfg.global_final_date = datetime.datetime.strptime(yaml['ARTCONFIG']['END_DATE'], static.DATE_FORMAT)
-
-            difference = cfg.global_final_date - cfg.global_initial_date
-            cfg.number_of_runs = difference.days
-        except KeyError:
-            static.logger.warning("KeyError")
-            cfg.number_of_runs = 1
-            global_initial_date = datetime.datetime.today()
-            global_final_date = global_initial_date + datetime.timedelta(days=yaml['ARTCONFIG']['DAYS_PER_RUN'])
-            cfg.global_initial_date = datetime.datetime.strftime(datetime.datetime.today(), static.DATE_FORMAT)
-            cfg.global_final_date = datetime.datetime.strftime(global_final_date, static.DATE_FORMAT)
-        finally:
-            static.logger.debug("Global Initial Date : " + cfg.global_initial_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Global Final Date : " + cfg.global_final_date.strftime(static.DATE_FORMAT))
-            static.logger.debug("Number of runs : " + str(cfg.number_of_runs))
-    else:
-        raise ValueError("artconfig: forecastMode value needs to be either a number or true/false")
+    art = ART(yaml)
+    art.execute_module()
+    art.exit_routine()
 
 
 if __name__ == "__main__":

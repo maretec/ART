@@ -1,51 +1,113 @@
-artconfig:
-  mainPath: "./"
-  forecastMode: 0
-  daysPerRun: 0
-  refDayToStart: 0
-  numberOfRuns: 0
-  runPreProcessing: 0
-  startDate: "date"
-  endDate: "date"
-mohid:
-  mpi:
-    enable: 0
-    numDomains: 0
-    exePath: "../"
-    keepDecomposedFiles: 0
-    ddcParserNumProcessors: 0
-    ddcComposerNumProcessors: 0
-    joinerVersion: 1
-  maxTime: 40000
-  outputFile: 0
-  outputPath: "../"
-  exePath: .
-model:
-  name: "modelname"
-  path: "modelpath"
-  mpiProcessors: 2
-  obc:
-    enable: 0
-    fromMyOcean: 0
-    simulatedDays: 0
-  meteo:
-    enable: 0
-    modelName: "meteoModelName"
-    simulatedDays: 420
-    fileNameFromModel: 1
-    workPath: "./"
-  gridFile: "blabla.dat"
-  runId: 1
-  DT: 1
-  backupPath: "../path/to/backup"
-  storagePath: "../path/to/storage"
-  hasWaterProperties: 1
-  hasInterfaceSedimentWater: 0
-  hasSurfaceHDF: 1
-  hasGOTM: 1
-  hasOutputWindow: 0
-  hasSolutionFromFile: 1
-
-
-
-
+ART:
+      MAIN_PATH: "/home/maretec/Aplica/LisOcean_2D/"
+  OPERATIONAL_MODE: 0
+  MONTH_MODE: 0
+  DAYS_PER_RUN: 1
+  REF_DAYS_TO_START: -1
+  NUMBER_OF_RUNS: 3
+  MODULE: "Mohid"
+  RUN_PREPROCESSING: true
+  RUN_SIMULATION: true
+  RUN_POSTPROCESSING: false
+  START_DATE: "2021 01 08 0 0 0"
+  END_DATE: "2021 01 15 0 0 0"
+  OUTPUT_TO_FILE: 0
+  OUTPUT_FILEPATH: "./art_output.txt"
+TRIGGER:
+  ENABLE: 0
+  FOLDERS_TO_WATCH: ["D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Log/"]
+  TRIGGER_MAX_WAIT: 3
+  TRIGGER_POLLING_RATE: 120
+  WRITE_TRIGGER: 1
+  CHECK_ALL: true
+MOHID:
+  MAX_TIME: 40000
+  EXE_PATH: "/home/maretec/Aplica/LisOcean_2D/LisOcean/exe/MohidWater.exe"
+  OUTPUT_TO_FILE: 0
+  OUTPUT_FILEPATH: "./mohid_output.txt"
+  MPI:
+    ENABLE: 0
+    TOTAL_PROCESSORS: 1
+  OPENMP:
+    ENABLE: 1
+    TOTAL_PROCESSORS: 4
+model1:
+  NAME: "LisOcean"
+  PATH: "LisOcean/"
+  DT: 15
+  STORAGE_PATH: "/ekman2raid/BackUp/Lisocean_2D/"
+  RESULTS_LIST: [Hydrodynamic_1.hdf5, "Hydrodynamic_1_Surface.hdf5", "Hydrodynamic_1_w1.hdf5", "WaterProperties_1.hdf5", "WaterProperties_1_Surface.hdf5", "Atmosphere_1.hdf5"]
+  DISCHARGES:
+    discharge1:
+      ENABLE: 1
+      PATH: "/samba/tagus/BackUp/3DTagusWQ/Discharges/"
+  OBC:
+    OBC1:
+      ENABLE: 0
+      SIMULATED_DAYS: 1
+      HAS_SOLUTION_FROM_FILE: 0
+      FILES: ['Portugal_%Yi%Mi%di']
+      FILE_TYPE: "hdf5"
+      WORK_PATH: "/samba/mwdata/Storage01/CMEMS_IBI/Portugal_Daily/Extract/"
+PREPROCESSING:
+  CopyInputFiles:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/GFS/CopyInputFiles/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: /home/maretec/Aplica/LisOcean_2D/Work/GFS/CopyInputFiles/GetInputFile.dat
+    EXE_PATH: "/usr/bin/python3"
+    FLAGS: "/home/maretec/Aplica/LisOcean_2D/Work/GFS/CopyInputFiles/GetInputFile.py"
+  Glue:
+    RUN: 0
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/GFS/Glue/
+    DAT_DATE_CHANGE: 0
+    EXE_PATH: "/home/maretec/Aplica/LisOcean_2D/Work/GFS/Glue/ConvertToHDF5.exe"
+  Interpolate:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/GFS/Interpolate/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: "/home/maretec/Aplica/LisOcean_2D/Work/GFS/Interpolate/ConvertToHDF5Action.dat"
+    EXE_PATH: "/home/maretec/Aplica/LisOcean_2D/Work/GFS/Interpolate/ConvertToHDF5.exe"
+  SendOutputFile:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/GFS/SendOutputFile/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: "/home/maretec/Aplica/LisOcean_2D/Work/GFS/SendOutputFile/SendOutputFile.dat"
+    EXE_PATH: "/usr/bin/python3"
+    FLAGS: "/home/maretec/Aplica/LisOcean_2D/Work/GFS/SendOutputFile/SendOutputFile.py"
+POSTPROCESSING:
+  copy_input_file:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/CopyInputFiles/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: "/home/maretec/Aplica/LisOcean_2D/Work/OpenDap/CopyInputFiles/GetInputFile.dat"
+    EXE_PATH: "python3"
+    FLAGS: "/home/maretec/Aplica/LisOcean_2D/Work/OpenDap/CopyInputFiles/GetInputFile.py"
+  extractor_hydrodynamic:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Extractor_Hydrodynamic/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: "/home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Extractor_Hydrodynamic/HDFExtractorInput.dat"
+    EXE_PATH: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Extractor_Hydrodynamic/HDF5Extractor.exe
+  extractor_water_properties:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Extractor_WaterProperties/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: "/home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Extractor_WaterProperties/HDFExtractorInput.dat"
+    EXE_PATH:  /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Extractor_WaterProperties/HDF5Extractor.exe
+  convert_to_hdf5:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/GlueHDF/
+    DAT_DATE_CHANGE: 0
+    EXE_PATH: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/GlueHDF/ConvertToHDF5.exe
+  convert_to_netcdf:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Convert2Netcdf/
+    DAT_DATE_CHANGE: 0
+    EXE_PATH: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/Convert2Netcdf/Convert2netcdf.exe
+  sendToThredds:
+    RUN: 1
+    WORKING_DIRECTORY: /home/maretec/Aplica/LisOcean_2D/Work/OpenDap/SendToThredds/
+    DAT_DATE_CHANGE: 0
+    EXE_PATH: "python3"
+    FLAGS: "/home/maretec/Aplica/LisOcean_2D/Work/OpenDap/SendToThredds/SendToThredds.py"

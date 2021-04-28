@@ -1,60 +1,61 @@
-ARTCONFIG:
-  MAIN_PATH: "/home/maretec/MARPOCS_LasPalmas/"
+ART:
+  MAIN_PATH: C:\git
   OPERATIONAL_MODE: 0
   DAYS_PER_RUN: 1
   REF_DAYS_TO_START: -6
   NUMBER_OF_RUNS: 2
-  MODULE: "Mohid"
+  MODULE: Mohid
   RUN_PREPROCESSING: false
   RUN_SIMULATION: true
   RUN_POSTPROCESSING: false
-  START_DATE: "2019 06 10 0 0 0"
-  END_DATE: "2019 06 11 0 0 0"
+  START_DATE: 2019 06 10 0 0 0
+  END_DATE: 2019 06 11 0 0 0
   MONTH_MODE: 1
+
 MOHID:
   MAX_TIME: 40000
-  EXE_PATH: "/home/maretec/MARPOCS_LasPalmas/LasPalmas_level1/exe/MohidWater_mpi.exe"
+  EXE_PATH: /home/maretec/MARPOCS_LasPalmas/LasPalmas_level1/exe/MohidWater_mpi.exe
   MPI:
     ENABLE: 1
     TOTAL_PROCESSORS: 5
 model1:
-  NAME: "LasPalmas_level1"
-  PATH: "LasPalmas_level1/"
-  GRID_FILE: "GeneralData/Bathymetry/JanelaCanarias_LasPalmas.dat"
+  NAME: LasPalmas_level1
+  PATH: LasPalmas_level1/
+  GRID_FILE: GeneralData/Bathymetry/JanelaCanarias_LasPalmas.dat
   runId: 1
   DT: 30
-  STORAGE_PATH: "/ekman2raid/old_backup/Backup/LasPalmas_500m/"
+  STORAGE_PATH: /ekman2raid/old_backup/Backup/LasPalmas_500m/
   HAS_SOLUTION_FROM_FILE: 1
   OBC:
     ENABLE: 1
     SIMULATED_DAYS: 1
-    WORKPATH: "/samba/lusitania/d/BackUp/Canarias_2km/Level2/Results_HDF/"
+    WORKPATH: /samba/lusitania/d/BackUp/Canarias_2km/Level2/Results_HDF/
     FILES: ['Hydrodynamic_w2', 'WaterProperties_w2']
 model2:
-  NAME: "LasPalmas_Level2"
-  PATH: "LasPalmas_level1/LasPalmas_level2/"
-  GRID_FILE: "GeneralData/Bathymetry/LasPalmas_500m_v02.dat"
+  NAME: LasPalmas_Level2
+  PATH: LasPalmas_level1/LasPalmas_level2/
+  GRID_FILE: GeneralData/Bathymetry/LasPalmas_500m_v02.dat
   runId: 1
   DT: 10
-  STORAGE_PATH: "/ekman2raid/old_backup/Backup/LasPalmas_500m/Level2/"
+  STORAGE_PATH: /ekman2raid/old_backup/Backup/LasPalmas_500m/Level2/
   hasHydrodynamics: 1
   METEO:
     ENABLE: 1
     MODELS:
       meteo1:
-        NAME: "Gfs_0p25"
+        NAME: Gfs_0p25
         SIMULATED_DAYS: 1
         FILENAME_FROM_MODEL: 1
-        WORKPATH: "/samba/lusitania/d/BackUp/LasPalmas_500m/GFS2Me/0p25/Interpolate/Level2/"
-        FILETYPE: "hdf5"  
+        WORKPATH: /samba/lusitania/d/BackUp/LasPalmas_500m/GFS2Me/0p25/Interpolate/Level2/
+        FILETYPE: hdf5  
 PREPROCESSING:  
   WRF:
     RUN: 0
     DAT_DATE_CHANGE: 1
-    CONFIG_FILEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5Action.dat"
-    EXEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5.exe"
+    CONFIG_FILEPATH: /home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5Action.dat
+    EXEPATH: /home/maretec/MARPOCS_LasPalmas/Work/WRF/ConvertToHDF5.exe
     OUTPUT_TO_FILE: 0
-    OUTPUT_FILEPATH: "/home/maretec/MARPOCS_LasPalmas/Work/WRF/Logs/output.log"
+    OUTPUT_FILEPATH: /home/maretec/MARPOCS_LasPalmas/Work/WRF/Logs/output.log
 TRIGGER:
   ENABLE: 1
   FOLDERS_TO_WATCH:

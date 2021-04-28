@@ -1,0 +1,2 @@
+'''Container for global variables'''
+
