@@ -1,10 +1,10 @@
-import python.common.yaml.yaml_lib as yaml_lib
-import python.mohid.mohid_water as mohid_water
-import python.mohid.mohid_land as mohid_land
-import python.swan.swan as swan
-import python.ww3.ww3 as ww3
-import python.mohid.util.constants as self
-import python.common.MailClient as mail
+import common.yaml.yaml_lib as yaml_lib
+import mohid.mohid_water as mohid_water
+import mohid.mohid_land as mohid_land
+import swan.swan as swan
+import ww3.ww3 as ww3
+import mohid.util.constants as self
+import common.MailClient as mail
 import datetime
 import os.path
 import sys

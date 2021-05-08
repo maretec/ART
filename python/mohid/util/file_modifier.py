@@ -1,5 +1,5 @@
 import re
-import python.mohid.util.constants as static
+import mohid.util.constants as static
 
 
 # Converts a datetime object to the MOHID date format.

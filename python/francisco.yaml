@@ -13,8 +13,8 @@ ART:
       - email1@gmail.com
       - email2@gmail.com
   PRE_PROCESSING: false # 0 OR 1, false or true
-  POST_PROCESSING: true # 0 OR 1, false or true
-  RUN_SIMULATION: false # 0 OR 1, false or true
+  POST_PROCESSING: false # 0 OR 1, false or true
+  RUN_SIMULATION: true # 0 OR 1, false or true
   LOG:
     ENABLE: 0
     FOLDER_PATH:
@@ -27,7 +27,7 @@ SIMULATION:
   REF_DAYS_TO_START: -1
   NUMBER_OF_RUNS: 1
   START_DATE: "2021 01 08 0 0 0"
-  END_DATE: "2021 01 15 0 0 0"
+  END_DATE: "2021 04 15 0 0 0"
 
 TRIGGER:
   ENABLE: 0
@@ -39,7 +39,7 @@ TRIGGER:
   WRITE_TRIGGER: 1
 
 MOHID_WATER:
-  MAIN_PATH: /home/maretec/Aplica/LisOcean_2D/
+  MAIN_PATH: /Users/ctw01147-admin/Personal/ART/Teste
   MAX_TIME: 40000
   EXE_PATH:
   LOG:
@@ -54,121 +54,121 @@ MOHID_WATER:
     TOTAL_PROCESSORS: 2
     EXE_PATH: D:/Aplica_OP/LisOcean/LisOcean_2D_mare_TEST/LisOcean/exe/MOHIDWater_v20.10_x64_OpenMP.exe
   MODELS:
-    - MODEL1:
-        NAME: LisOcean
-        PATH: LisOcean/
-        DT: 15
-        STORAGE_PATH: F:/BackUp/LisOcean/LisOcean_2D_mare/
-        RESULTS_LIST: # EXAMPLE LIST
-          - Hydrodynamic_1.hdf5
-          - Hydrodynamic_1_Surface.hdf5
-          - Hydrodynamic_1_w1.hdf5
-          - WaterProperties_1.hdf5
-          - WaterProperties_1_Surface.hdf5
-          - WaterProperties_1_w1.hdf5
-          - Atmosphere_1.hdf5
-        DISCHARGES:
-          discharge1:
-            ENABLE: 0 # 0 or 1, false or true
-            PATH: /samba/tagus/BackUp/3DTagusWQ/Discharges/
-        OBC:
-          OBC1:
-            ENABLE: 0 # 0 or 1, false or true
-            NAME: WestIberia_Window
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0 # 0 or 1, false or true
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic_w1
-            FILE_TYPE: hdf5
-            WORK_PATH: ////deep/BackUp_PreOp/BIOPCOMS_2020/WestIberia/Results_HDF/
-          OBC2:
-            ENABLE: 0 # 0 or 1, false or true
-            NAME: CMEMS_Hydro
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0 # 0 or 1, false or true
-            SUBFOLDERS: 0
-            FILES:
-              - Myocean_North_Atlantic_%Yi-%mi-%di_%Yf-%mf-%df
-            FILE_TYPE: hdf5
-            WORK_PATH: ////datacenter/CMEMS2Me_Hydro/Glue/
-          MINHO:
-            ENABLE: 0
-            NAME: Minho
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic
-              - WaterProperties
-            FILE_TYPE: hdf5
-            WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Minho/Results_HDF/
-          DOURO:
-            ENABLE: 0
-            NAME: Douro
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic
-              - WaterProperties
-            FILE_TYPE: hdf5
-            WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Douro/Results_HDF/
-          MONDEGO:
-            ENABLE: 0
-            NAME: Mondego
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic
-              - WaterProperties
-            FILE_TYPE: hdf5
-            WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Mondego/Results_HDF/
-          TEJO:
-            ENABLE: 0
-            NAME: Tejo
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic
-              - WaterProperties
-            FILE_TYPE: hdf5
-            WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Tejo/Results_HDF/
-          SADO:
-            ENABLE: 0
-            NAME: Sado
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic
-              - WaterProperties
-            FILE_TYPE: hdf5
-            WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Sado/Results_HDF/
-          GUADIANA:
-            ENABLE: 0
-            NAME: Guadiana
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic
-              - WaterProperties
-            FILE_TYPE: hdf5
-            WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Guadiana/Results_HDF/
-          GUADALQUIVIR:
-            ENABLE: 0
-            NAME: Guadalquivir
-            SIMULATED_DAYS: 1
-            HAS_SOLUTION_FROM_FILE: 0
-            SUBFOLDERS: 4
-            FILES:
-              - Hydrodynamic
-              - WaterProperties
-            FILE_TYPE: hdf5
-            WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Guadalquivir/Results_HDF/
+    MODEL1:
+      NAME: LisOcean
+      PATH: LisOcean/
+      DT: 15
+      STORAGE_PATH: F:/BackUp/LisOcean/LisOcean_2D_mare/
+      RESULTS_LIST: # EXAMPLE LIST
+        - Hydrodynamic_1.hdf5
+        - Hydrodynamic_1_Surface.hdf5
+        - Hydrodynamic_1_w1.hdf5
+        - WaterProperties_1.hdf5
+        - WaterProperties_1_Surface.hdf5
+        - WaterProperties_1_w1.hdf5
+        - Atmosphere_1.hdf5
+      DISCHARGES:
+        discharge1:
+          ENABLE: 0 # 0 or 1, false or true
+          PATH: /samba/tagus/BackUp/3DTagusWQ/Discharges/
+      OBC:
+        OBC1:
+          ENABLE: 0 # 0 or 1, false or true
+          NAME: WestIberia_Window
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0 # 0 or 1, false or true
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic_w1
+          FILE_TYPE: hdf5
+          WORK_PATH: ////deep/BackUp_PreOp/BIOPCOMS_2020/WestIberia/Results_HDF/
+        OBC2:
+          ENABLE: 0 # 0 or 1, false or true
+          NAME: CMEMS_Hydro
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0 # 0 or 1, false or true
+          SUBFOLDERS: 0
+          FILES:
+            - Myocean_North_Atlantic_%Yi-%mi-%di_%Yf-%mf-%df
+          FILE_TYPE: hdf5
+          WORK_PATH: ////datacenter/CMEMS2Me_Hydro/Glue/
+        MINHO:
+          ENABLE: 0
+          NAME: Minho
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Minho/Results_HDF/
+        DOURO:
+          ENABLE: 0
+          NAME: Douro
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Douro/Results_HDF/
+        MONDEGO:
+          ENABLE: 0
+          NAME: Mondego
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Mondego/Results_HDF/
+        TEJO:
+          ENABLE: 0
+          NAME: Tejo
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Tejo/Results_HDF/
+        SADO:
+          ENABLE: 0
+          NAME: Sado
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Sado/Results_HDF/
+        GUADIANA:
+          ENABLE: 0
+          NAME: Guadiana
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Guadiana/Results_HDF/
+        GUADALQUIVIR:
+          ENABLE: 0
+          NAME: Guadalquivir
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Guadalquivir/Results_HDF/
 
 PREPROCESSING:
   CopyFiles2ART_MM5:

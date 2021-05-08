@@ -1,14 +1,14 @@
 from pathlib import Path
 from shutil import copy
-import python.mohid.util.constants as static
-import python.mohid.util.file_modifier as file_modifier
+import mohid.util.constants as static
+import mohid.util.file_modifier as file_modifier
 import datetime
 import glob
 import os.path
-import python.common.pre_processing as pre_processing
-import python.common.post_processing as post_processing
-import python.mohid.util.folder_utils as folder_utils
-import python.mohid.util.mohid_utils as mohid_utils
+import common.pre_processing as pre_processing
+import common.post_processing as post_processing
+import mohid.util.folder_utils as folder_utils
+import mohid.util.mohid_utils as mohid_utils
 import subprocess
 import time
 import multiprocessing
@@ -28,10 +28,9 @@ class MohidWater:
         self.running_mode()
         artconfig_keys = self.yaml['ART'].keys()
         simulation_keys = self.yaml['SIMULATION'].keys()
-
+        days_run = 0
         if 'OPERATIONAL_MODE' in self.yaml['SIMULATION'].keys() and self.yaml['SIMULATION']['OPERATIONAL_MODE']:
             self.logger.info("Running Mohid Water in Operational Mode")
-            days_run = 0
             today = datetime.datetime.today()
             # Time needs to start on hour 00:00:00 otherwise will start the models at the wrong time
             today = today.replace(minute=00, hour=00, second=00)
@@ -71,7 +70,6 @@ class MohidWater:
                 self.current_initial_date = self.global_initial_date.replace(minute=00, hour=00, second=00)
                 self.current_final_date = self.global_initial_date + datetime.timedelta(
                     days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
-                days_run = 0
             while self.current_final_date <= self.global_final_date.replace(minute=00, hour=00, second=00):
                 self.logger.info("========================================")
                 self.logger.info("STARTING FORECAST (" + self.current_initial_date.strftime("%Y-%m-%d") + " to " +
@@ -116,12 +114,13 @@ class MohidWater:
     Main cycle for the ART run. It has all the functions that are needed for a project.
     '''
 
-    def process_models(self, days_run: int):
-        self.check_triggers(self.yaml['TRIGGER'], days_run, self.yaml['SIMULATION']['DAYS_PER_RUN'])
+    def process_models(self, days_run: int) :
+        self.check_triggers(days_run, self.yaml['SIMULATION']['DAYS_PER_RUN'])
         mohid_water_config = self.yaml['MOHID_WATER']
-        for model in mohid_water_config.keys():
-            folder_utils.create_model_folder_structure(self.yaml, mohid_water_config['MODELS'][model])
-            self.change_model_dat(self.yaml[model])
+        mohid_water_models = mohid_water_config['MODELS']
+        for model in mohid_water_models.keys():
+            folder_utils.create_model_folder_structure(self.yaml, mohid_water_models[model])
+            self.change_model_dat(mohid_water_models[model])
             self.gather_boundary_conditions(self.yaml[model])
             self.gather_restart_files(self.yaml[model])
 

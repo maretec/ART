@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 
 
-def create_model_folder_structure(yaml, model):
+def create_model_folder_structure(yaml: dict, model: str):
     main_path = Path(yaml['MOHID_WATER']['MAIN_PATH'])
     model_path = main_path / model['PATH']
     if not os.path.isdir(main_path / "GeneralData/"):

@@ -1,7 +1,7 @@
 import subprocess
-import python.mohid.util.file_modifier as file_modifier
-import python.mohid.util.config as cfg
-import python.mohid.util.constants as static
+import mohid.util.file_modifier as file_modifier
+import mohid.util.config as cfg
+import mohid.util.constants as static
 
 
 # modifies START and END parameter on .dat files.

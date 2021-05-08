@@ -1,6 +1,6 @@
 import yaml
 import datetime
-import python.mohid.util.constants as static
+import mohid.util.constants as static
 from pathlib import Path
 
 

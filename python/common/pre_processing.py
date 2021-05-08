@@ -1,8 +1,8 @@
 import subprocess
-import python.mohid.util.file_modifier as file_modifier
-import python.mohid.util.config as cfg
+import mohid.util.file_modifier as file_modifier
+import mohid.util.config as cfg
 import os
-import python.mohid.util.constants as static
+import mohid.util.constants as static
 
 
 def dat_date_change(file_path):
