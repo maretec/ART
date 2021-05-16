@@ -12,6 +12,7 @@ import mohid.util.mohid_utils as mohid_utils
 import subprocess
 import time
 import multiprocessing
+import threading
 
 
 class MohidWater:
@@ -52,7 +53,8 @@ class MohidWater:
                     self.process_models(days_run)
                 if 'POST_PROCESSING' in artconfig_keys and self.yaml['ART']['POST_PROCESSING']:
                     self.logger.info("Executing Post Processing")
-                    post_processing.execute(self.yaml)
+                    thread = threading.Thread(target=post_processing.execute, args=(self,))
+                    thread.start()
         else:
             if 'MONTH_MODE' in simulation_keys and self.yaml['SIMULATION']['MONTH_MODE']:
                 self.logger.info("Month mode activated. Time skips will be of 1 month each.")

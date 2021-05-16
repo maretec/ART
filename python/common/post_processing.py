@@ -52,5 +52,5 @@ def execute(yaml):
                 else:
                     static.logger.info("Executing Post Processing module: " + block_dict['EXE_PATH'])
                     subprocess.run(block_dict['EXE_PATH'], cwd=block_dict['WORKING_DIRECTORY'])
-
+    static.logger.info("Post Processing finished.")
     return
