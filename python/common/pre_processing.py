@@ -2,15 +2,14 @@ import subprocess
 import mohid.util.file_modifier as file_modifier
 import mohid.util.config as cfg
 import os
-import mohid.util.constants as static
 
 
-def dat_date_change(file_path):
-    file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    file_modifier.modify_end_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_final_date))
+def dat_date_change(file_path, logger):
+    file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_initial_date), logger)
+    file_modifier.modify_end_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_final_date), logger)
 
 
-def execute(yaml):
+def execute(yaml, logger):
     for block in yaml['PREPROCESSING']:
         block_keys = yaml['PREPROCESSING'][block].keys()
         block_dict = yaml['PREPROCESSING'][block]
@@ -26,16 +25,16 @@ def execute(yaml):
                         subprocess.run(run_array, stdout=log, cwd=os.path.dirname(block_dict['EXE_PATH']))
                         log.close()
                 else:
-                    static.logger.info("Executing Pre Processing module: " + block_dict['EXE_PATH'])
+                    logger.info("Executing Pre Processing module: " + block_dict['EXE_PATH'])
                     subprocess.run(run_array, cwd=os.path.dirname(block_dict['FLAGS']))
             else:
                 if 'OUTPUT_TO_FILE' in block_keys and block_dict['OUTPUT_TO_FILE']:
                     with open(block_dict['OUTPUT_FILEPATH'], 'w') as log:
-                        static.logger.info("Executing Pre Processing module: " + block_dict['EXE_PATH'])
+                        logger.info("Executing Pre Processing module: " + block_dict['EXE_PATH'])
                         subprocess.run(block_dict['EXE_PATH'], stdout=log, cwd=os.path.dirname(block_dict['EXE_PATH']))
                         log.close()
                 else:
-                    static.logger.info("Executing Pre Processing module: " + block_dict['EXE_PATH'])
+                    logger.info("Executing Pre Processing module: " + block_dict['EXE_PATH'])
                     subprocess.run(block_dict['EXE_PATH'], cwd=os.path.dirname(block_dict['EXE_PATH']))
 
     return

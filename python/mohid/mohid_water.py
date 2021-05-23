@@ -1,5 +1,6 @@
 from pathlib import Path
 from shutil import copy
+from common import logger
 import mohid.util.constants as static
 import mohid.util.file_modifier as file_modifier
 import datetime
@@ -48,9 +49,9 @@ class MohidWater:
 
                 if 'PRE_PROCESSING' in artconfig_keys and self.yaml['ART']['PRE_PROCESSING']:
                     self.logger.info("Executing Pre Processing")
-                    pre_processing.execute(self.yaml)
+                    pre_processing.execute(self.yaml, logger)
                 if 'RUN_SIMULATION' in artconfig_keys and self.yaml['ART']['RUN_SIMULATION']:
-                    self.process_models(days_run)
+                    self.process_models(days_run, logger)
                 if 'POST_PROCESSING' in artconfig_keys and self.yaml['ART']['POST_PROCESSING']:
                     self.logger.info("Executing Post Processing")
                     thread = threading.Thread(target=post_processing.execute, args=(self,))
@@ -257,23 +258,23 @@ class MohidWater:
             raise ValueError("Path for model folder does not exist.")
 
         file_path = path / "Model_1.dat"
-        file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(self.current_initial_date))
+        file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(self.current_initial_date), self.logger)
         self.logger.info("Changed START of " + str(file_path) + " to " +
                          file_modifier.date_to_mohid_date(self.current_initial_date))
-        file_modifier.modify_end_dat_date(file_path, file_modifier.date_to_mohid_date(self.current_final_date))
+        file_modifier.modify_end_dat_date(file_path, file_modifier.date_to_mohid_date(self.current_final_date), self.logger)
         self.logger.info("Changed END of " + str(file_path) + " to " +
                          file_modifier.date_to_mohid_date(self.current_final_date))
-        file_modifier.modify_line(file_path, "DT", str(model['DT']))
+        file_modifier.modify_line(file_path, "DT", str(model['DT']), self.logger)
         if 'OPENMP' in self.yaml['MOHID_WATER'].keys() and self.yaml['MOHID_WATER']['OPENMP']['ENABLE']:
             if 'TOTAL_PROCESSORS' in self.yaml['MOHID_WATER']['OPENMP']:
                 num_omp_processors = self.yaml['MOHID_WATER']['OPENMP']['TOTAL_PROCESSORS']
             else:
                 self.logger.info("NUM_PROCESSORS not defined. model will use max threads available")
                 num_omp_processors = multiprocessing.cpu_count()
-            file_modifier.modify_line(file_path, "OPENMP_NUM_THREADS", str(num_omp_processors))
+            file_modifier.modify_line(file_path, "OPENMP_NUM_THREADS", str(num_omp_processors), self.logger)
         if 'mohidwater.dat' in keys:
             for key in model['mohidwater.dat'].keys():
-                file_modifier.modify_line(file_path, key, model['mohidwater.dat'][key])
+                file_modifier.modify_line(file_path, key, model['mohidwater.dat'][key], self.logger)
         self.logger.info("Model " + model['NAME'] + " .dat file was created.")
         return
 

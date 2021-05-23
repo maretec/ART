@@ -1,13 +1,12 @@
 import subprocess
 import mohid.util.file_modifier as file_modifier
 import mohid.util.config as cfg
-import mohid.util.constants as static
 
 
 # modifies START and END parameter on .dat files.
-def dat_date_change(filePath):
-    file_modifier.modify_start_dat_date(filePath, file_modifier.date_to_mohid_date(cfg.current_initial_date))
-    file_modifier.modify_end_dat_date(filePath, file_modifier.date_to_mohid_date(cfg.current_final_date))
+def dat_date_change(filePath, logger):
+    file_modifier.modify_start_dat_date(filePath, file_modifier.date_to_mohid_date(cfg.current_initial_date), logger)
+    file_modifier.modify_end_dat_date(filePath, file_modifier.date_to_mohid_date(cfg.current_final_date), logger)
 
 
 '''
@@ -16,7 +15,7 @@ If the exe or command need any flags or arguments it can be given in flags param
 '''
 
 
-def execute(yaml):
+def execute(yaml, logger):
     # each block has a unique name
     for block in yaml['postProcessing']:
         block_keys = yaml['postProcessing'][block].keys()
@@ -46,11 +45,11 @@ def execute(yaml):
             else:
                 if 'outputToFile' in block_keys and block_dict['outputToFile']:
                     with open(block_dict['outputFilePath'], 'w') as log:
-                        static.logger.info("Executing Post Processing module: " + block_dict['EXE_PATH'])
+                        logger.info("Executing Post Processing module: " + block_dict['EXE_PATH'])
                         subprocess.run(block_dict['EXE_PATH'], stdout=log, cwd=block_dict['WORKING_DIRECTORY'])
                         log.close()
                 else:
-                    static.logger.info("Executing Post Processing module: " + block_dict['EXE_PATH'])
+                    logger.info("Executing Post Processing module: " + block_dict['EXE_PATH'])
                     subprocess.run(block_dict['EXE_PATH'], cwd=block_dict['WORKING_DIRECTORY'])
-    static.logger.info("Post Processing finished.")
+    logger.info("Post Processing finished.")
     return
