@@ -2,9 +2,9 @@ import logging
 
 
 class ArtLogger:
-    def __init__(self, name, logFile):
-        self.logFile = logFile
-        logging.basicConfig(filename=self.logFile,
+    def __init__(self, name, log_file):
+        self.log_file = log_file
+        logging.basicConfig(filename=self.log_file,
                             filemode='a',
                             format='%(asctime)s ->  %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S',

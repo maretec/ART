@@ -3,10 +3,12 @@ import mohid.util.file_modifier as file_modifier
 import mohid.util.config as cfg
 
 
+POST_PROCESSING_STRING = "Executing Post Processing module: "
+
 # modifies START and END parameter on .dat files.
-def dat_date_change(filePath, logger):
-    file_modifier.modify_start_dat_date(filePath, file_modifier.date_to_mohid_date(cfg.current_initial_date), logger)
-    file_modifier.modify_end_dat_date(filePath, file_modifier.date_to_mohid_date(cfg.current_final_date), logger)
+def dat_date_change(file_path, logger):
+    file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_initial_date), logger)
+    file_modifier.modify_end_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_final_date), logger)
 
 
 '''
@@ -24,7 +26,7 @@ def execute(yaml, logger):
 
             # Script config file needs to change START and END to the run time
             if 'datDateChange' in block_keys and block_dict['datDateChange']:
-                dat_date_change(block_dict['configFilePath'])
+                dat_date_change(block_dict['configFilePath'], logger)
             # if the command/executable needs arguments/flags the argument for subprocess.run needs to be a list with
             # every argument separated. example ['ls', 'l'].
 
@@ -45,11 +47,10 @@ def execute(yaml, logger):
             else:
                 if 'outputToFile' in block_keys and block_dict['outputToFile']:
                     with open(block_dict['outputFilePath'], 'w') as log:
-                        logger.info("Executing Post Processing module: " + block_dict['EXE_PATH'])
+                        logger.info( + block_dict['EXE_PATH'])
                         subprocess.run(block_dict['EXE_PATH'], stdout=log, cwd=block_dict['WORKING_DIRECTORY'])
                         log.close()
                 else:
-                    logger.info("Executing Post Processing module: " + block_dict['EXE_PATH'])
+                    logger.info(POST_PROCESSING_STRING + block_dict['EXE_PATH'])
                     subprocess.run(block_dict['EXE_PATH'], cwd=block_dict['WORKING_DIRECTORY'])
     logger.info("Post Processing finished.")
-    return
