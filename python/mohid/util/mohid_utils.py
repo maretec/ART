@@ -6,7 +6,7 @@ Checks MOHID log to verify that the run was successful
 def verify_run(filename, messages):
     with open(filename, 'r') as f:
         lines = f.read().splitlines()
-        for i in range(-1, -100, -1):
+        for i in range(-1, -200, -1):
             for message in messages:
                 if message in lines[i]:
                     return True
