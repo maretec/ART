@@ -51,7 +51,7 @@ class MohidWater:
                     self.logger.info("Executing Pre Processing")
                     pre_processing.execute(self.yaml, logger)
                 if 'RUN_SIMULATION' in artconfig_keys and self.yaml['ART']['RUN_SIMULATION']:
-                    self.process_models(days_run, logger)
+                    self.process_models(days_run)
                 if 'POST_PROCESSING' in artconfig_keys and self.yaml['ART']['POST_PROCESSING']:
                     self.logger.info("Executing Post Processing")
                     thread = threading.Thread(target=post_processing.execute, args=(self,))
@@ -118,6 +118,7 @@ class MohidWater:
     '''
 
     def process_models(self, days_run: int) :
+        days_per_run = self.yaml['SIMULATION']['DAYS_PER_RUN']
         self.check_triggers(days_run, self.yaml['SIMULATION']['DAYS_PER_RUN'])
         mohid_water_config = self.yaml['MOHID_WATER']
         mohid_water_models = mohid_water_config['MODELS']
@@ -139,12 +140,12 @@ class MohidWater:
                             and self.yaml[model]['DISCHARGES'][discharge]['ENABLE']:
                         self.gather_discharges_files(self.yaml[model])
 
-        self.write_trigger(self.yaml['TRIGGER'], self.yaml['MOHID_WATER']['MAIN_PATH'],
-                           self.yaml['SIMULATION']['DAYS_PER_RUN'], stage="Running")
+        self.write_trigger(self.yaml['MOHID_WATER']['MAIN_PATH'],
+                          days_per_run, stage="Running")
         self.run_mohid()
         self.backup_simulation()
-        self.write_trigger(self.yaml['TRIGGER'], self.yaml['MOHID_WATER']['MAIN_PATH'],
-                           self.yaml['SIMULATION']['DAYS_PER_RUN'], stage="Finished")
+        self.write_trigger(self.yaml['MOHID_WATER']['MAIN_PATH'],
+                           days_per_run, stage="Finished")
 
     def running_mode(self):
         if 'SIMULATION' not in self.yaml:
