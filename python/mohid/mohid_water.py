@@ -73,45 +73,49 @@ class MohidWater:
                 self.current_initial_date = self.global_initial_date.replace(minute=00, hour=00, second=00)
                 self.current_final_date = self.global_initial_date + datetime.timedelta(
                     days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
-            while self.current_final_date <= self.global_final_date.replace(minute=00, hour=00, second=00):
-                self.logger.info("========================================")
-                self.logger.info("STARTING FORECAST (" + self.current_initial_date.strftime("%Y-%m-%d") + " to " +
-                                 self.current_final_date.strftime("%Y-%m-%d") + ")")
-                self.logger.info("========================================")
-                if 'RUN_PREPROCESSING' in artconfig_keys and self.yaml['ART']['RUN_PREPROCESSING']:
-                    self.logger.info("Executing Pre Processing")
-                    pre_processing.execute(self.yaml)
-                if self.yaml['ART']['RUN_SIMULATION']:
-                    self.process_models(days_run)
-                if 'RUN_POSTPROCESSING' in artconfig_keys and self.yaml['ART']['RUN_POSTPROCESSING']:
-                    post_processing.execute(self.yaml)
-                    self.logger.info("Executing Post Processing")
-                if 'RUN_TWICE' in self.yaml['ART'].keys() and self.yaml['ART']['RUN_TWICE']:
-                    # Only run next day after repeating current day. Useful for up-scaling
-                    days_run += 1
-                    if days_run == 1:
+            if(self.current_final_date <= self.global_final_date.replace(minute=00, hour=00, second=00)):
+
+                while self.current_final_date <= self.global_final_date.replace(minute=00, hour=00, second=00):
+                    self.logger.info("========================================")
+                    self.logger.info("STARTING FORECAST (" + self.current_initial_date.strftime("%Y-%m-%d") + " to " +
+                                    self.current_final_date.strftime("%Y-%m-%d") + ")")
+                    self.logger.info("========================================")
+                    if 'RUN_PREPROCESSING' in artconfig_keys and self.yaml['ART']['RUN_PREPROCESSING']:
+                        self.logger.info("Executing Pre Processing")
+                        pre_processing.execute(self.yaml)
+                    if self.yaml['ART']['RUN_SIMULATION']:
+                        self.process_models(days_run)
+                    if 'RUN_POSTPROCESSING' in artconfig_keys and self.yaml['ART']['RUN_POSTPROCESSING']:
+                        post_processing.execute(self.yaml)
+                        self.logger.info("Executing Post Processing")
+                    if 'RUN_TWICE' in self.yaml['ART'].keys() and self.yaml['ART']['RUN_TWICE']:
+                        # Only run next day after repeating current day. Useful for up-scaling
+                        days_run += 1
+                        if days_run == 1:
+                            self.current_initial_date = self.current_initial_date + datetime.timedelta(
+                                days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
+                            self.current_final_date = self.current_final_date + datetime.timedelta(
+                                days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
+                        elif days_run == 2:
+                            days_run = 0
+                    if self.yaml['SIMULATION']['MONTH_MODE']:
+                        self.current_initial_date = self.current_final_date
+                        if self.current_initial_date.month == 12:
+                            self.current_final_date = self.current_initial_date.replace(day=1, month=1,
+                                                                                        year=self.current_initial_date.year + 1,
+                                                                                        minute=00, hour=00, second=00)
+                        else:
+                            self.current_final_date = self.current_initial_date.replace(day=1,
+                                                                                        month=self.current_initial_date.month + 1,
+                                                                                        minute=00, hour=00, second=00)
+                    else:
                         self.current_initial_date = self.current_initial_date + datetime.timedelta(
                             days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
                         self.current_final_date = self.current_final_date + datetime.timedelta(
                             days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
-                    elif days_run == 2:
-                        days_run = 0
-                if self.yaml['SIMULATION']['MONTH_MODE']:
-                    self.current_initial_date = self.current_final_date
-                    if self.current_initial_date.month == 12:
-                        self.current_final_date = self.current_initial_date.replace(day=1, month=1,
-                                                                                    year=self.current_initial_date.year + 1,
-                                                                                    minute=00, hour=00, second=00)
-                    else:
-                        self.current_final_date = self.current_initial_date.replace(day=1,
-                                                                                    month=self.current_initial_date.month + 1,
-                                                                                    minute=00, hour=00, second=00)
-                else:
-                    self.current_initial_date = self.current_initial_date + datetime.timedelta(
-                        days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
-                    self.current_final_date = self.current_final_date + datetime.timedelta(
-                        days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
-        return None
+            else:
+                self.logger.error("Time Date range is not big enough for a month run.")
+            return None
 
     '''
     Main cycle for the ART run. It has all the functions that are needed for a project.
