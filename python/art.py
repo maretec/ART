@@ -74,7 +74,8 @@ class ART:
             self.error_routine()
 
     def error_routine(self):
-        self.mail.send_not_ok_email(error.__str__())
+        if(self.mail != None):
+            self.mail.send_not_ok_email(error.__str__())
         exit(-1)
 
     def exit_routine(self):

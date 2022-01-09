@@ -263,6 +263,8 @@ class MohidWater:
             raise ValueError("Path for model folder does not exist.")
 
         file_path = path / "Model_1.dat"
+        if not os.path.isfile(file_path):
+            raise ValueError("File " + str(file_path) + " does not exist.")
         file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(self.current_initial_date), self.logger)
         self.logger.info("Changed START of " + str(file_path) + " to " +
                          file_modifier.date_to_mohid_date(self.current_initial_date))
