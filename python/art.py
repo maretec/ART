@@ -71,7 +71,7 @@ class ART:
                 self.logger.info("Module Keyword not found. Skipping Simulation...")
         except ValueError as e:
             self.logger.error(e.__str__())
-            error_routine()
+            self.error_routine()
 
     def error_routine(self):
         self.mail.send_not_ok_email(error.__str__())
