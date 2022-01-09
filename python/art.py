@@ -78,7 +78,6 @@ class ART:
         exit(-1)
 
     def exit_routine(self):
-        print("------------- ART RUN FINISHED -------------")
         self.logger.info("------------- ART RUN FINISHED -------------")
 
 
