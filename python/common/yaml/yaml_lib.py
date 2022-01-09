@@ -51,8 +51,6 @@ def validate_date(yaml, logger):
         logger.warning("Either startDate or endDate were not specified in the configuration file ")
         logger.warning("Will from now on assume that startDate is TODAY and a forecast of 3 days")
 
-    return
-
 
 def read_attribute(cfg, attribute):
     return cfg[attribute]

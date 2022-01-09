@@ -1,3 +1,4 @@
+from logging import error
 import common.yaml.yaml_lib as yaml_lib
 import mohid.mohid_water as mohid_water
 import mohid.mohid_land as mohid_land
@@ -69,17 +70,16 @@ class ART:
             else:
                 self.logger.info("Module Keyword not found. Skipping Simulation...")
         except ValueError as e:
-            self.error_routine(e)
+            self.logger.error(e.__str__())
+            error_routine()
 
-    def error_routine(self, error: ValueError):
-        self.logger.error(error.__str__())
+    def error_routine(self):
         self.mail.send_not_ok_email(error.__str__())
         exit(-1)
 
     def exit_routine(self):
         print("------------- ART RUN FINISHED -------------")
         self.logger.info("------------- ART RUN FINISHED -------------")
-        return
 
 
 def validate_path(path):
