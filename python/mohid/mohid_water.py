@@ -129,8 +129,8 @@ class MohidWater:
         for model in mohid_water_models.keys():
             folder_utils.create_model_folder_structure(self.yaml, mohid_water_models[model])
             self.change_model_dat(mohid_water_models[model])
-            self.gather_boundary_conditions(self.yaml[model])
-            self.gather_restart_files(self.yaml[model])
+            self.gather_boundary_conditions(mohid_water_models[model])
+            self.gather_restart_files(mohid_water_models[model])
 
             if 'METEO' in self.yaml[model].keys():
                 for meteo_model in self.yaml[model]['METEO']['MODELS'].keys():
@@ -257,14 +257,17 @@ class MohidWater:
         keys = model.keys()
         main_path = Path(self.yaml['MOHID_WATER']['MAIN_PATH'])
         path = main_path / model['PATH'] / "data/"
+        path = path.expanduser()
         if not os.path.isdir(path):
             self.logger.info("Path for model folder does not exist.")
             self.logger.info("Check path parameters in the yaml file. Exiting ART.")
             raise ValueError("Path for model folder does not exist.")
 
-        file_path = path / "Model_1.dat"
-        if not os.path.isfile(file_path):
+        file_path = Path(path, "Model_1.dat")
+        
+        if not file_path.is_file():
             raise ValueError("File " + str(file_path) + " does not exist.")
+        
         file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(self.current_initial_date), self.logger)
         self.logger.info("Changed START of " + str(file_path) + " to " +
                          file_modifier.date_to_mohid_date(self.current_initial_date))
