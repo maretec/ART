@@ -6,3 +6,4 @@ pyaml==20.3.1
 PyInstaller==3.6
 pywin32-ctypes==0.2.0
 PyYAML==5.3.1
+yagmail==0.14.247

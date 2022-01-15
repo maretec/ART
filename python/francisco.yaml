@@ -1,0 +1,199 @@
+ART:
+  PROJECT_PATH: D:/Aplica_OP/LisOcean/LisOcean_2D_mare_TEST/
+  MODULE:
+    MOHID_WATER: 1 # 0 or 1, false or true
+    MOHID_LAND: 0 #0 0 or 1, false or true
+    WW3: 0 # 0 or 1, false or true
+    SWAN: 0 # 0 or 1, false or true
+  EMAIL_NOTIFICATION: # NOT MANDATORY, if present all following KEYWORDS are mandatory
+    ENABLE: 0 # 0 or 1, false or true
+    USER: # @GMAIL that will send email
+    PASSWORD:
+    RECEIVERS: #list of emails that are notified at the end of the run
+      - email1@gmail.com
+      - email2@gmail.com
+  PRE_PROCESSING: false # 0 OR 1, false or true
+  POST_PROCESSING: false # 0 OR 1, false or true
+  RUN_SIMULATION: true # 0 OR 1, false or true
+  LOG:
+    ENABLE: 0
+    FOLDER_PATH:
+
+SIMULATION:
+  RUN_TWICE: 0
+  OPERATIONAL_MODE: 0
+  MONTH_MODE: 1
+  DAYS_PER_RUN: 1
+  REF_DAYS_TO_START: -1
+  NUMBER_OF_RUNS: 1
+  START_DATE: "2021 01 08 0 0 0"
+  END_DATE: "2021 04 15 0 0 0"
+
+TRIGGER:
+  ENABLE: 0
+  CHECK_ALL: false
+  FOLDERS_TO_WATCH:
+    - D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/Log/
+  TRIGGER_MAX_WAIT: 1
+  TRIGGER_POLLING_RATE: 120
+  WRITE_TRIGGER: 1
+
+MOHID_WATER:
+  MAIN_PATH: /Users/ctw01147-admin/Personal/ART/Teste
+  MAX_TIME: 40000
+  EXE_PATH:
+  LOG:
+    ENABLE: 0 # 0 or 1, false or true
+    FILE_PATH: ./mohid_output.txt
+  MPI:
+    ENABLE: 0 # 0 or 1, false or true
+    TOTAL_PROCESSORS: 2
+    EXE_PATH:
+  OPENMP:
+    ENABLE: 1 # 0 or 1, false or true
+    TOTAL_PROCESSORS: 2
+    EXE_PATH: D:/Aplica_OP/LisOcean/LisOcean_2D_mare_TEST/LisOcean/exe/MOHIDWater_v20.10_x64_OpenMP.exe
+  MODELS:
+    MODEL1:
+      NAME: LisOcean
+      PATH: LisOcean/
+      DT: 15
+      STORAGE_PATH: F:/BackUp/LisOcean/LisOcean_2D_mare/
+      RESULTS_LIST: # EXAMPLE LIST
+        - Hydrodynamic_1.hdf5
+        - Hydrodynamic_1_Surface.hdf5
+        - Hydrodynamic_1_w1.hdf5
+        - WaterProperties_1.hdf5
+        - WaterProperties_1_Surface.hdf5
+        - WaterProperties_1_w1.hdf5
+        - Atmosphere_1.hdf5
+      DISCHARGES:
+        discharge1:
+          ENABLE: 0 # 0 or 1, false or true
+          PATH: /samba/tagus/BackUp/3DTagusWQ/Discharges/
+      OBC:
+        OBC1:
+          ENABLE: 0 # 0 or 1, false or true
+          NAME: WestIberia_Window
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0 # 0 or 1, false or true
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic_w1
+          FILE_TYPE: hdf5
+          WORK_PATH: ////deep/BackUp_PreOp/BIOPCOMS_2020/WestIberia/Results_HDF/
+        OBC2:
+          ENABLE: 0 # 0 or 1, false or true
+          NAME: CMEMS_Hydro
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0 # 0 or 1, false or true
+          SUBFOLDERS: 0
+          FILES:
+            - Myocean_North_Atlantic_%Yi-%mi-%di_%Yf-%mf-%df
+          FILE_TYPE: hdf5
+          WORK_PATH: ////datacenter/CMEMS2Me_Hydro/Glue/
+        MINHO:
+          ENABLE: 0
+          NAME: Minho
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Minho/Results_HDF/
+        DOURO:
+          ENABLE: 0
+          NAME: Douro
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Douro/Results_HDF/
+        MONDEGO:
+          ENABLE: 0
+          NAME: Mondego
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Mondego/Results_HDF/
+        TEJO:
+          ENABLE: 0
+          NAME: Tejo
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Tejo/Results_HDF/
+        SADO:
+          ENABLE: 0
+          NAME: Sado
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Sado/Results_HDF/
+        GUADIANA:
+          ENABLE: 0
+          NAME: Guadiana
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Guadiana/Results_HDF/
+        GUADALQUIVIR:
+          ENABLE: 0
+          NAME: Guadalquivir
+          SIMULATED_DAYS: 1
+          HAS_SOLUTION_FROM_FILE: 0
+          SUBFOLDERS: 4
+          FILES:
+            - Hydrodynamic
+            - WaterProperties
+          FILE_TYPE: hdf5
+          WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Guadalquivir/Results_HDF/
+
+PREPROCESSING:
+  CopyFiles2ART_MM5:
+    RUN: 1
+    WORKING_DIRECTORY: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_MM5/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_MM5/CopyFiles2ART.dat
+    EXE_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_MM5/CopyFiles2ART.exe"
+  CopyFiles2ART_IPMA:
+    RUN: 1
+    WORKING_DIRECTORY: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_IPMA/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_IPMA/CopyFiles2ART.dat
+    EXE_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_IPMA/CopyFiles2ART.exe
+  CopyOBCFiles:
+    RUN: 0
+    WORKING_DIRECTORY: /home/maretec/LisOcean_IBI_OP/Work/OBC/GetInputFiles/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: /home/maretec/LisOcean_IBI_OP/Work/OBC/GetInputFiles/GetInputFile.dat
+    EXE_PATH: python
+    FLAGS: /home/maretec/LisOcean_IBI_OP/Work/OBC/GetInputFiles/GetInputFile.py
+POSTPROCESSING:
+  Delete_Upscaling_OBC:
+    RUN: 1
+    WORKING_DIRECTORY: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/Delete_Upscaling_OBC/
+    DAT_DATE_CHANGE: 0
+    EXE_PATH: python
+    FLAGS: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/Delete_Upscaling_OBC/Delete_files.py

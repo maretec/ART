@@ -53,14 +53,6 @@ MOHID_WATER:
     ENABLE: 1 # 0 or 1, false or true
     TOTAL_PROCESSORS: 2
     EXE_PATH: D:/Aplica_OP/LisOcean/LisOcean_2D_mare_TEST/LisOcean/exe/MOHIDWater_v20.10_x64_OpenMP.exe
-  TRIGGER:
-    ENABLE: 0
-    FOLDERS_TO_WATCH:
-      - D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Log/
-    TRIGGER_MAX_WAIT: 3
-    TRIGGER_POLLING_RATE: 120
-    WRITE_TRIGGER: 1
-    CHECK_ALL: true
   MODELS:
     - MODEL1:
         NAME: LisOcean
@@ -178,69 +170,30 @@ MOHID_WATER:
             FILE_TYPE: hdf5
             WORK_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/Estuaries/BackUp/Guadalquivir/Results_HDF/
 
-MOHIDLAND:
-  MAIN_PATH: /home/maretec/Aplica/LisOcean_2D/
-  MAX_TIME:
-  EXE_PATH:
-  LOG:
-    ENABLE: # 0 or 1, false or true
-    FILE_PATH:
-  MPI:
-    ENABLE: # 0 or 1, false or true
-    TOTAL_PROCESSORS:
-    EXE_PATH:
-  OPENMP:
-    ENABLE: # 0 or 1, false or true
-    TOTAL_PROCESSORS:
-  MODELS:
-    - MODEL1:
-        NAME:
-        PATH:
-        DT:
-        STORAGE_PATH:
-        RESULTS_LIST: #EXAMPLE LIST
-          - Hydrodynamic_1.hdf5
-          - Hydrodynamic_1_Surface.hdf5
-          - Hydrodynamic_1_w1.hdf5
-          - WaterProperties_1.hdf5
-          - WaterProperties_1_Surface.hdf5
-          - Atmosphere_1.hdf5
-        DISCHARGES:
-          discharge1:
-            ENABLE: # 0 or 1, false or true
-            PATH:
-        OBC:
-          OBC1:
-            ENABLE: # 0 or 1, false or true
-            SIMULATED_DAYS:
-            HAS_SOLUTION_FROM_FILE: # 0 or 1, false or true
-            FILES:
-              - Portugal_%Yi%Mi%di
-            FILE_TYPE: hdf5
-            WORK_PATH:
-
-SWAN:
-  MAIN_PATH: /home/maretec/Aplica/LisOcean_2D/
-
-  TO_BE_DEFINED:
-
-WW3:
-  MAIN_PATH: /home/maretec/Aplica/LisOcean_2D/
-  TO_BE_DEFINED:
-
-PRE_PROCESSING:
-  EXAMPLE_NAME_OF_PREPROCESSING:
-    RUN:  # 0 or 1, false or true
-    WORKING_DIRECTORY: # put path to working directory of tool here
-    DAT_DATE_CHANGE:  # 0 or 1, false or true
-    CONFIG_FILEPATH: #config file_path of tool
-    EXE_PATH: # path to executable of tool, if python program put path to python here
-    FLAGS: # not obligatory, if python script put path to python script here
-POST_PROCESSING:
-  EXAMPLE_NAME_OF_POSTPROCESSING:
-    RUN:  # 0 or 1, false or true
-    WORKING_DIRECTORY: # put path to working directory of tool here
-    DAT_DATE_CHANGE:  # 0 or 1, false or true
-    CONFIG_FILEPATH: #config file_path of tool
-    EXE_PATH: # path to executable of tool, if python program put path to python here
-    FLAGS: # not obligatory, if python script put path to python script here
+PREPROCESSING:
+  CopyFiles2ART_MM5:
+    RUN: 1
+    WORKING_DIRECTORY: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_MM5/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_MM5/CopyFiles2ART.dat
+    EXE_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_MM5/CopyFiles2ART.exe"
+  CopyFiles2ART_IPMA:
+    RUN: 1
+    WORKING_DIRECTORY: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_IPMA/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_IPMA/CopyFiles2ART.dat
+    EXE_PATH: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/CopyFiles2ART/CopyFiles2ART_IPMA/CopyFiles2ART.exe
+  CopyOBCFiles:
+    RUN: 0
+    WORKING_DIRECTORY: /home/maretec/LisOcean_IBI_OP/Work/OBC/GetInputFiles/
+    DAT_DATE_CHANGE: 1
+    CONFIG_FILEPATH: /home/maretec/LisOcean_IBI_OP/Work/OBC/GetInputFiles/GetInputFile.dat
+    EXE_PATH: python
+    FLAGS: /home/maretec/LisOcean_IBI_OP/Work/OBC/GetInputFiles/GetInputFile.py
+POSTPROCESSING:
+  Delete_Upscaling_OBC:
+    RUN: 1
+    WORKING_DIRECTORY: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/Delete_Upscaling_OBC/
+    DAT_DATE_CHANGE: 0
+    EXE_PATH: python
+    FLAGS: D:/Aplica/Doutoramento/PCOMS_RIVERS_Offline/PCOMS/Work/Delete_Upscaling_OBC/Delete_files.py

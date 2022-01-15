@@ -1,14 +1,16 @@
 import logging
 
-
 class ArtLogger:
-    def __init__(self, name, logFile):
-        self.logFile = logFile
-        logging.basicConfig(filename=self.logFile,
-                            filemode='a',
-                            format='%(asctime)s ->  %(message)s',
+    def __init__(self, name, log_file):
+        self.log_file = log_file
+        logging.basicConfig(format='[%(levelname)s] - %(asctime)s: %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S',
-                            level=logging.DEBUG)
+                            level=logging.DEBUG, 
+                            handlers=[
+                                logging.FileHandler(self.log_file), 
+                                logging.StreamHandler()
+                            ]
+        )
         self.logger = logging.getLogger(name)
 
     def debug(self, message):
