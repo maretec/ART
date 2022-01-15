@@ -122,27 +122,29 @@ class MohidWater:
     '''
 
     def process_models(self, days_run: int) :
+        main_path = Path(self.yaml['MOHID_WATER']['MAIN_PATH'])
         days_per_run = self.yaml['SIMULATION']['DAYS_PER_RUN']
         self.check_triggers(days_run, self.yaml['SIMULATION']['DAYS_PER_RUN'])
         mohid_water_config = self.yaml['MOHID_WATER']
         mohid_water_models = mohid_water_config['MODELS']
         for model in mohid_water_models.keys():
             folder_utils.create_model_folder_structure(self.yaml, mohid_water_models[model])
-            self.change_model_dat(mohid_water_models[model])
-            self.gather_boundary_conditions(mohid_water_models[model])
-            self.gather_restart_files(mohid_water_models[model])
+            self.change_model_dat(mohid_water_models[model], main_path)
+            self.gather_boundary_conditions(mohid_water_models[model], main_path)
+            self.gather_restart_files(mohid_water_models[model], main_path)
 
-            if 'METEO' in self.yaml[model].keys():
-                for meteo_model in self.yaml[model]['METEO']['MODELS'].keys():
-                    if 'ENABLE' in self.yaml[model]['METEO']['MODELS'][meteo_model].keys() \
-                            and self.yaml[model]['METEO'][meteo_model]['MODELS']['ENABLE']:
-                        self.get_meteo_file(self.yaml[model]['METEO']['MODELS'][meteo_model])
+            #TODO fix meteo
+            if 'METEO' in mohid_water_models[model].keys():
+                for meteo_model in mohid_water_models[model]['METEO']['MODELS'].keys():
+                    if 'ENABLE' in mohid_water_models[model]['METEO']['MODELS'][meteo_model].keys() \
+                            and mohid_water_models[model]['METEO'][meteo_model]['MODELS']['ENABLE']:
+                        self.get_meteo_file(mohid_water_models[model]['METEO']['MODELS'][meteo_model])
 
-            if 'DISCHARGES' in self.yaml[model].keys():
-                for discharge in self.yaml[model]['DISCHARGES'].keys():
-                    if 'ENABLE' in self.yaml[model]['DISCHARGES'][discharge].keys() \
-                            and self.yaml[model]['DISCHARGES'][discharge]['ENABLE']:
-                        self.gather_discharges_files(self.yaml[model])
+            if 'DISCHARGES' in mohid_water_models[model].keys():
+                for discharge in mohid_water_models[model]['DISCHARGES'].keys():
+                    if 'ENABLE' in mohid_water_models[model]['DISCHARGES'][discharge].keys() \
+                            and mohid_water_models[model]['DISCHARGES'][discharge]['ENABLE']:
+                        self.gather_discharges_files(mohid_water_models[model])
 
         self.write_trigger(self.yaml['MOHID_WATER']['MAIN_PATH'],
                           days_per_run, stage="Running")
@@ -252,10 +254,9 @@ class MohidWater:
     It receives the yaml object and the 'model' dictionary which is in 'mohidwater' dictionary.
     '''
 
-    def change_model_dat(self, model):
+    def change_model_dat(self, model, main_path: Path):
         self.logger.info("Creating new model file for model: " + model['NAME'])
         keys = model.keys()
-        main_path = Path(self.yaml['MOHID_WATER']['MAIN_PATH'])
         path = main_path / model['PATH'] / "data/"
         path = path.expanduser()
         if not os.path.isdir(path):
@@ -288,14 +289,13 @@ class MohidWater:
         self.logger.info("Model " + model['NAME'] + " .dat file was created.")
         return
 
-    def gather_boundary_conditions(self, model: dict):
+    def gather_boundary_conditions(self, model: dict, main_path: Path):
         """
         Gathers boundary conditions for each model in the model block if the 'obc' dictionary has the parameter 'enable'
         and if it is a different value from 0. The user can define the file type and the date format. It copies the
         files the user defined in the list 'files' in the yaml file.
         """
         model_keys = model.keys()
-        main_path = Path(self.yaml['ART'][''])
         if 'OBC' in model_keys:
             for obc_model in model['OBC']:
                 if 'ENABLE' in model['OBC'][obc_model].keys() and model['OBC'][obc_model]['ENABLE']:
@@ -314,8 +314,6 @@ class MohidWater:
                     file_type = "hdf5"
                     if 'FILE_TYPE' in obc_keys:
                         file_type = model['OBC'][obc_model]['FILE_TYPE']
-
-                    obc_folder = model['NAME']
                     if 'NAME' in obc_keys:
                         obc_folder = model['OBC'][obc_model]['NAME']
                         user_dest_filename = model['OBC'][obc_model]['NAME']
@@ -478,20 +476,13 @@ class MohidWater:
                 else:
                     continue
 
-        # self.logger.info("get_meteo_file: Meteo file could not be found. Check yaml file for configuration errors.")
-        # raise FileNotFoundError("get_meteo_file: Meteo file could not be found. Check yaml file for configuration " +
-        # "errors.")
-
-
-
-    def gather_restart_files(self, model: dict):
+    def gather_restart_files(self, model: dict, main_path:Path):
         """
         Gets restart files from previous run. These files need to be put in /res folder of the project you're trying to
         run.
         """
         self.logger.info("Gathering the restart files for model: " + model['NAME'])
-        main_path = Path(self.yaml['MOHID_WATER']['MAIN_PATH'])
-
+        
         date_format = "%Y-%m-%d"
         if 'dateFormat' in self.yaml['MOHID_WATER'].keys():
             date_format = self.yaml['MOHID_WATER']['DATE_FORMAT']
