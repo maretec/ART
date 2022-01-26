@@ -88,6 +88,16 @@ class MohidWater:
                     if 'RUN_POSTPROCESSING' in artconfig_keys and self.yaml['ART']['RUN_POSTPROCESSING']:
                         post_processing.execute(self.yaml)
                         self.logger.info("Executing Post Processing")
+                    if 'RUN_TWICE' in self.yaml['ART'].keys() and self.yaml['ART']['RUN_TWICE']:
+                        # Only run next day after repeating current day. Useful for up-scaling
+                        days_run += 1
+                        if days_run == 1:
+                            self.current_initial_date = self.current_initial_date + datetime.timedelta(
+                                days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
+                            self.current_final_date = self.current_final_date + datetime.timedelta(
+                                days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
+                        elif days_run == 2:
+                            days_run = 0
                     if self.yaml['SIMULATION']['MONTH_MODE']:
                         self.current_initial_date = self.current_final_date
                         if self.current_initial_date.month == 12:
