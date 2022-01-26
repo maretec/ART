@@ -1,19 +1,20 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-[dev-packages]
+name = "pypi"
 
 [packages]
-pyinstaller = ">=3.6"
-altgraph = ">=0.17"
-common = ">=0.1.2"
-future = ">=0.18.2"
-pefile = ">=2019.4.18"
-pyaml = ">=20.3.1"
-pywin32-ctypes = ">=0.2.0"
-PyYAML = ">=5.3.1"
+altgraph = "==0.17"
+common = "==0.1.2"
+future = "==0.18.2"
+pefile = "==2019.4.18"
+pyaml = "==20.3.1"
+pyinstaller = "==3.6"
+pywin32-ctypes = "==0.2.0"
+yagmail = "==0.14.247"
+PyYAML = "==5.3.1"
+
+[dev-packages]
 
 [requires]
 python_version = "python 3"
