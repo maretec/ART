@@ -2,9 +2,9 @@ from pathlib import Path
 import os
 
 
-def create_model_folder_structure(yaml: dict, model: str):
+def create_model_folder_structure(yaml: dict, model: dict):
     main_path = Path(yaml['MOHID_WATER']['MAIN_PATH'])
-    model_path = main_path / yaml['MOHID_WATER']['MODELS'][model]['PATH']
+    model_path = main_path / model['PATH']
     if not os.path.isdir(main_path / "GeneralData/"):
         os.makedirs(main_path / "GeneralData/Bathymetry")
         os.makedirs(main_path / "GeneralData/BoundaryConditions")
