@@ -203,11 +203,11 @@ class MohidWater:
             self.logger.info("Starting MOHID MPI")
             # cwd is the working directory where the command will execute. stdout is the output file of the command
             if 'EXE' in self.yaml['MOHID_WATER']['MPI']:
-                exe_path = Path(self.yaml['MOHID_WATER']['EXE'])
+                exe_path = Path(self.yaml['MOHID_WATER']['MPI']['EXE_PATH'])
             else:
                 self.logger.info(
                     "Executable information for MPI missing. Defaulting to main EXE: " + exe_path.__str__())
-
+                exe_path = Path(self.yaml['MOHID_WATER']['EXE_PATH'])
             subprocess.run(["mpiexec", "-np", str(self.yaml['MOHID_WATER']['MPI']['TOTAL_PROCESSORS']),
                             exe_path, "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            stdout=output_file)
