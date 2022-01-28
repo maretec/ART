@@ -202,7 +202,7 @@ class MohidWater:
         if 'MPI' in self.yaml['MOHID_WATER'].keys() and self.yaml['MOHID_WATER']['MPI']['ENABLE']:
             self.logger.info("Starting MOHID MPI")
             # cwd is the working directory where the command will execute. stdout is the output file of the command
-            if 'EXE' in self.yaml['MOHID_WATER']['MPI']:
+            if 'EXE_PATH' in self.yaml['MOHID_WATER']['MPI']:
                 exe_path = Path(self.yaml['MOHID_WATER']['MPI']['EXE_PATH'])
             else:
                 self.logger.info(
