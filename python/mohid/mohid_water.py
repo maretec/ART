@@ -205,9 +205,9 @@ class MohidWater:
             if 'EXE_PATH' in self.yaml['MOHID_WATER']['MPI']:
                 exe_path = Path(self.yaml['MOHID_WATER']['MPI']['EXE_PATH'])
             else:
+                exe_path = Path(self.yaml['MOHID_WATER']['EXE_PATH'])
                 self.logger.info(
                     "Executable information for MPI missing. Defaulting to main EXE: " + exe_path.__str__())
-                exe_path = Path(self.yaml['MOHID_WATER']['EXE_PATH'])
             subprocess.run(["mpiexec", "-np", str(self.yaml['MOHID_WATER']['MPI']['TOTAL_PROCESSORS']),
                             exe_path, "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            stdout=output_file)
