@@ -12,7 +12,8 @@ pyaml = "==20.3.1"
 pyinstaller = "==3.6"
 pywin32-ctypes = "==0.2.0"
 yagmail = "==0.14.247"
-PyYAML = "==5.3.1"
+ruamel-yaml = "==0.17.21"
+
 
 [dev-packages]
 
