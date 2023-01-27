@@ -39,16 +39,17 @@ class ART:
     def __init__(self, yaml):
         self.yaml = yaml
         self.log_path = get_log_file(yaml)
+        self.logger = logger.ArtLogger("ART", self.log_path)
         self.mail = self.initialize_mail(yaml)
         if self.mail is not None:
+            print("entrei" + str(self.log_path))
             self.mail.attachment = self.log_path
-        self.logger = logger.ArtLogger("ART", self.log_path)
 
     def initialize_mail(self, yaml):
         if 'EMAIL_NOTIFICATION' in yaml['ART'].keys() and yaml['ART']['EMAIL_NOTIFICATION']['ENABLE']:
             self.logger.info("Email Notification enabled.")
-            self.logger.info("Sending notifications to: " + yaml['ART']['RECEIVERS'])
-            return mail.MailClient(yaml['ART']['USER'], yaml['ART']['PASSWORD'], yaml['ART']['RECEIVERS'])
+            self.logger.info("Sending notifications to: " + str(yaml['ART']['EMAIL_NOTIFICATION']['RECEIVERS'][0]))
+            return mail.MailClient(yaml['ART']['EMAIL_NOTIFICATION']['USER'], yaml['ART']['EMAIL_NOTIFICATION']['PASSWORD'], yaml['ART']['EMAIL_NOTIFICATION']['RECEIVERS'])
 
     def execute_module(self):
         try:
@@ -70,11 +71,14 @@ class ART:
             else:
                 self.logger.info("Module Keyword not found. Skipping Simulation...")
         except ValueError as e:
+            print("entrei except")
             self.logger.error(e.__str__())
             self.error_routine(e)
 
     def error_routine(self, error):
+        print("entrei error_routine")
         if(self.mail != None):
+            print("entrei send_not_ok_email")
             self.mail.send_not_ok_email(error.__str__())
         self.logger.info("ART IS EXITING WITH AN ERROR.")
         exit(0)

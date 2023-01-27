@@ -209,7 +209,7 @@ class MohidWater:
                 self.logger.info(
                     "Executable information for MPI missing. Defaulting to main EXE: " + exe_path.__str__())
             subprocess.run([mpi_exe_path.__str__(), "-np", str(self.yaml['MOHID_WATER']['MPI']['TOTAL_PROCESSORS']),
-                            exe_path, "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+                            str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            stdout=output_file)
             output_file.close()
 
@@ -225,7 +225,7 @@ class MohidWater:
             # DDC is ran when an MPI run is done to join all the results into a single one.
             ddc_output_filename = "DDC_" + self.current_initial_date.strftime("%Y-%m-%d") + ".log"
             mohid_ddc_output_log = open(ddc_output_filename, "w+")
-            subprocess.run(["MohidDDC.exe", exe_path, "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+            subprocess.run(["MohidDDC.exe", str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            stdout=mohid_ddc_output_log)
             mohid_ddc_output_log.close()
             if not mohid_utils.verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
@@ -236,7 +236,7 @@ class MohidWater:
         else:
             self.logger.info("Starting MOHID run")
             # cwd is the working directory where the command will execute. stdout is the output file of the command
-            subprocess.run([exe_path, "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+            subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            stdout=output_file)
             output_file.close()
 
@@ -407,9 +407,9 @@ class MohidWater:
                                             file_destination = dest_folder / file_destination_extra
                                             copy(file_source, file_destination)
                                             self.logger.info(
-                                                "Copying OBC from " + file_source + " to " + file_destination)
+                                                "Copying OBC from " + str(file_source) + " to " + str(file_destination))
                                     else:
-                                        self.logger.info("File " + file_source + " does not exist ")
+                                        self.logger.info("File " + str(file_source) + " does not exist ")
 
     def get_meteo_file(self, model: dict):
         model_keys = model.keys()
@@ -509,19 +509,19 @@ class MohidWater:
             os.makedirs(restart_files_dest)
 
         # glob creates a list with all files that match the regex expression
-        fin_files = glob.glob(path_fin_files.__str__() + "*.fin")
-        fin5_files = glob.glob(path_fin_files.__str__() + "*.fin5")
+        fin_files = glob.glob(path_fin_files.__str__() + r"/*.fin")
+        fin5_files = glob.glob(path_fin_files.__str__() + r"/*.fin5")
         for file in fin_files:
             # the nomfich.dat file for mohidwater is not changed and when a restart file is generated it ends with _1.fin
             # and because of that an input restart file needs to finish with _0.fin. So we simply change it when we copy it.
             file_destination_partial = os.path.split(file)[1].split("_")[0] + "_0.fin"
             file_destination = restart_files_dest / file_destination_partial
-            self.logger.info("Restart Files: Copying " + file + " to " + file_destination)
+            self.logger.info("Restart Files: Copying " + str(file) + " to " + str(file_destination))
             copy(file, file_destination)
         for file in fin5_files:
             file_destination_partial = os.path.split(file)[1].split("_")[0] + "_0.fin5"
             file_destination = restart_files_dest / file_destination_partial
-            self.logger.info("Restart Files: Copying " + file + " to " + file_destination)
+            self.logger.info("Restart Files: Copying " + str(file) + " to " + str(file_destination))
             copy(file, file_destination)
 
     def gather_discharges_files(self, model):
@@ -529,7 +529,7 @@ class MohidWater:
         main_path = Path(self.yaml['artconfig']['mainPath'])
 
         for discharge in model['DISCHARGES']:
-            self.logger.info("Gathering Discharge Files for discharge block" + discharge)
+            self.logger.info("Gathering Discharge Files for discharge block" + str(discharge))
             date_format = "%Y-%m-%d"
             if 'dateFormat' in model['DISCHARGES'][discharge].keys():
                 date_format = model['DISCHARGES'][discharge]['DATE_FORMAT']
@@ -539,12 +539,12 @@ class MohidWater:
                                             self.current_final_date.strftime(date_format) + "/"
             path_discharges_files = discharge_base_path / path_discharges_files_partial
 
-            self.logger.info("Source Discharges Files " + path_discharges_files)
+            self.logger.info("Source Discharges Files " + str(path_discharges_files))
 
             file_destination_path_end = "GeneralData/BoundaryConditions/Discharges/" + model['NAME'] + "/"
             file_destination = main_path / file_destination_path_end
 
-            self.logger.info("Discharges Files Destination " + file_destination)
+            self.logger.info("Discharges Files Destination " + str(file_destination))
 
             files = glob.glob(path_discharges_files + "*.*")
 
@@ -554,7 +554,7 @@ class MohidWater:
             for file in files:
                 file_destination_string = os.path.split(file)[1]
                 file_destination = file_destination / file_destination_string
-                self.logger.info("Discharges: Copying " + file + " to " + file_destination)
+                self.logger.info("Discharges: Copying " + str(file) + " to " + str(file_destination))
                 copy(file, file_destination)
 
     def check_triggers(self, days_run: int, days_per_run: int):
@@ -604,7 +604,7 @@ class MohidWater:
                             time.sleep(rate)
                             timer = timer - rate
                             if timer < 0:
-                                self.logger.info("Reached max waiting time while trying to find file " + file + ". Resuming \
+                                self.logger.info("Reached max waiting time while trying to find file " + str(file) + ". Resuming \
                                  execution without the file...")
                                 return
 
@@ -616,7 +616,7 @@ class MohidWater:
                                 if line.startswith("STATUS"):
                                     if "FINISHED" in line:
                                         finished = True
-                                        self.logger.info("File " + file + " found with status FINISHED.")
+                                        self.logger.info("File " + str(file) + " found with status FINISHED.")
                             f.close()
                             if not finished:
                                 time.sleep(
@@ -725,7 +725,7 @@ class MohidWater:
                             if os.path.split(file)[1].startswith("MPI"):
                                 continue
                             file_destination = restart_storage / os.path.split(file)[1]
-                            self.logger.info("Backup Simulation Fin_files: Copying " + file + " to " + file_destination)
+                            self.logger.info("Backup Simulation Fin_files: Copying " + str(file) + " to " + str(file_destination))
                             copy(file, file_destination)
 
                 hdf5_files = glob.glob(results_path + "*.hdf5")
@@ -752,7 +752,7 @@ class MohidWater:
                                 continue
 
                             file_destination = results_storage / file_name_copy
-                            self.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+                            self.logger.info("Backup Simulation HDF Files: Copying " + str(file) + " to " + str(file_destination))
                             copy(file, file_destination)
                     # defaults to backup all results files
                     else:
@@ -769,7 +769,7 @@ class MohidWater:
                                 file_type = name_array[-1].split(".")[1]
                                 file_name = name_array[0] + "." + file_type
                             file_destination = results_storage / file_name
-                            self.logger.info("Backup Simulation HDF Files: Copying " + file + " to " + file_destination)
+                            self.logger.info("Backup Simulation HDF Files: Copying " + str(file) + " to " + str(file_destination))
 
                             copy(file, file_destination)
 
