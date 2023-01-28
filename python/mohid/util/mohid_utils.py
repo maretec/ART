@@ -8,8 +8,11 @@ def verify_run(filename, messages):
         lines = f.read().splitlines()
         for i in range(-1, -200, -1):
             for message in messages:
-                if message in lines[i]:
-                    return True
+                try:
+                    if message in lines[i]:
+                        return True
+                except:
+                    return False
     return False
 
 '''

@@ -27,7 +27,7 @@ class MailClient:
         print("entrei send_not_ok_email 2")
         self.yag.send(
             to=self.receivers,
-            subject="ART: RUN on " + socket.gethostname() + " NOT SUCCESSFUL\n" + message,
+            subject="ART: RUN on " + str(socket.gethostname()) + " NOT SUCCESSFUL\n" + str(message),
             contents=not_ok_body,
-            attachments=self.attachment
+            attachments=str(self.attachment)
         )
