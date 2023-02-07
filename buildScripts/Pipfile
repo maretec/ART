@@ -13,7 +13,7 @@ pyinstaller = "==3.6"
 pywin32-ctypes = "==0.2.0"
 yagmail = "==0.14.247"
 ruamel-yaml = "==0.17.21"
-
+importlib-metadata = "==6.0.0"
 
 [dev-packages]
 
