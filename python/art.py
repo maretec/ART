@@ -42,7 +42,6 @@ class ART:
         self.logger = logger.ArtLogger("ART", self.log_path)
         self.mail = self.initialize_mail(yaml)
         if self.mail is not None:
-            print("entrei" + str(self.log_path))
             self.mail.attachment = self.log_path
 
     def initialize_mail(self, yaml):
@@ -71,17 +70,14 @@ class ART:
             else:
                 self.logger.info("Module Keyword not found. Skipping Simulation...")
         except ValueError as e:
-            print("entrei except")
             self.logger.error(e.__str__())
             self.error_routine(e)
 
     def error_routine(self, error):
-        print("entrei error_routine")
         if(self.mail != None):
-            print("entrei send_not_ok_email")
             self.mail.send_not_ok_email(error.__str__())
         self.logger.info("ART IS EXITING WITH AN ERROR.")
-        exit(0)
+        sys.exit(0)
 
     def exit_routine(self):
         self.logger.info("------------- ART RUN FINISHED -------------")

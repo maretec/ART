@@ -10,8 +10,6 @@ class MailClient:
         self.email = email
         self.password = password
         self.receivers = receivers
-        print(self.email)
-        print(self.password)
         self.yag = yagmail.SMTP(self.email, self.password)
         self.attachment = None
 
@@ -24,7 +22,6 @@ class MailClient:
         )
 
     def send_not_ok_email(self, message):
-        print("entrei send_not_ok_email 2")
         self.yag.send(
             to=self.receivers,
             subject="ART: RUN on " + str(socket.gethostname()) + " NOT SUCCESSFUL\n" + str(message),
