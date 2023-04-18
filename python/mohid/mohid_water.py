@@ -195,9 +195,10 @@ class MohidWater:
             raise ValueError("OPERATIONAL_MODE keyword must be defined in yaml file.")
 
     def run_mohid(self):
-        output_file_name = Path("MOHID_RUN_" + self.current_initial_date.strftime("%Y-%m-%d") + ".log")
+        output_file_name = Path(self.yaml['MOHID_WATER']['TREE_PATH'] + "MOHID_RUN_" + self.current_initial_date.strftime("%Y-%m-%d") + ".log")
         output_file = open(output_file_name, "w+")
         exe_path = Path(self.yaml['MOHID_WATER']['EXE_PATH'])
+        tree_path = Path(self.yaml['MOHID_WATER']['TREE_PATH'])
 
         if 'MPI' in self.yaml['MOHID_WATER'].keys() and self.yaml['MOHID_WATER']['MPI']['ENABLE']:
             self.logger.info("Starting MOHID MPI")
@@ -208,8 +209,11 @@ class MohidWater:
                 mpi_exe_path = "mpiexec"
                 self.logger.info(
                     "Executable information for MPI missing. Defaulting to main EXE: " + exe_path.__str__())
+            # subprocess.run([mpi_exe_path.__str__(), "-np", str(self.yaml['MOHID_WATER']['MPI']['TOTAL_PROCESSORS']),
+                            # str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+                           # stdout=output_file)
             subprocess.run([mpi_exe_path.__str__(), "-np", str(self.yaml['MOHID_WATER']['MPI']['TOTAL_PROCESSORS']),
-                            str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+                            str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
                            stdout=output_file)
             output_file.close()
 
@@ -225,7 +229,9 @@ class MohidWater:
             # DDC is ran when an MPI run is done to join all the results into a single one.
             ddc_output_filename = "DDC_" + self.current_initial_date.strftime("%Y-%m-%d") + ".log"
             mohid_ddc_output_log = open(ddc_output_filename, "w+")
-            subprocess.run(["MohidDDC.exe", str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+            # subprocess.run(["MohidDDC.exe", str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+                           # stdout=mohid_ddc_output_log)
+            subprocess.run(["MohidDDC.exe", str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
                            stdout=mohid_ddc_output_log)
             mohid_ddc_output_log.close()
             if not mohid_utils.verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
@@ -236,7 +242,9 @@ class MohidWater:
         else:
             self.logger.info("Starting MOHID run")
             # cwd is the working directory where the command will execute. stdout is the output file of the command
-            subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+            # subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
+                           # stdout=output_file)
+            subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
                            stdout=output_file)
             output_file.close()
 
