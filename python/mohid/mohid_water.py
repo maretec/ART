@@ -708,7 +708,8 @@ class MohidWater:
 
        # for model in self.yaml.keys():
         for model in self.yaml['MOHID_WATER'].keys():
-            model_keys = self.yaml['MOHID_WATER'][model].keys()
+            model_keys = self.yaml[model].keys()
+            print(model_keys)
             # results_path_end = self.yaml[model]['PATH'] + "res/"
             results_path_end = self.yaml['MOHID_WATER'][model]["PATH"] + "res/"
             # print(results_path_end)
