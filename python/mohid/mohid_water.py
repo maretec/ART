@@ -707,17 +707,12 @@ class MohidWater:
         self.logger.info("Simulation Results Final Date: " + final_date)
 
        # for model in self.yaml.keys():
-        for model in self.yaml['MOHID_WATER'].keys():
-            model_keys = self.yaml[model].keys()
-            print(model_keys)
-            # results_path_end = self.yaml[model]['PATH'] + "res/"
-            results_path_end = self.yaml['MOHID_WATER'][model]["PATH"] + "res/"
-            # print(results_path_end)
+        for model in self.yaml['MOHID_WATER']['MODELS'].keys():
+            model_keys = self.yaml['MOHID_WATER']['MODELS'][model].keys()
+            results_path_end = self.yaml['MOHID_WATER']['MODELS'][model]["PATH"] + "res/"
             results_path = main_path / results_path_end
-            
-            # print(results_path)
 
-            generic_path = Path(self.yaml['MOHID_WATER'][model]['STORAGE_PATH'])
+            generic_path = Path(self.yaml['MOHID_WATER']['MODELS'][model]['STORAGE_PATH'])
             date_path = initial_date + "_" + final_date + "/"
             restart_storage = generic_path / "Restart/" / date_path
             results_storage = generic_path / "Results_HDF/" / date_path
@@ -725,8 +720,8 @@ class MohidWater:
             discharges_storage = generic_path / "Discharges/" / date_path
 
             if 'HAS_SOLUTION_FROM_FILE' not in model_keys or not self.yaml[model]['HAS_SOLUTION_FROM_FILE']:
-                fin_files = glob.glob(results_path + "*_1.fin")
-                fin5_files = glob.glob(results_path + "*_1.fin5")
+                fin_files = glob.glob(str(results_path) + "*_1.fin")
+                fin5_files = glob.glob(str(results_path) + "*_1.fin5")
                 fin_files = fin5_files + fin_files
                 if len(fin_files) > 0:
                     if not os.path.isdir(restart_storage):
@@ -738,7 +733,7 @@ class MohidWater:
                         self.logger.info("Backup Simulation Fin_files: Copying " + str(file) + " to " + str(file_destination))
                         copy(file, file_destination)
 
-            hdf5_files = glob.glob(results_path + "*.hdf5")
+            hdf5_files = glob.glob(str(results_path) + "*.hdf5")
             if len(hdf5_files) > 0:
                 if not os.path.isdir(results_storage):
                     os.makedirs(results_storage)
@@ -783,7 +778,7 @@ class MohidWater:
 
                         copy(file, file_destination)
 
-            time_series_files = glob.glob(results_path + "Run1/*.*")
+            time_series_files = glob.glob(str(results_path) + "Run1/*.*")
             if len(time_series_files) > 0:
                 if not os.path.isdir(time_series_storage):
                     os.makedirs(time_series_storage)
