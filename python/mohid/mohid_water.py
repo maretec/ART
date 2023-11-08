@@ -718,8 +718,9 @@ class MohidWater:
             results_storage = generic_path / "Results_HDF/" / date_path
             time_series_storage = generic_path / "Results_TimeSeries/" / date_path
             discharges_storage = generic_path / "Discharges/" / date_path
-
-            if 'HAS_SOLUTION_FROM_FILE' not in model_keys or not self.yaml[model]['HAS_SOLUTION_FROM_FILE']:
+            
+            # if 'HAS_SOLUTION_FROM_FILE' not in model_keys or not self.yaml[model]['HAS_SOLUTION_FROM_FILE']:
+            if 'HAS_SOLUTION_FROM_FILE' not in model_keys:
                 fin_files = glob.glob(str(results_path) + "*_1.fin")
                 fin5_files = glob.glob(str(results_path) + "*_1.fin5")
                 fin_files = fin5_files + fin_files
