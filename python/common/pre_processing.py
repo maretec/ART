@@ -2,21 +2,22 @@ import subprocess
 import mohid.util.file_modifier as file_modifier
 import mohid.util.config as cfg
 import os
+from pathlib import Path
 
 PRE_PROCESSING_STRING = "Executing Pre Processing module: "
 
-def dat_date_change(file_path, logger):
-    file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_initial_date), logger)
-    file_modifier.modify_end_dat_date(file_path, file_modifier.date_to_mohid_date(cfg.current_final_date), logger)
+def dat_date_change(file_path, logger, current_initial_date, current_final_date):
+    file_modifier.modify_start_dat_date(file_path, file_modifier.date_to_mohid_date(current_initial_date), logger)
+    file_modifier.modify_end_dat_date(file_path, file_modifier.date_to_mohid_date(current_final_date), logger)
 
 
-def execute(yaml, logger):
+def execute(yaml, logger, current_initial_date, current_final_date):
     for block in yaml['PREPROCESSING']:
         block_keys = yaml['PREPROCESSING'][block].keys()
         block_dict = yaml['PREPROCESSING'][block]
         if 'RUN' in block_keys and block_dict['RUN']:
             if 'DAT_DATE_CHANGE' in block_keys and block_dict['DAT_DATE_CHANGE']:
-                dat_date_change(block_dict['CONFIG_FILEPATH'], logger)
+                dat_date_change(Path(block_dict['CONFIG_FILEPATH']), logger, current_initial_date, current_final_date)
             if 'FLAGS' in block_keys:
                 flags_array = block_dict['FLAGS'].split(" ")
                 print(block_dict['FLAGS'])

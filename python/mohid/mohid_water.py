@@ -49,12 +49,13 @@ class MohidWater:
 
                 if 'PRE_PROCESSING' in artconfig_keys and self.yaml['ART']['PRE_PROCESSING']:
                     self.logger.info("Executing Pre Processing")
-                    pre_processing.execute(self.yaml, logger)
+                    pre_processing.execute(self.yaml, self.logger, self.current_initial_date, self.current_final_date)
                 if 'RUN_SIMULATION' in artconfig_keys and self.yaml['ART']['RUN_SIMULATION']:
                     self.process_models(days_run)
                 if 'POST_PROCESSING' in artconfig_keys and self.yaml['ART']['POST_PROCESSING']:
                     self.logger.info("Executing Post Processing")
-                    thread = threading.Thread(target=post_processing.execute, args=(self,))
+                    # thread = threading.Thread(target=post_processing.execute, args=(self,))
+                    thread = threading.Thread(target=post_processing.execute, args=(self.yaml, self.logger, self.current_initial_date, self.current_final_date))
                     thread.start()
         else:
             if 'MONTH_MODE' in simulation_keys and self.yaml['SIMULATION']['MONTH_MODE']:
@@ -80,13 +81,13 @@ class MohidWater:
                     self.logger.info("STARTING FORECAST (" + self.current_initial_date.strftime("%Y-%m-%d") + " to " +
                                     self.current_final_date.strftime("%Y-%m-%d") + ")")
                     self.logger.info("========================================")
-                    if 'RUN_PREPROCESSING' in artconfig_keys and self.yaml['ART']['RUN_PREPROCESSING']:
+                    if 'PRE_PROCESSING' in artconfig_keys and self.yaml['ART']['PRE_PROCESSING']:
                         self.logger.info("Executing Pre Processing")
-                        pre_processing.execute(self.yaml)
+                        pre_processing.execute(self.yaml, self.logger, self.current_initial_date, self.current_final_date)
                     if self.yaml['ART']['RUN_SIMULATION']:
                         self.process_models(days_run)
-                    if 'RUN_POSTPROCESSING' in artconfig_keys and self.yaml['ART']['RUN_POSTPROCESSING']:
-                        post_processing.execute(self.yaml)
+                    if 'POST_PROCESSING' in artconfig_keys and self.yaml['ART']['POST_PROCESSING']:
+                        post_processing.execute(self.yaml, self.logger, self.current_initial_date, self.current_final_date)
                         self.logger.info("Executing Post Processing")
                     if 'RUN_TWICE' in self.yaml['ART'].keys() and self.yaml['ART']['RUN_TWICE']:
                         # Only run next day after repeating current day. Useful for up-scaling
