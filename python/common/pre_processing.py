@@ -1,6 +1,5 @@
 import subprocess
 import mohid.util.file_modifier as file_modifier
-import mohid.util.config as cfg
 import os
 from pathlib import Path
 
