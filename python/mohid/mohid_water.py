@@ -228,12 +228,17 @@ class MohidWater:
                 self.logger.info("MOHID RUN successful")
 
             # DDC is ran when an MPI run is done to join all the results into a single one.
+            ddx_output_folder= Path(self.yaml['MOHID_WATER']['TREE_PATH'] + r"/DomainDecomposition_Logs/")
+            
+            if not os.path.isdir(ddx_output_folder):
+                os.makedirs(ddx_output_folder)
+                
             ddc_output_filename = Path(self.yaml['MOHID_WATER']['TREE_PATH'] + "/DomainDecomposition_Logs/" + "DomainDecomposition_" + self.current_initial_date.strftime("%Y-%m-%d") + ".log")
             mohid_ddc_output_log = open(ddc_output_filename, "w+")
             # subprocess.run(["MohidDDC.exe", str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            # stdout=mohid_ddc_output_log)
-            Mohid_ddc_path = Path(self.yaml['MOHID_WATER']['TREE_PATH'] + "DomainDecompositionConsolidation.exe")
-            subprocess.run([Mohid_ddc_path.__str__(), str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
+            mohid_ddc_path = Path(self.yaml['MOHID_WATER']['TREE_PATH'] + "DomainDecompositionConsolidation.exe")
+            subprocess.run([mohid_ddc_path.__str__(), str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
                            stdout=mohid_ddc_output_log)
             mohid_ddc_output_log.close()
             if not mohid_utils.verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
@@ -581,13 +586,14 @@ class MohidWater:
 
             if days_run == 0 or check:
 
-                if 'FOLDERS_TO_WATCH' in self.yaml['TRIGGER']:
+                if 'FOLDERS_TO_WATCH' in trigger_config:
                     folders = trigger_config['FOLDERS_TO_WATCH']
                 else:
                     folders = None
                     self.logger.info("No folders to watch on triggers FOLDER_TO_WATCH parameter is empty.")
+                    
 
-                if trigger_config['TRIGGER_MAX_WAIT'] in self.yaml:
+                if 'TRIGGER_MAX_WAIT' in trigger_config:
                     timer = trigger_config['TRIGGER_MAX_WAIT'] * 3600
                 else:
                     timer = static.DEFAULT_MAX_WAIT * 3600
@@ -641,11 +647,13 @@ class MohidWater:
         """ Receives a yaml config file with only the trigger subtree and writes the trigger file.
         The execution is never interrupted by this function, any errors found are reported in the logger.
         """
-        if 'TRIGGER' in self.yaml['MOHID_WATER'] and self.yaml['TRIGGER']['ENABLE']:
-            trigger_config = self.yaml['MOHID_WATER']['TRIGGER']
+        if 'TRIGGER' in self.yaml and self.yaml['TRIGGER']['ENABLE']:
+            trigger_config = self.yaml['TRIGGER']
             if 'WRITE_TRIGGER' in trigger_config and trigger_config['WRITE_TRIGGER']:
                 output_trigger = trigger_config['WRITE_TRIGGER']
-                dest_folder = main_path / "Log/Triggers/"
+                dest_folder = Path(main_path + r"/Logs/Triggers/")
+                if not os.path.isdir(dest_folder):
+                    os.makedirs(dest_folder)
             else:
                 output_trigger = False
                 self.logger.info("Output trigger not set. WRITE_TRIGGER parameter is empty.")
@@ -656,7 +664,7 @@ class MohidWater:
                 tmp_date = self.current_initial_date + datetime.timedelta(days_per_run)
                 final_date = tmp_date.strftime(date_format)
                 filename = initial_date + "_" + final_date + ".dat"
-                filepath = dest_folder / filename
+                filepath = Path(dest_folder / filename)
 
                 now = datetime.datetime.now()
                 system_time = now.strftime("%Y-%m-%d %H:%M")
@@ -723,7 +731,6 @@ class MohidWater:
             
             # if 'HAS_SOLUTION_FROM_FILE' not in model_keys or not self.yaml[model]['HAS_SOLUTION_FROM_FILE']:
             if 'HAS_SOLUTION_FROM_FILE' not in model_keys or not self.yaml['MOHID_WATER']['MODELS'][model]['HAS_SOLUTION_FROM_FILE']:
-                self.logger.info("Entrei backup restart" + str(results_path))
                 fin_files = glob.glob(results_path.__str__() + r"/*_1.fin")
                 fin5_files = glob.glob(results_path.__str__() + r"/*_1.fin5")
                 fin_files = fin5_files + fin_files
