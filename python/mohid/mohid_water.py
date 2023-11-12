@@ -228,11 +228,12 @@ class MohidWater:
                 self.logger.info("MOHID RUN successful")
 
             # DDC is ran when an MPI run is done to join all the results into a single one.
-            ddc_output_filename = "DDC_" + self.current_initial_date.strftime("%Y-%m-%d") + ".log"
+            ddc_output_filename = Path(self.yaml['MOHID_WATER']['TREE_PATH'] + "/DomainDecomposition_Logs/" + "DomainDecomposition_" + self.current_initial_date.strftime("%Y-%m-%d") + ".log")
             mohid_ddc_output_log = open(ddc_output_filename, "w+")
             # subprocess.run(["MohidDDC.exe", str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            # stdout=mohid_ddc_output_log)
-            subprocess.run(["MohidDDC.exe", str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
+            Mohid_ddc_path = Path(self.yaml['MOHID_WATER']['TREE_PATH'] + "DomainDecompositionConsolidation.exe")
+            subprocess.run([Mohid_ddc_path.__str__(), str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
                            stdout=mohid_ddc_output_log)
             mohid_ddc_output_log.close()
             if not mohid_utils.verify_run(ddc_output_filename, ["Program MohidDDC successfully terminated"]):
@@ -571,8 +572,8 @@ class MohidWater:
         configuration. Checks for dependencies within the models. The execution is never interrupted by this function,
         any errors found are reported in the logger.
         """
-        if 'TRIGGER' in self.yaml['MOHID_WATER'] and self.yaml['MOHID_WATER']['TRIGGER']['ENABLE']:
-            trigger_config = self.yaml['MOHID_WATER']['TRIGGER']
+        if 'TRIGGER' in self.yaml and self.yaml['TRIGGER']['ENABLE']:
+            trigger_config = self.yaml['TRIGGER']
             if 'CHECK_ALL' in trigger_config:
                 check = trigger_config['CHECK_ALL']
             else:
@@ -580,7 +581,7 @@ class MohidWater:
 
             if days_run == 0 or check:
 
-                if 'FOLDERS_TO_WATCH' in self.yaml:
+                if 'FOLDERS_TO_WATCH' in self.yaml['TRIGGER']:
                     folders = trigger_config['FOLDERS_TO_WATCH']
                 else:
                     folders = None
@@ -640,11 +641,11 @@ class MohidWater:
         """ Receives a yaml config file with only the trigger subtree and writes the trigger file.
         The execution is never interrupted by this function, any errors found are reported in the logger.
         """
-        if 'TRIGGER' in self.yaml['MOHID_WATER'] and self.yaml['MOHID_WATER']['TRIGGER']['ENABLE']:
+        if 'TRIGGER' in self.yaml['MOHID_WATER'] and self.yaml['TRIGGER']['ENABLE']:
             trigger_config = self.yaml['MOHID_WATER']['TRIGGER']
-            if 'WRITE_TRIGGER' in trigger_config and trigger_config['WRITER_TRIGGER']:
-                output_trigger = trigger_config['WRITER_TRIGGER']
-                dest_folder = main_path / "Log/"
+            if 'WRITE_TRIGGER' in trigger_config and trigger_config['WRITE_TRIGGER']:
+                output_trigger = trigger_config['WRITE_TRIGGER']
+                dest_folder = main_path / "Log/Triggers/"
             else:
                 output_trigger = False
                 self.logger.info("Output trigger not set. WRITE_TRIGGER parameter is empty.")
