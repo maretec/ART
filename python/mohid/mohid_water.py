@@ -682,6 +682,7 @@ class MohidWater:
                 elif stage == "Finished":
                     file.write('MOHID forecast and backup finished for the following period:')
 
+                file.write('\n')
                 file.write(
                     'START                         : ' + file_modifier.date_to_mohid_date(self.current_initial_date))
                 file.write(
@@ -789,10 +790,13 @@ class MohidWater:
 
                         copy(file, file_destination)
 
-            time_series_files = glob.glob(results_path.__str__() + r"Run1/*.*")
+            time_series_files = glob.glob(results_path.__str__() + r"/Run1/*.*")
+            print(len(time_series_files))
             if len(time_series_files) > 0:
+                print(str(time_series_storage))
                 if not os.path.isdir(time_series_storage):
                     os.makedirs(time_series_storage)
+                self.logger.info("Backup Simulation TimeSerie Files: Copying " + str(file) + " to " + str(file_destination))
                 for file in time_series_files:
                     file_destination = time_series_storage / os.path.split(file)[1]
                     copy(file, file_destination)
