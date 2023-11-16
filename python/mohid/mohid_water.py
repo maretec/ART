@@ -685,6 +685,7 @@ class MohidWater:
                 file.write('\n')
                 file.write(
                     'START                         : ' + file_modifier.date_to_mohid_date(self.current_initial_date))
+                file.write('\n')
                 file.write(
                     'END                           : ' + file_modifier.date_to_mohid_date(self.current_final_date))
                 file.write('\n')
