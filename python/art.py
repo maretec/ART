@@ -60,7 +60,7 @@ class ART:
                     mohid.execute()
                 if 'MOHID_LAND' in modules and modules['MOHID_LAND']:
                     self.logger.info("Starting MOHID Land module")
-                    mohid_land.execute(self)
+                    mohid = mohid_land.MohidLand(self)
                 if 'SWAN' in modules and modules['SWAN']:
                     self.logger.info("Starting Swan module")
                     swan.execute(self)
