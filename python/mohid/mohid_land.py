@@ -32,7 +32,7 @@ class MohidLand:
         simulation_keys = self.yaml['SIMULATION'].keys()
         days_run = 0
         if 'OPERATIONAL_MODE' in self.yaml['SIMULATION'].keys() and self.yaml['SIMULATION']['OPERATIONAL_MODE']:
-            self.logger.info("Running Mohid Water in Operational Mode")
+            self.logger.info("Running Mohid Land in Operational Mode")
             today = datetime.datetime.today()
             # Time needs to start on hour 00:00:00 otherwise will start the models at the wrong time
             today = today.replace(minute=00, hour=00, second=00)
@@ -220,7 +220,7 @@ class MohidLand:
 
             # Mohid always writes these strings in the last lines of the logs. We use it to verify that run was
             # successful
-            if not mohid_utils.verify_run(output_file_name, ['Program Mohid Water successfully terminated',
+            if not mohid_utils.verify_run(output_file_name, ['Program Mohid Land successfully terminated',
                                                              'Program Mohid Land successfully terminated']):
                 self.logger.info("MOHID RUN NOT SUCCESSFUL")
                 raise ValueError("MOHID RUN NOT SUCCESSFUL")

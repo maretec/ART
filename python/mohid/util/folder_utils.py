@@ -3,8 +3,13 @@ import os
 
 
 def create_model_folder_structure(yaml: dict, model: dict):
-    main_path = Path(yaml['MOHID_WATER']['MAIN_PATH'])
+    if yaml['ART']['MODULE']['MOHID_WATER']:
+        main_path = Path(yaml['MOHID_WATER']['MAIN_PATH'])
+    elif yaml['ART']['MODULE']['MOHID_LAND']:
+        main_path = Path(yaml['MOHID_LAND']['MAIN_PATH'])
+    
     model_path = main_path / model['PATH']
+    
     if not os.path.isdir(main_path / "GeneralData/"):
         os.makedirs(main_path / "GeneralData/Bathymetry")
         os.makedirs(main_path / "GeneralData/BoundaryConditions")

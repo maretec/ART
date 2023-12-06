@@ -61,6 +61,7 @@ class ART:
                 if 'MOHID_LAND' in modules and modules['MOHID_LAND']:
                     self.logger.info("Starting MOHID Land module")
                     mohid = mohid_land.MohidLand(self)
+                    mohid.execute()
                 if 'SWAN' in modules and modules['SWAN']:
                     self.logger.info("Starting Swan module")
                     swan.execute(self)
