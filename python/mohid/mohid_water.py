@@ -251,7 +251,7 @@ class MohidWater:
             # cwd is the working directory where the command will execute. stdout is the output file of the command
             # subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['EXE_PATH']),
                            # stdout=output_file)
-            subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
+            subprocess.run(str(exe_path), cwd=os.path.dirname(self.yaml['MOHID_WATER']['TREE_PATH']),
                            stdout=output_file)
             output_file.close()
 
