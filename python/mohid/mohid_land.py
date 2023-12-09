@@ -53,7 +53,6 @@ class MohidLand:
                 if 'RUN_SIMULATION' in artconfig_keys and self.yaml['ART']['RUN_SIMULATION']:
                     self.process_models(days_run)
                 if 'POST_PROCESSING' in artconfig_keys and self.yaml['ART']['POST_PROCESSING']:
-                    self.logger.info("Executing Post Processing")
                     # thread = threading.Thread(target=post_processing.execute, args=(self,))
                     thread = threading.Thread(target=post_processing.execute, args=(self.yaml, self.logger, self.current_initial_date, self.current_final_date))
                     thread.start()
@@ -251,7 +250,7 @@ class MohidLand:
             # cwd is the working directory where the command will execute. stdout is the output file of the command
             # subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_LAND']['EXE_PATH']),
                            # stdout=output_file)
-            subprocess.run([str(exe_path), "&"], cwd=os.path.dirname(self.yaml['MOHID_LAND']['TREE_PATH']),
+            subprocess.run(str(exe_path), cwd=os.path.dirname(self.yaml['MOHID_LAND']['TREE_PATH']),
                            stdout=output_file)
             output_file.close()
 
@@ -792,9 +791,7 @@ class MohidLand:
                         copy(file, file_destination)
 
             time_series_files = glob.glob(results_path.__str__() + r"/Run1/*.*")
-            print(len(time_series_files))
             if len(time_series_files) > 0:
-                print(str(time_series_storage))
                 if not os.path.isdir(time_series_storage):
                     os.makedirs(time_series_storage)
                 self.logger.info("Backup Simulation TimeSerie Files: Copying " + str(file) + " to " + str(file_destination))
