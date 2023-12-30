@@ -11,9 +11,9 @@ def dat_date_change(file_path, logger, current_initial_date, current_final_date)
 
 
 def execute(yaml, logger, current_initial_date, current_final_date):
-    for block in yaml['PREPROCESSING']:
-        block_keys = yaml['PREPROCESSING'][block].keys()
-        block_dict = yaml['PREPROCESSING'][block]
+    for block in yaml['PRE_PROCESSING']:
+        block_keys = yaml['PRE_PROCESSING'][block].keys()
+        block_dict = yaml['PRE_PROCESSING'][block]
         if 'RUN' in block_keys and block_dict['RUN']:
             if 'DAT_DATE_CHANGE' in block_keys and block_dict['DAT_DATE_CHANGE']:
                 dat_date_change(Path(block_dict['CONFIG_FILEPATH']), logger, current_initial_date, current_final_date)
