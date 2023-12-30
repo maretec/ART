@@ -756,10 +756,10 @@ class MohidLand:
                         if os.path.split(file)[1].startswith("MPI"):
                             continue
                         file_name = os.path.split(file)[1]
-                        name_array = file_name.split("_")
+                        name_array = file_name.split("_1_")
                         if len(name_array) > 2:
                             # Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
-                            file_name_copy = name_array[0] + "_" + name_array[2]
+                            file_name_copy = name_array[0] + "_" + name_array[1]
                         else:
                             file_type = name_array[-1].split(".")[1]
                             file_name_copy = name_array[0] + "." + file_type
@@ -778,10 +778,10 @@ class MohidLand:
                             continue
 
                         file_name = os.path.split(file)
-                        name_array = file_name.split("_")
+                        name_array = file_name.split("_1_")
                         if name_array > 2:
                             # Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
-                            file_name = name_array[0] + "_" + name_array[2]
+                            file_name = name_array[0] + "_" + name_array[1]
                         else:
                             file_type = name_array[-1].split(".")[1]
                             file_name = name_array[0] + "." + file_type
