@@ -19,7 +19,6 @@ def execute(yaml, logger, current_initial_date, current_final_date):
                 dat_date_change(Path(block_dict['CONFIG_FILEPATH']), logger, current_initial_date, current_final_date)
             if 'FLAGS' in block_keys:
                 flags_array = block_dict['FLAGS'].split(" ")
-                print(block_dict['FLAGS'])
                 run_array = [block_dict['EXE_PATH']] + flags_array
                 if 'OUTPUT_TO_FILE' in block_keys and block_dict['OUTPUT_TO_FILE']:
                     with open(block_dict['OUTPUT_FILEPATH'], 'w') as log:

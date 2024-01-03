@@ -54,9 +54,10 @@ class MohidWater:
                     self.process_models(days_run)
                 if 'POST_PROCESSING' in artconfig_keys and self.yaml['ART']['POST_PROCESSING']:
                     self.logger.info("Executing Post Processing")
+                    post_processing.execute(self.yaml, self.logger, self.current_initial_date, self.current_final_date)
                     # thread = threading.Thread(target=post_processing.execute, args=(self,))
-                    thread = threading.Thread(target=post_processing.execute, args=(self.yaml, self.logger, self.current_initial_date, self.current_final_date))
-                    thread.start()
+                    # thread = threading.Thread(target=post_processing.execute, args=(self.yaml, self.logger, self.current_initial_date, self.current_final_date))
+                    # thread.start()
         else:
             if 'MONTH_MODE' in simulation_keys and self.yaml['SIMULATION']['MONTH_MODE']:
                 self.logger.info("Month mode activated. Time skips will be of 1 month each.")
@@ -165,7 +166,7 @@ class MohidWater:
             self.global_final_date = (today + datetime.timedelta(days=self.yaml['SIMULATION']['NUMBER_OF_RUNS'])
                                       + datetime.timedelta(days=self.yaml['SIMULATION']['DAYS_PER_RUN'] - 1))
             self.number_of_runs = self.yaml['SIMULATION']['NUMBER_OF_RUNS']
-            initial_date = self.global_initial_date
+            initial_date = self.global_initial_date.replace(minute=00, hour=00, second=00)
             final_date = initial_date + datetime.timedelta(days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
             self.logger.info("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
             self.logger.info("Final Date: " + final_date.strftime(static.DATE_FORMAT))
