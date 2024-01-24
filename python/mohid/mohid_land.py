@@ -160,6 +160,7 @@ class MohidLand:
         if 'OPERATIONAL_MODE' in simulation_keys and self.yaml['SIMULATION']['OPERATIONAL_MODE']:
             self.logger.info("Running in Operational Mode")
             today = datetime.datetime.today()
+            today = today.replace(minute=00, hour=00, second=00)
             self.global_initial_date = today + datetime.timedelta(days=self.yaml['SIMULATION']['REF_DAYS_TO_START'])
             self.global_final_date = (today + datetime.timedelta(days=self.yaml['SIMULATION']['NUMBER_OF_RUNS'])
                                       + datetime.timedelta(days=self.yaml['SIMULATION']['DAYS_PER_RUN'] - 1))
@@ -167,7 +168,8 @@ class MohidLand:
             initial_date = self.global_initial_date
             final_date = initial_date + datetime.timedelta(days=self.yaml['SIMULATION']['DAYS_PER_RUN'])
             self.logger.info("Initial Date : " + initial_date.strftime(static.DATE_FORMAT))
-            self.logger.info("Final Date: " + final_date.strftime(static.DATE_FORMAT))
+            # self.logger.info("Final Date: " + final_date.strftime(static.DATE_FORMAT))
+            self.logger.info("Final Date: " + self.global_final_date.strftime(static.DATE_FORMAT))
             self.logger.info("Number of runs : " + str(self.number_of_runs))
         elif 'OPERATIONAL_MODE' in simulation_keys:
             try:
