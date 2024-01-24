@@ -757,7 +757,7 @@ class MohidLand:
                             continue
                         file_name = os.path.split(file)[1]
                         name_array = file_name.split("_1_")
-                        if len(name_array) > 2:
+                        if len(name_array) > 1:
                             # Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
                             file_name_copy = name_array[0] + "_" + name_array[1]
                         else:
@@ -779,7 +779,7 @@ class MohidLand:
 
                         file_name = os.path.split(file)
                         name_array = file_name.split("_1_")
-                        if name_array > 2:
+                        if name_array > 1:
                             # Hydrodynamic_1_Surface becomes Hydrodynamic_Surface
                             file_name = name_array[0] + "_" + name_array[1]
                         else:
